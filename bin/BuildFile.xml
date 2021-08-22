@@ -1,0 +1,17 @@
+<flags CPPFLAGS="-Wall -Wextra -Wpedantic -I$(CMSSW_BASE)/src/IvyFramework/IvyDataTools/interface/ -I$(CMSSW_BASE)/src/JHUGenMELA/MELA/interface/" />
+
+<use name="root"/>
+<use name="JHUGenMELA/MELA"/>
+<use name="IvyFramework/IvyDataTools"/>
+
+<bin file="MergeLHEFiles.cc" name="MergeLHEFiles">
+</bin>
+
+<bin file="CheckFileIntegrity.cc" name="CheckFileIntegrity">
+</bin>
+
+<bin file="SplitROOTFiles.cc" name="SplitROOTFiles">
+</bin>
+
+<bin file="ExecuteCompiledCommand.cc" name="ExecuteCompiledCommand">
+</bin>
