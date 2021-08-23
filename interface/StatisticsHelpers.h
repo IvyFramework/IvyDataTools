@@ -11,7 +11,8 @@ namespace StatisticsHelpers{
   constexpr double VAL_CL_95PERCENT = 0.95;
 
   // CL = 0.68, 0.95 etc. for ndof=1
-  double getConfidenceLevelValue(double stddev, double ndof);
+  // Notice that the first argument is chi, not chi^2.
+  double getConfidenceLevelValue(double chi, double ndof);
 
   // chisq = 1, 3.84, 4 etc. for ndof=1
   double chisq_quantile(double CL, double ndof);

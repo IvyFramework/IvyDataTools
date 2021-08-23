@@ -13,7 +13,7 @@ namespace StatisticsHelpers{
   const double VAL_CL_4SIGMA = ROOT::Math::chisquared_cdf(16., 1., 0.);
   const double VAL_CL_5SIGMA = ROOT::Math::chisquared_cdf(25., 1., 0.);
 
-  double getConfidenceLevelValue(double stddev, double ndof){ return ROOT::Math::chisquared_cdf(std::pow(stddev, 2), ndof, 0.); }
+  double getConfidenceLevelValue(double chi, double ndof){ return ROOT::Math::chisquared_cdf(std::pow(chi, 2), ndof, 0.); }
   double chisq_quantile(double CL, double ndof){
     //bool const useMathMore = (ndof<1.);
     constexpr bool useMathMore = false;
