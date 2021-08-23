@@ -4,11 +4,11 @@
 #include "BaseTree.h"
 #include "BaseTree.hpp"
 #include "HelperFunctionsCore.h"
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 
 
 using namespace std;
-using namespace MELAStreamHelpers;
+using namespace IvyStreamHelpers;
 using namespace HelperFunctions;
 
 
@@ -66,7 +66,7 @@ BaseTree::BaseTree(const TString cinput, const TString treename, const TString f
       }
     }
     if (countersname!=""){
-      MELAerr << "BaseTree::BaseTree: Cannot add histograms in chain mode." << endl;
+      IVYerr << "BaseTree::BaseTree: Cannot add histograms in chain mode." << endl;
       assert(0);
     }
   }
@@ -149,7 +149,7 @@ BaseTree::BaseTree(const TString cinput, std::vector<TString> const& treenames, 
       treelist.clear();
     }
     if (countersname!=""){
-      MELAerr << "BaseTree::BaseTree: Cannot add histograms in chain mode." << endl;
+      IVYerr << "BaseTree::BaseTree: Cannot add histograms in chain mode." << endl;
       assert(0);
     }
   }
@@ -375,7 +375,7 @@ bool BaseTree::getEvent(int ev){
 }
 bool BaseTree::updateBranch(int ev, TString const& bname, bool check_linked){
   if (check_linked){
-    if (searchBranchType(bname)==BranchType_unknown_t) MELAerr << "BaseTree::updateBranch: Branch " << bname << " is not linked." << endl;
+    if (searchBranchType(bname)==BranchType_unknown_t) IVYerr << "BaseTree::updateBranch: Branch " << bname << " is not linked." << endl;
     return false;
   }
   int n_acc=0;
@@ -397,7 +397,7 @@ bool BaseTree::updateBranch(int ev, TString const& bname, bool check_linked){
       }
       else tbr = tt->GetBranch(bname);
       if (tbr && tbr->GetEntries()!=nEntries){
-        MELAerr << "BaseTree::updateBranch: Branch " << bname << " has " << tbr->GetEntries() << " entries != " << nEntries << "." << endl;
+        IVYerr << "BaseTree::updateBranch: Branch " << bname << " has " << tbr->GetEntries() << " entries != " << nEntries << "." << endl;
         assert(0);
       }
       return (tbr && tbr->GetEntries()==nEntries && ev_tree>=0 && tbr->GetEntry(ev_tree)>0);
@@ -447,9 +447,9 @@ bool BaseTree::branchExists(TString branchname, BranchType* type){
 }
 
 void BaseTree::print() const{
-#define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) for (auto const& it:val##name##s){ if (it.second){ MELAout << "\t- " << it.first << " value: " << it.second->first << " (address: " << &(it.second->first) << ")" << endl; } }
-#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:valV##name##s){ MELAout << "\t- " << it.first << " value: "; if (it.second) MELAout << *(it.second); else MELAout << "null"; MELAout << " (address: " << it.second << ")" << endl; }
-#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:valVV##name##s){ MELAout << "\t- " << it.first << " value: "; if (it.second){ for (auto const& v:*(it.second)){ MELAout << "{ " << v << " }"; } } else MELAout << "null"; MELAout << " (address: " << it.second << ")" << endl; }
+#define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) for (auto const& it:val##name##s){ if (it.second){ IVYout << "\t- " << it.first << " value: " << it.second->first << " (address: " << &(it.second->first) << ")" << endl; } }
+#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:valV##name##s){ IVYout << "\t- " << it.first << " value: "; if (it.second) IVYout << *(it.second); else IVYout << "null"; IVYout << " (address: " << it.second << ")" << endl; }
+#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:valVV##name##s){ IVYout << "\t- " << it.first << " value: "; if (it.second){ for (auto const& v:*(it.second)){ IVYout << "{ " << v << " }"; } } else IVYout << "null"; IVYout << " (address: " << it.second << ")" << endl; }
   SIMPLE_DATA_INPUT_DIRECTIVES
   VECTOR_DATA_INPUT_DIRECTIVES
   DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
@@ -602,7 +602,7 @@ void BaseTree::muteAllBranchesExcept(std::vector<TString> const& bnames_excepted
 
     for (TString const& bname:bnames_excepted){
       if (HelperFunctions::checkListVariable(currentBranchList, bname)) tt->SetBranchStatus(bname, 1);
-      else MELAerr << "BaseTree::muteAllBranchesExcept: Branch " << bname << " was not booked. Please book this branch and re-run this function." << endl;
+      else IVYerr << "BaseTree::muteAllBranchesExcept: Branch " << bname << " was not booked. Please book this branch and re-run this function." << endl;
     }
   }
 }
@@ -657,7 +657,7 @@ bool BaseTree::getValidFilesForTreeList(TString cinput, std::vector<TString> con
       fpattern = cinput(ipos+1, cinput.Length());
     }
     else if (ipos==0){
-      MELAerr << "BaseTree::getValidFilesForTreeList: Invalid pattern " << cinput << endl;
+      IVYerr << "BaseTree::getValidFilesForTreeList: Invalid pattern " << cinput << endl;
       return false;
     }
     else{
@@ -686,14 +686,14 @@ bool BaseTree::getValidFilesForTreeList(TString cinput, std::vector<TString> con
           if (treename!=""){
             TTree* tt = (TTree*) ftmp->Get(treename);
             if (!tt){
-              MELAerr << "BaseTree::getValidFilesForTreeList: " << fname << " does not contain " << treename << endl;
+              IVYerr << "BaseTree::getValidFilesForTreeList: " << fname << " does not contain " << treename << endl;
               continue;
             }
             else if (tt->GetEntries()==0){
               std::vector<TString> bnames;
               BaseTree::getValidBranchNamesWithoutAlias(tt, bnames, false);
               if (bnames.empty()){
-                MELAerr << "BaseTree::getValidFilesForTreeList: " << fname << " contains " << treename << ", but the tree has no branches." << endl;
+                IVYerr << "BaseTree::getValidFilesForTreeList: " << fname << " contains " << treename << ", but the tree has no branches." << endl;
                 continue;
               }
             }
@@ -707,13 +707,13 @@ bool BaseTree::getValidFilesForTreeList(TString cinput, std::vector<TString> con
         if (ftmp->IsOpen()) ftmp->Close();
         else delete ftmp;
 
-        MELAerr << "BaseTree::getValidFilesForTreeList: File " << fname << " is not readable and was set to a zombie state! Aborting operation..." << endl;
+        IVYerr << "BaseTree::getValidFilesForTreeList: File " << fname << " is not readable and was set to a zombie state! Aborting operation..." << endl;
         curdir->cd();
         return false;
       }
     }
     else{
-      MELAerr << "BaseTree::getValidFilesForTreeList: File " << fname << " is not readable and could not be opened! Aborting operation..." << endl;
+      IVYerr << "BaseTree::getValidFilesForTreeList: File " << fname << " is not readable and could not be opened! Aborting operation..." << endl;
       curdir->cd();
       return false;
     }

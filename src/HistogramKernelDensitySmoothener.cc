@@ -7,7 +7,7 @@
 #include "FunctionHelpers.h"
 #include "StatisticsHelpers.h"
 #include "HistogramKernelDensitySmoothener.h"
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 
 
 #ifndef GAUSSIANWIDTHPRECISION
@@ -16,7 +16,7 @@
 
 
 using namespace std;
-using namespace MELAStreamHelpers;
+using namespace IvyStreamHelpers;
 using namespace FunctionHelpers;
 using namespace StatisticsHelpers;
 
@@ -60,7 +60,7 @@ ExtendedBinning HistogramKernelDensitySmoothener::getIntermediateBinning(Extende
   if (!hasAbsLowerBound) res.addBinBoundary(binning.getBinLowEdge(0)-binning.getBinWidth(0));
   if (!hasAbsUpperBound) res.addBinBoundary(binning.getBinHighEdge(binning.getNbins()-1)+binning.getBinWidth(binning.getNbins()-1));
 
-  MELAout
+  IVYout
     << "getIntermediateBinning: Extended binning " << res.getLabel()
     << " [ " << res.getMin() << ", " << res.getMax() << " ]"
     << " (nbins = " << res.getNbins() << ")"
@@ -74,7 +74,7 @@ void HistogramKernelDensitySmoothener::getPreSmoothingReference(
   TTree*& tree, float& xvar, float& weight, bool& selflag,
   ExtendedProfileHistogram& reference
 ){
-  MELAout << "HistogramKernelDensitySmoothener::getPreSmoothingReference: Filling the 1D reference ExtendedProfileHistogram" << endl;
+  IVYout << "HistogramKernelDensitySmoothener::getPreSmoothingReference: Filling the 1D reference ExtendedProfileHistogram" << endl;
   selflag=true;
   for (int ev=0; ev<tree->GetEntries(); ev++){
     tree->GetEntry(ev);
@@ -89,7 +89,7 @@ void HistogramKernelDensitySmoothener::getPreSmoothingReference(
   TTree*& tree, float& xvar, float& yvar, float& weight, bool& selflag,
   ExtendedProfileHistogram& reference
 ){
-  MELAout << "HistogramKernelDensitySmoothener::getPreSmoothingReference: Filling the 2D reference ExtendedProfileHistogram" << endl;
+  IVYout << "HistogramKernelDensitySmoothener::getPreSmoothingReference: Filling the 2D reference ExtendedProfileHistogram" << endl;
   selflag=true;
   for (int ev=0; ev<tree->GetEntries(); ev++){
     tree->GetEntry(ev);
@@ -104,7 +104,7 @@ void HistogramKernelDensitySmoothener::getPreSmoothingReference(
   TTree*& tree, float& xvar, float& yvar, float& zvar, float& weight, bool& selflag,
   ExtendedProfileHistogram& reference
 ){
-  MELAout << "HistogramKernelDensitySmoothener::getPreSmoothingReference: Filling the 3D reference ExtendedProfileHistogram" << endl;
+  IVYout << "HistogramKernelDensitySmoothener::getPreSmoothingReference: Filling the 3D reference ExtendedProfileHistogram" << endl;
   selflag=true;
   for (int ev=0; ev<tree->GetEntries(); ev++){
     tree->GetEntry(ev);
@@ -118,7 +118,7 @@ void HistogramKernelDensitySmoothener::getPreSmoothingReference(
 
 
 void HistogramKernelDensitySmoothener::getMinimumNeffReference(std::vector<ExtendedProfileHistogram>& referenceList, ExtendedProfileHistogram& reference){
-  MELAout << "HistogramKernelDensitySmoothener::getMinimumNeffReference: Finding the common reference histogram from " << referenceList.size() << " reference samples" << endl;
+  IVYout << "HistogramKernelDensitySmoothener::getMinimumNeffReference: Finding the common reference histogram from " << referenceList.size() << " reference samples" << endl;
   std::vector<std::vector<std::vector<double>>>& sumW=reference.getSumWContainer();
   std::vector<std::vector<std::vector<double>>>& sumWsq=reference.getSumWsqContainer();
   for (unsigned int ix=0; ix<sumW.size(); ix++){
@@ -194,7 +194,7 @@ void HistogramKernelDensitySmoothener::getSmoothHistogram(
       while (i<iend){
         double fX = gausX.integralNorm(bX.getBinLowEdge(i), bX.getBinHighEdge(i));
         bool doProceedX=true;
-        if (fX>1. || fX<0.){ MELAerr << "fX=" << fX << endl; doProceedX=false; }
+        if (fX>1. || fX<0.){ IVYerr << "fX=" << fX << endl; doProceedX=false; }
         doProceedX &= (fX!=0.);
 
         if (doProceedX){
@@ -289,7 +289,7 @@ void HistogramKernelDensitySmoothener::getSmoothHistogram(
         while (i<iend){
           double fX = gausX.integralNorm(bX.getBinLowEdge(i), bX.getBinHighEdge(i));
           bool doProceedX=true;
-          if (fX>1. || fX<0.){ MELAerr << "fX=" << fX << endl; doProceedX=false; }
+          if (fX>1. || fX<0.){ IVYerr << "fX=" << fX << endl; doProceedX=false; }
           doProceedX &= (fX!=0.);
 
           if (doProceedX){
@@ -299,7 +299,7 @@ void HistogramKernelDensitySmoothener::getSmoothHistogram(
             while (j<jend){
               double fY = gausY.integralNorm(bY.getBinLowEdge(j), bY.getBinHighEdge(j));
               bool doProceedY=true;
-              if (fY>1. || fY<0.){ MELAerr << "fY=" << fY << endl; doProceedY=false; }
+              if (fY>1. || fY<0.){ IVYerr << "fY=" << fY << endl; doProceedY=false; }
               doProceedY &= (fY!=0.);
 
               if (doProceedY){
@@ -420,7 +420,7 @@ void HistogramKernelDensitySmoothener::getSmoothHistogram(
           while (i<iend){
             double fX = gausX.integralNorm(bX.getBinLowEdge(i), bX.getBinHighEdge(i));
             bool doProceedX=true;
-            if (fX>1. || fX<0.){ MELAerr << "fX=" << fX << endl; doProceedX=false; }
+            if (fX>1. || fX<0.){ IVYerr << "fX=" << fX << endl; doProceedX=false; }
             doProceedX &= (fX!=0.);
 
             if (doProceedX){
@@ -430,7 +430,7 @@ void HistogramKernelDensitySmoothener::getSmoothHistogram(
               while (j<jend){
                 double fY = gausY.integralNorm(bY.getBinLowEdge(j), bY.getBinHighEdge(j));
                 bool doProceedY=true;
-                if (fY>1. || fY<0.){ MELAerr << "fY=" << fY << endl; doProceedY=false; }
+                if (fY>1. || fY<0.){ IVYerr << "fY=" << fY << endl; doProceedY=false; }
                 doProceedY &= (fY!=0.);
 
                 if (doProceedY){
@@ -440,7 +440,7 @@ void HistogramKernelDensitySmoothener::getSmoothHistogram(
                   while (k<kend){
                     double fZ = gausZ.integralNorm(bZ.getBinLowEdge(k), bZ.getBinHighEdge(k));
                     bool doProceedZ=true;
-                    if (fZ>1. || fZ<0.){ MELAerr << "fZ=" << fZ << endl; doProceedZ=false; }
+                    if (fZ>1. || fZ<0.){ IVYerr << "fZ=" << fZ << endl; doProceedZ=false; }
                     doProceedZ &= (fZ!=0.);
 
                     if (doProceedZ){
@@ -499,10 +499,10 @@ TH1F* HistogramKernelDensitySmoothener::getSmoothHistogram(
   double val_cl_sigma=-1, factor_cl_mult=-1;
   getCLParameters(stddev_stat, val_cl_sigma, factor_cl_mult);
 
-  MELAout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Initializing:" << endl;
-  MELAout << "\t- Statistics parameters (std. dev., CL, variation scale): " << stddev_stat << ", " << val_cl_sigma << ", " << factor_cl_mult << endl;
-  MELAout << "\t- x: [" << xmin << ", " << xmax << "]" << endl;
-  MELAout << "\t- sameXlow ? " << sameXlow << endl;
+  IVYout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Initializing:" << endl;
+  IVYout << "\t- Statistics parameters (std. dev., CL, variation scale): " << stddev_stat << ", " << val_cl_sigma << ", " << factor_cl_mult << endl;
+  IVYout << "\t- x: [" << xmin << ", " << xmax << "]" << endl;
+  IVYout << "\t- sameXlow ? " << sameXlow << endl;
 
   // Construct fine histogram to determine intermediate binning
   ExtendedProfileHistogram reference(bX, false);
@@ -544,7 +544,7 @@ TH1F* HistogramKernelDensitySmoothener::getSmoothHistogram(
 
   SimpleGaussian gausX(0, 1, SimpleGaussian::kHasLowHighRange, xmin, xmax);
 
-  MELAout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Filling the actual histogram with the help of reference" << endl;
+  IVYout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Filling the actual histogram with the help of reference" << endl;
   selflag=true;
   for (int ev=0; ev<tree->GetEntries(); ev++){
     tree->GetEntry(ev);
@@ -582,7 +582,7 @@ TH1F* HistogramKernelDensitySmoothener::getSmoothHistogram(
 
       for (unsigned int i=ibegin; i<iend; i++){
         double fX = gausX.integralNorm(bX.getBinLowEdge(i), bX.getBinHighEdge(i));
-        if (fX>1. || fX<0.){ MELAerr << "fX=" << fX << endl; continue; }
+        if (fX>1. || fX<0.){ IVYerr << "fX=" << fX << endl; continue; }
         if (fX==0.) continue;
 
         double w=fX*weight;
@@ -661,12 +661,12 @@ TH2F* HistogramKernelDensitySmoothener::getSmoothHistogram(
   double val_cl_sigma=-1, factor_cl_mult=-1;
   getCLParameters(stddev_stat, val_cl_sigma, factor_cl_mult);
 
-  MELAout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Initializing:" << endl;
-  MELAout << "\t- Statistics parameters (std. dev., CL, variation scale): " << stddev_stat << ", " << val_cl_sigma << ", " << factor_cl_mult << endl;
-  MELAout << "\t- x: [" << xmin << ", " << xmax << "]" << endl;
-  MELAout << "\t- sameXlow ? " << sameXlow << endl;
-  MELAout << "\t- y: [" << ymin << ", " << ymax << "]" << endl;
-  MELAout << "\t- sameYlow ? " << sameYlow << endl;
+  IVYout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Initializing:" << endl;
+  IVYout << "\t- Statistics parameters (std. dev., CL, variation scale): " << stddev_stat << ", " << val_cl_sigma << ", " << factor_cl_mult << endl;
+  IVYout << "\t- x: [" << xmin << ", " << xmax << "]" << endl;
+  IVYout << "\t- sameXlow ? " << sameXlow << endl;
+  IVYout << "\t- y: [" << ymin << ", " << ymax << "]" << endl;
+  IVYout << "\t- sameYlow ? " << sameYlow << endl;
 
   // Construct fine histogram to determine intermediate binning
   ExtendedProfileHistogram reference(bX, bY, false);
@@ -717,7 +717,7 @@ TH2F* HistogramKernelDensitySmoothener::getSmoothHistogram(
   SimpleGaussian gausX(0, 1, SimpleGaussian::kHasLowHighRange, xmin, xmax);
   SimpleGaussian gausY(0, 1, SimpleGaussian::kHasLowHighRange, ymin, ymax);
 
-  MELAout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Filling the actual histogram with the help of reference" << endl;
+  IVYout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Filling the actual histogram with the help of reference" << endl;
   selflag=true;
   for (int ev=0; ev<tree->GetEntries(); ev++){
     tree->GetEntry(ev);
@@ -764,7 +764,7 @@ TH2F* HistogramKernelDensitySmoothener::getSmoothHistogram(
 
       for (unsigned int i=ibegin; i<iend; i++){
         double fX = gausX.integralNorm(bX.getBinLowEdge(i), bX.getBinHighEdge(i));
-        if (fX>1. || fX<0.){ MELAerr << "fX=" << fX << endl; continue; }
+        if (fX>1. || fX<0.){ IVYerr << "fX=" << fX << endl; continue; }
         if (fX==0.) continue;
 
         int ii=i;
@@ -772,7 +772,7 @@ TH2F* HistogramKernelDensitySmoothener::getSmoothHistogram(
 
         for (unsigned int j=jbegin; j<jend; j++){
           double fY = gausY.integralNorm(bY.getBinLowEdge(j), bY.getBinHighEdge(j));
-          if (fY>1. || fY<0.){ MELAerr << "fY=" << fY << endl; continue; }
+          if (fY>1. || fY<0.){ IVYerr << "fY=" << fY << endl; continue; }
           if (fY==0.) continue;
 
           int jj=j;
@@ -862,14 +862,14 @@ TH3F* HistogramKernelDensitySmoothener::getSmoothHistogram(
   double val_cl_sigma=-1, factor_cl_mult=-1;
   getCLParameters(stddev_stat, val_cl_sigma, factor_cl_mult);
 
-  MELAout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Initializing:" << endl;
-  MELAout << "\t- Statistics parameters (std. dev., CL, variation scale): " << stddev_stat << ", " << val_cl_sigma << ", " << factor_cl_mult << endl;
-  MELAout << "\t- x: [" << xmin << ", " << xmax << "]" << endl;
-  MELAout << "\t- sameXlow ? " << sameXlow << endl;
-  MELAout << "\t- y: [" << ymin << ", " << ymax << "]" << endl;
-  MELAout << "\t- sameYlow ? " << sameYlow << endl;
-  MELAout << "\t- z: [" << zmin << ", " << zmax << "]" << endl;
-  MELAout << "\t- sameZlow ? " << sameZlow << endl;
+  IVYout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Initializing:" << endl;
+  IVYout << "\t- Statistics parameters (std. dev., CL, variation scale): " << stddev_stat << ", " << val_cl_sigma << ", " << factor_cl_mult << endl;
+  IVYout << "\t- x: [" << xmin << ", " << xmax << "]" << endl;
+  IVYout << "\t- sameXlow ? " << sameXlow << endl;
+  IVYout << "\t- y: [" << ymin << ", " << ymax << "]" << endl;
+  IVYout << "\t- sameYlow ? " << sameYlow << endl;
+  IVYout << "\t- z: [" << zmin << ", " << zmax << "]" << endl;
+  IVYout << "\t- sameZlow ? " << sameZlow << endl;
 
   // Construct fine histogram to determine intermediate binning
   ExtendedProfileHistogram reference(bX, bY, bZ, false);
@@ -895,7 +895,7 @@ TH3F* HistogramKernelDensitySmoothener::getSmoothHistogram(
   SimpleGaussian gausY(0, 1, SimpleGaussian::kHasLowHighRange, ymin, ymax);
   SimpleGaussian gausZ(0, 1, SimpleGaussian::kHasLowHighRange, zmin, zmax);
 
-  MELAout << "getSmoothHistogram: Filling the actual histogram with the help of reference" << endl;
+  IVYout << "getSmoothHistogram: Filling the actual histogram with the help of reference" << endl;
   //float sumHistWeights = 0;
   selflag=true;
   for (int ev=0; ev<tree->GetEntries(); ev++){
@@ -958,7 +958,7 @@ TH3F* HistogramKernelDensitySmoothener::getSmoothHistogram(
         while (i<iend){
           double fX = gausX.integralNorm(bX.getBinLowEdge(i), bX.getBinHighEdge(i));
           bool doProceedX=true;
-          if (fX>1. || fX<0.){ MELAerr << "fX=" << fX << endl; doProceedX=false; }
+          if (fX>1. || fX<0.){ IVYerr << "fX=" << fX << endl; doProceedX=false; }
           doProceedX &= (fX!=0.);
 
           if (doProceedX){
@@ -968,7 +968,7 @@ TH3F* HistogramKernelDensitySmoothener::getSmoothHistogram(
             while (j<jend){
               double fY = gausY.integralNorm(bY.getBinLowEdge(j), bY.getBinHighEdge(j));
               bool doProceedY=true;
-              if (fY>1. || fY<0.){ MELAerr << "fY=" << fY << endl; doProceedY=false; }
+              if (fY>1. || fY<0.){ IVYerr << "fY=" << fY << endl; doProceedY=false; }
               doProceedY &= (fY!=0.);
 
               if (doProceedY){
@@ -978,7 +978,7 @@ TH3F* HistogramKernelDensitySmoothener::getSmoothHistogram(
                 while (k<kend){
                   double fZ = gausZ.integralNorm(bZ.getBinLowEdge(k), bZ.getBinHighEdge(k));
                   bool doProceedZ=true;
-                  if (fZ>1. || fZ<0.){ MELAerr << "fZ=" << fZ << endl; doProceedZ=false; }
+                  if (fZ>1. || fZ<0.){ IVYerr << "fZ=" << fZ << endl; doProceedZ=false; }
                   doProceedZ &= (fZ!=0.);
 
                   if (doProceedZ){
@@ -1119,10 +1119,10 @@ std::vector<TH1F*> HistogramKernelDensitySmoothener::getSimultaneousSmoothHistog
   double val_cl_sigma=-1, factor_cl_mult=-1;
   getCLParameters(stddev_stat, val_cl_sigma, factor_cl_mult);
 
-  MELAout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Initializing:" << endl;
-  MELAout << "\t- Statistics parameters (std. dev., CL, variation scale): " << stddev_stat << ", " << val_cl_sigma << ", " << factor_cl_mult << endl;
-  MELAout << "\t- x: [" << xmin << ", " << xmax << "]" << endl;
-  MELAout << "\t- sameXlow ? " << sameXlow << endl;
+  IVYout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Initializing:" << endl;
+  IVYout << "\t- Statistics parameters (std. dev., CL, variation scale): " << stddev_stat << ", " << val_cl_sigma << ", " << factor_cl_mult << endl;
+  IVYout << "\t- x: [" << xmin << ", " << xmax << "]" << endl;
+  IVYout << "\t- sameXlow ? " << sameXlow << endl;
 
   // Construct fine histogram to determine intermediate binning
   ExtendedProfileHistogram reference(bX, false);
@@ -1141,7 +1141,7 @@ std::vector<TH1F*> HistogramKernelDensitySmoothener::getSimultaneousSmoothHistog
 
   SimpleGaussian gausX(0, 1, SimpleGaussian::kHasLowHighRange, xmin, xmax);
 
-  MELAout << "HistogramKernelDensitySmoothener::getSimultaneousSmoothHistogram: Filling the actual histograms with the help of common reference" << endl;
+  IVYout << "HistogramKernelDensitySmoothener::getSimultaneousSmoothHistogram: Filling the actual histograms with the help of common reference" << endl;
 
   std::vector<TH1F*> resList;
   for (auto& treeHandle:treeList){
@@ -1211,7 +1211,7 @@ std::vector<TH1F*> HistogramKernelDensitySmoothener::getSimultaneousSmoothHistog
           while (i<iend){
             double fX = gausX.integralNorm(bX.getBinLowEdge(i), bX.getBinHighEdge(i));
             bool doProceedX=true;
-            if (fX>1. || fX<0.){ MELAerr << "fX=" << fX << endl; doProceedX=false; }
+            if (fX>1. || fX<0.){ IVYerr << "fX=" << fX << endl; doProceedX=false; }
             doProceedX &= (fX!=0.);
 
             if (doProceedX){
@@ -1347,12 +1347,12 @@ std::vector<TH2F*> HistogramKernelDensitySmoothener::getSimultaneousSmoothHistog
   double val_cl_sigma=-1, factor_cl_mult=-1;
   getCLParameters(stddev_stat, val_cl_sigma, factor_cl_mult);
 
-  MELAout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Initializing:" << endl;
-  MELAout << "\t- Statistics parameters (std. dev., CL, variation scale): " << stddev_stat << ", " << val_cl_sigma << ", " << factor_cl_mult << endl;
-  MELAout << "\t- x: [" << xmin << ", " << xmax << "]" << endl;
-  MELAout << "\t- sameXlow ? " << sameXlow << endl;
-  MELAout << "\t- y: [" << ymin << ", " << ymax << "]" << endl;
-  MELAout << "\t- sameYlow ? " << sameYlow << endl;
+  IVYout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Initializing:" << endl;
+  IVYout << "\t- Statistics parameters (std. dev., CL, variation scale): " << stddev_stat << ", " << val_cl_sigma << ", " << factor_cl_mult << endl;
+  IVYout << "\t- x: [" << xmin << ", " << xmax << "]" << endl;
+  IVYout << "\t- sameXlow ? " << sameXlow << endl;
+  IVYout << "\t- y: [" << ymin << ", " << ymax << "]" << endl;
+  IVYout << "\t- sameYlow ? " << sameYlow << endl;
 
   // Construct fine histogram to determine intermediate binning
   ExtendedProfileHistogram reference(bX, bY, false);
@@ -1372,7 +1372,7 @@ std::vector<TH2F*> HistogramKernelDensitySmoothener::getSimultaneousSmoothHistog
   SimpleGaussian gausX(0, 1, SimpleGaussian::kHasLowHighRange, xmin, xmax);
   SimpleGaussian gausY(0, 1, SimpleGaussian::kHasLowHighRange, ymin, ymax);
 
-  MELAout << "HistogramKernelDensitySmoothener::getSimultaneousSmoothHistogram: Filling the actual histograms with the help of common reference" << endl;
+  IVYout << "HistogramKernelDensitySmoothener::getSimultaneousSmoothHistogram: Filling the actual histograms with the help of common reference" << endl;
 
   std::vector<TH2F*> resList;
   for (auto& treeHandle:treeList){
@@ -1451,7 +1451,7 @@ std::vector<TH2F*> HistogramKernelDensitySmoothener::getSimultaneousSmoothHistog
           while (i<iend){
             double fX = gausX.integralNorm(bX.getBinLowEdge(i), bX.getBinHighEdge(i));
             bool doProceedX=true;
-            if (fX>1. || fX<0.){ MELAerr << "fX=" << fX << endl; doProceedX=false; }
+            if (fX>1. || fX<0.){ IVYerr << "fX=" << fX << endl; doProceedX=false; }
             doProceedX &= (fX!=0.);
 
             if (doProceedX){
@@ -1461,7 +1461,7 @@ std::vector<TH2F*> HistogramKernelDensitySmoothener::getSimultaneousSmoothHistog
               while (j<jend){
                 double fY = gausY.integralNorm(bY.getBinLowEdge(j), bY.getBinHighEdge(j));
                 bool doProceedY=true;
-                if (fY>1. || fY<0.){ MELAerr << "fY=" << fY << endl; doProceedY=false; }
+                if (fY>1. || fY<0.){ IVYerr << "fY=" << fY << endl; doProceedY=false; }
                 doProceedY &= (fY!=0.);
 
                 if (doProceedY){
@@ -1607,14 +1607,14 @@ std::vector<TH3F*> HistogramKernelDensitySmoothener::getSimultaneousSmoothHistog
   double val_cl_sigma=-1, factor_cl_mult=-1;
   getCLParameters(stddev_stat, val_cl_sigma, factor_cl_mult);
 
-  MELAout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Initializing:" << endl;
-  MELAout << "\t- Statistics parameters (std. dev., CL, variation scale): " << stddev_stat << ", " << val_cl_sigma << ", " << factor_cl_mult << endl;
-  MELAout << "\t- x: [" << xmin << ", " << xmax << "]" << endl;
-  MELAout << "\t- sameXlow ? " << sameXlow << endl;
-  MELAout << "\t- y: [" << ymin << ", " << ymax << "]" << endl;
-  MELAout << "\t- sameYlow ? " << sameYlow << endl;
-  MELAout << "\t- z: [" << zmin << ", " << zmax << "]" << endl;
-  MELAout << "\t- sameZlow ? " << sameZlow << endl;
+  IVYout << "HistogramKernelDensitySmoothener::getSmoothHistogram: Initializing:" << endl;
+  IVYout << "\t- Statistics parameters (std. dev., CL, variation scale): " << stddev_stat << ", " << val_cl_sigma << ", " << factor_cl_mult << endl;
+  IVYout << "\t- x: [" << xmin << ", " << xmax << "]" << endl;
+  IVYout << "\t- sameXlow ? " << sameXlow << endl;
+  IVYout << "\t- y: [" << ymin << ", " << ymax << "]" << endl;
+  IVYout << "\t- sameYlow ? " << sameYlow << endl;
+  IVYout << "\t- z: [" << zmin << ", " << zmax << "]" << endl;
+  IVYout << "\t- sameZlow ? " << sameZlow << endl;
 
   // Construct fine histogram to determine intermediate binning
   ExtendedProfileHistogram reference(bX, bY, bZ, false);
@@ -1635,7 +1635,7 @@ std::vector<TH3F*> HistogramKernelDensitySmoothener::getSimultaneousSmoothHistog
   SimpleGaussian gausY(0, 1, SimpleGaussian::kHasLowHighRange, ymin, ymax);
   SimpleGaussian gausZ(0, 1, SimpleGaussian::kHasLowHighRange, zmin, zmax);
 
-  MELAout << "HistogramKernelDensitySmoothener::getSimultaneousSmoothHistogram: Filling the actual histograms with the help of common reference" << endl;
+  IVYout << "HistogramKernelDensitySmoothener::getSimultaneousSmoothHistogram: Filling the actual histograms with the help of common reference" << endl;
 
   std::vector<TH3F*> resList;
   for (auto& treeHandle:treeList){
@@ -1722,7 +1722,7 @@ std::vector<TH3F*> HistogramKernelDensitySmoothener::getSimultaneousSmoothHistog
           while (i<iend){
             double fX = gausX.integralNorm(bX.getBinLowEdge(i), bX.getBinHighEdge(i));
             bool doProceedX=true;
-            if (fX>1. || fX<0.){ MELAerr << "fX=" << fX << endl; doProceedX=false; }
+            if (fX>1. || fX<0.){ IVYerr << "fX=" << fX << endl; doProceedX=false; }
             doProceedX &= (fX!=0.);
 
             if (doProceedX){
@@ -1732,7 +1732,7 @@ std::vector<TH3F*> HistogramKernelDensitySmoothener::getSimultaneousSmoothHistog
               while (j<jend){
                 double fY = gausY.integralNorm(bY.getBinLowEdge(j), bY.getBinHighEdge(j));
                 bool doProceedY=true;
-                if (fY>1. || fY<0.){ MELAerr << "fY=" << fY << endl; doProceedY=false; }
+                if (fY>1. || fY<0.){ IVYerr << "fY=" << fY << endl; doProceedY=false; }
                 doProceedY &= (fY!=0.);
 
                 if (doProceedY){
@@ -1742,7 +1742,7 @@ std::vector<TH3F*> HistogramKernelDensitySmoothener::getSimultaneousSmoothHistog
                   while (k<kend){
                     double fZ = gausZ.integralNorm(bZ.getBinLowEdge(k), bZ.getBinHighEdge(k));
                     bool doProceedZ=true;
-                    if (fZ>1. || fZ<0.){ MELAerr << "fZ=" << fZ << endl; doProceedZ=false; }
+                    if (fZ>1. || fZ<0.){ IVYerr << "fZ=" << fZ << endl; doProceedZ=false; }
                     doProceedZ &= (fZ!=0.);
 
                     if (doProceedZ){

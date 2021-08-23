@@ -3,7 +3,7 @@
 
 #include "BaseTree.h"
 #include "CMSEDMWrapper.h"
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 
 
 template<typename T, typename U=T> class CMSEDMWrapperLinker{

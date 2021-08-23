@@ -8,7 +8,7 @@
 
 
 using namespace std;
-using namespace MELAStreamHelpers;
+using namespace IvyStreamHelpers;
 
 
 template<> void HelperFunctions::castStringToValue(std::string const& name, bool& val){
@@ -110,7 +110,7 @@ void HelperFunctions::getExtendedBinning(TH1 const* histo, unsigned int iaxis, E
     theAxis = histo->GetZaxis();
     break;
   default:
-    MELAerr << "HelperFunctions::getExtendedBinning: Axis index can only be <3" << endl;
+    IVYerr << "HelperFunctions::getExtendedBinning: Axis index can only be <3" << endl;
     assert(0);
     break;
   }
@@ -196,7 +196,7 @@ TF1* HelperFunctions::getFcn_a0plusa1timesexpXovera2(TSpline3* sp, double xmin, 
     fcn->SetParameter(2, a2);
   }
   else{
-    MELAout << "HelperFunctions::getFcn_a0plusa1timesexpXovera2: Second derivative was 0! Forcing constant interpolation." << endl;
+    IVYout << "HelperFunctions::getFcn_a0plusa1timesexpXovera2: Second derivative was 0! Forcing constant interpolation." << endl;
     a0=y;
 
     TString fcnName;
@@ -232,7 +232,7 @@ TF1* HelperFunctions::getFcn_a0plusa1timesatana2timesXminusa3(TSpline3* sp, doub
     double a1a2 = (8.*pow(s, 3)/sss - 4.*pow(s*s/ss, 2))/(6.*pow(s, 2)/sss-4.*pow(s, 3)/pow(ss, 2));
     double a1sq = 4.*pow(s, 3)/pow(ss, 2)*a1a2-4.*pow(s*s/ss, 2);
     if (a1sq<0.){
-      MELAerr << "HelperFunctions::getFcn_a0plusa1timesatana2timesXminusa3: a1**2<0!" << endl;
+      IVYerr << "HelperFunctions::getFcn_a0plusa1timesatana2timesXminusa3: a1**2<0!" << endl;
       assert(0);
     }
     a1=sqrt(a1sq)*(a1a2<0. ? -1. : 1.);
@@ -250,7 +250,7 @@ TF1* HelperFunctions::getFcn_a0plusa1timesatana2timesXminusa3(TSpline3* sp, doub
     fcn->SetParameter(3, a3);
   }
   else{
-    MELAerr << "HelperFunctions::getFcn_a0plusa1timesatana2timesXminusa3: Second derivative was 0!" << endl;
+    IVYerr << "HelperFunctions::getFcn_a0plusa1timesatana2timesXminusa3: Second derivative was 0!" << endl;
     assert(0);
   }
   return fcn;
@@ -282,9 +282,9 @@ TF1* HelperFunctions::getFcn_EfficiencyAtan(TSpline3* sp, double xmin, double xm
     double kappa = ss/(two_pi*pow(s, 2));
     a1 = x + kappa;
     a0 = tan(pi*y - pi_over_two) / (-kappa);
-    //MELAout << "tan fac: " << tan(pi*y - pi_over_two) << endl;
-    //MELAout << "kappa: " << kappa << endl;
-    //MELAout << "a1, a0: " << a1 << ", " << a0 << endl;
+    //IVYout << "tan fac: " << tan(pi*y - pi_over_two) << endl;
+    //IVYout << "kappa: " << kappa << endl;
+    //IVYout << "a1, a0: " << a1 << ", " << a0 << endl;
 
     TString fcnName;
     if (useLowBound) fcnName = Form("lowFcn_%s", sp->GetName());
@@ -295,8 +295,8 @@ TF1* HelperFunctions::getFcn_EfficiencyAtan(TSpline3* sp, double xmin, double xm
     fcn->SetParameter(2, a0);
     fcn->SetParameter(3, a1);
 
-    //MELAout << "HelperFunctions::getFcn_EfficiencyAtan: Initial input (y, s, ss) = ( " << y << ", " << s << ", " << ss << " )" << endl;
-    //MELAout << "HelperFunctions::getFcn_EfficiencyAtan: Final output (y, s, ss) = ( " << fcn->Eval(x) << ", " << fcn->Derivative(x) << ", " << fcn->Derivative2(x) << " )" << endl;
+    //IVYout << "HelperFunctions::getFcn_EfficiencyAtan: Initial input (y, s, ss) = ( " << y << ", " << s << ", " << ss << " )" << endl;
+    //IVYout << "HelperFunctions::getFcn_EfficiencyAtan: Final output (y, s, ss) = ( " << fcn->Eval(x) << ", " << fcn->Derivative(x) << ", " << fcn->Derivative2(x) << " )" << endl;
   }
   else if (s!=0.){
     a0=y/pi_over_two;
@@ -304,7 +304,7 @@ TF1* HelperFunctions::getFcn_EfficiencyAtan(TSpline3* sp, double xmin, double xm
       if ((!useLowBound && s>0.) || (useLowBound && s<0.)) a0 = (1.-y)/pi_over_two;
     }
     a1=s/a0;
-    //MELAout << "a1, a0: " << a1 << ", " << a0 << endl;
+    //IVYout << "a1, a0: " << a1 << ", " << a0 << endl;
 
     TString fcnName;
     if (useLowBound) fcnName = Form("lowFcn_%s", sp->GetName());
@@ -316,7 +316,7 @@ TF1* HelperFunctions::getFcn_EfficiencyAtan(TSpline3* sp, double xmin, double xm
     fcn->SetParameter(3, x);
   }
   else{
-    MELAerr << "HelperFunctions::getFcn_EfficiencyAtan: First derivative was 0!" << endl;
+    IVYerr << "HelperFunctions::getFcn_EfficiencyAtan: First derivative was 0!" << endl;
     assert(0);
   }
   return fcn;
@@ -354,7 +354,7 @@ TSpline3* HelperFunctions::convertGraphToSpline3(TGraph const* tg, bool faithful
 
 void HelperFunctions::convertTGraphErrorsToTH1F(TGraphErrors const* tg, TH1F*& histo){
   if (tg==0){
-    MELAerr << "convertTGraphErrorsToTH1F: TGraph is 0!" << endl;
+    IVYerr << "convertTGraphErrorsToTH1F: TGraph is 0!" << endl;
     histo=0;
     return;
   }
@@ -381,7 +381,7 @@ void HelperFunctions::convertTGraphErrorsToTH1F(TGraphErrors const* tg, TH1F*& h
   gROOT->cd();
   histo = new TH1F(Form("h_%s", tg->GetName()), "", nbins, xarray);
   for (int ix=1; ix<=nbins; ix++){
-    //MELAout << "x, y = " << xarray[ix-1] << " " << yy[ix-1] << endl;
+    //IVYout << "x, y = " << xarray[ix-1] << " " << yy[ix-1] << endl;
     histo->SetBinContent(ix, yy[ix-1]);
     //histo->SetBinError(ix, sqrt((pow(ey_dn[ix-1], 2)+pow(ey_up[ix-1], 2))*0.5));
     histo->SetBinError(ix, ey[ix-1]);
@@ -389,7 +389,7 @@ void HelperFunctions::convertTGraphErrorsToTH1F(TGraphErrors const* tg, TH1F*& h
 }
 void HelperFunctions::convertTGraphAsymmErrorsToTH1F(TGraphAsymmErrors const* tg, TH1F*& histo){
   if (tg==0){
-    MELAerr << "convertTGraphAsymmErrorsToTH1F: TGraph is 0!" << endl;
+    IVYerr << "convertTGraphAsymmErrorsToTH1F: TGraph is 0!" << endl;
     histo=0;
     return;
   }
@@ -413,7 +413,7 @@ void HelperFunctions::convertTGraphAsymmErrorsToTH1F(TGraphAsymmErrors const* tg
   gROOT->cd();
   histo = new TH1F(Form("h_%s", tg->GetName()), "", nbins, xarray);
   for (int ix=1; ix<=nbins; ix++){
-    //MELAout << "x, y = " << xarray[ix-1] << " " << yy[ix-1] << endl;
+    //IVYout << "x, y = " << xarray[ix-1] << " " << yy[ix-1] << endl;
     histo->SetBinContent(ix, yy[ix-1]);
     histo->SetBinError(ix, sqrt((pow(ey_dn[ix-1], 2)+pow(ey_up[ix-1], 2))*0.5));
     //histo->SetBinError(ix, ey[ix-1]);
@@ -421,7 +421,7 @@ void HelperFunctions::convertTGraphAsymmErrorsToTH1F(TGraphAsymmErrors const* tg
 }
 void HelperFunctions::convertTH1FToTGraphAsymmErrors(TH1F const* histo, TGraphAsymmErrors*& tg, bool errorsOnZero, bool useAsymError, bool addXErrors){
   if (!histo){
-    MELAerr << "convertTH1FToTGraphAsymmErrors: Histogram is null!" << endl;
+    IVYerr << "convertTH1FToTGraphAsymmErrors: Histogram is null!" << endl;
     tg=nullptr;
     return;
   }
@@ -506,7 +506,7 @@ TGraph* HelperFunctions::createROCFromDistributions(TH1 const* hA, TH1 const* hB
 TGraphErrors* HelperFunctions::makeGraphFromTH1(TH1 const* hx, TH1 const* hy, TString name){
   if (!hy) return nullptr;
   if (hx && hx->GetNbinsX()!=hy->GetNbinsX()){
-    MELAerr << "Number of bins for x coordinate != those for y" << endl;
+    IVYerr << "Number of bins for x coordinate != those for y" << endl;
     assert(0);
   }
   unsigned int nbins = hy->GetNbinsX();
@@ -522,7 +522,7 @@ TGraphErrors* HelperFunctions::makeGraphFromTH1(TH1 const* hx, TH1 const* hy, TS
       xexyey[1][bin] = 0;
     }
 
-    //MELAout << "Bin " << bin << " x-center: " << xexyey[0][bin] << " +- " << xexyey[1][bin] << endl;
+    //IVYout << "Bin " << bin << " x-center: " << xexyey[0][bin] << " +- " << xexyey[1][bin] << endl;
     xexyey[2][bin] = hy->GetBinContent(bin+1);
     xexyey[3][bin] = hy->GetBinError(bin+1);
   }
@@ -610,9 +610,9 @@ TGraph* HelperFunctions::divideTGraphs(TGraph* tgnum, TGraph* tgdenom, double po
     if (denominator!=0.){
       double result = pow(numerator, powernum)/pow(denominator, powerdenom);
       if (std::isnan(result) || std::isinf(result)){
-        MELAerr << "Division gave NaN! ";
-        MELAerr << "Numerator = " << numerator << ", denominator = " << denominator << " at " << xval << endl;
-        MELAerr << " - TGraph numerator = " << tgnum->Eval(xval) << ", denominator = " << tgdenom->Eval(xval) << " at " << xval << endl;
+        IVYerr << "Division gave NaN! ";
+        IVYerr << "Numerator = " << numerator << ", denominator = " << denominator << " at " << xval << endl;
+        IVYerr << " - TGraph numerator = " << tgnum->Eval(xval) << ", denominator = " << tgdenom->Eval(xval) << " at " << xval << endl;
       }
       else xynew.push_back(pair<double, double>(xval, result));
     }
@@ -688,8 +688,8 @@ TGraphErrors* HelperFunctions::addPoint(TGraphErrors* tgSlice, double x){
     if (xexyey_slice[0][iy]<x) lowbin=iy;
     if (xexyey_slice[0][iy]>x){ highbin=iy; break; }
   }
-  //MELAout << "Low bin " << lowbin << " at " << xexyey_slice[0][lowbin] << endl;
-  //MELAout << "High bin " << highbin << " at " << xexyey_slice[0][highbin] << endl;
+  //IVYout << "Low bin " << lowbin << " at " << xexyey_slice[0][lowbin] << endl;
+  //IVYout << "High bin " << highbin << " at " << xexyey_slice[0][highbin] << endl;
 
   int ctr=0;
   for (unsigned int iy=0; iy<nbins_slice; iy++){
@@ -903,16 +903,16 @@ void HelperFunctions::regularizeSlice(
       int bin_to_fix=-1;
       for (unsigned int bin=0; bin<nbins_slice; bin++){ if (distance>fabs(xy_mod[0][bin]-requestedVal)){ bin_to_fix = bin; distance = fabs(xy_mod[0][bin]-requestedVal); } }
       if (bin_to_fix>=0) fixedBins.push_back(bin_to_fix);
-      //MELAout << "Requested to fix bin " << bin_to_fix << endl;
+      //IVYout << "Requested to fix bin " << bin_to_fix << endl;
     }
   }
   for (unsigned int bin=0; bin<nbins_slice; bin++){
     if (xy_mod[0][bin]<omitbelow) fixedBins.push_back(bin);
-    //MELAout << "Requested to fix bin " << bin << endl;
+    //IVYout << "Requested to fix bin " << bin << endl;
   }
   for (unsigned int bin=0; bin<nbins_slice; bin++){
     if (xy_mod[0][bin]>omitabove) fixedBins.push_back(bin);
-    //MELAout << "Requested to fix bin " << bin << endl;
+    //IVYout << "Requested to fix bin " << bin << endl;
   }
 
   double* xx_second;
@@ -924,7 +924,7 @@ void HelperFunctions::regularizeSlice(
     for (unsigned int binIt = bin_first; binIt<=bin_last; binIt++){
       bool doFix=false;
       for (unsigned int ifx=0; ifx<fixedBins.size(); ifx++){
-        if ((int) (binIt-1)==fixedBins.at(ifx)){ doFix=true; /*MELAout << "Iteration " << it << " is fixing bin " << (binIt-1) << endl; */break; }
+        if ((int) (binIt-1)==fixedBins.at(ifx)){ doFix=true; /*IVYout << "Iteration " << it << " is fixing bin " << (binIt-1) << endl; */break; }
       }
       if (doFix) continue;
 
@@ -1225,7 +1225,7 @@ template<> void HelperFunctions::addPointsBetween<TGraph>(TGraph*& tgOriginal, d
   TGraph* tgtmp = makeGraphFromPair(tmpPoints, "tgtmp");
   TSpline3* sptmp = convertGraphToSpline3(tgtmp);
 
-  MELAout << "HelperFunctions::addPointsBetween: Adding " << nadd << " points between " << xy[0][pfirst] << " and " << xy[0][plast] << endl;
+  IVYout << "HelperFunctions::addPointsBetween: Adding " << nadd << " points between " << xy[0][pfirst] << " and " << xy[0][plast] << endl;
 
   double addWidth = (xmax-xmin)/double(nadd+1);
   for (unsigned int it=1; it<=nadd; it++){
@@ -1255,7 +1255,7 @@ template<> void HelperFunctions::addPointsBetween<TGraphErrors>(TGraphErrors*& t
   TGraph* tgtmp = makeGraphFromPair(tmpPoints, "tgtmp");
   TSpline3* sptmp = convertGraphToSpline3(tgtmp);
 
-  MELAout << "HelperFunctions::addPointsBetween: Adding " << nadd << " points between " << xy[0][pfirst] << " and " << xy[0][plast] << endl;
+  IVYout << "HelperFunctions::addPointsBetween: Adding " << nadd << " points between " << xy[0][pfirst] << " and " << xy[0][plast] << endl;
 
   double addWidth = (xmax-xmin)/double(nadd+1);
   for (unsigned int it=1; it<=nadd; it++){
@@ -1336,7 +1336,7 @@ template<> bool HelperFunctions::checkHistogramIntegrity<TH1>(TH1 const* histo){
     double val=histo->GetBinContent(ix);
     double err=histo->GetBinError(ix);
     if (!checkVarNanInf(val) || !checkVarNanInf(err) || !checkVarNonNegative(err)){
-      MELAerr
+      IVYerr
         << "HelperFunctions::checkHistogramIntegrity[" << histo->GetName() << "]: "
         << "Bin " << ix << " failed integrity check. Value / error = " << val << " / " << err
         << endl;
@@ -1352,7 +1352,7 @@ template<> bool HelperFunctions::checkHistogramIntegrity<TH2>(TH2 const* histo){
       double val=histo->GetBinContent(ix, iy);
       double err=histo->GetBinError(ix, iy);
       if (!checkVarNanInf(val) || !checkVarNanInf(err) || !checkVarNonNegative(err)){
-        MELAerr
+        IVYerr
           << "HelperFunctions::checkHistogramIntegrity[" << histo->GetName() << "]: "
           << "Bin ( " << ix << "," << iy
           << " ) failed integrity check. Value / error = " << val << " / " << err
@@ -1371,7 +1371,7 @@ template<> bool HelperFunctions::checkHistogramIntegrity<TH3>(TH3 const* histo){
         double val=histo->GetBinContent(ix, iy, iz);
         double err=histo->GetBinError(ix, iy, iz);
         if (!checkVarNanInf(val) || !checkVarNanInf(err) || !checkVarNonNegative(err)){
-          MELAerr
+          IVYerr
             << "HelperFunctions::checkHistogramIntegrity[" << histo->GetName() << "]: "
             << "Bin ( " << ix << "," << iy << "," << iz
             << " ) failed integrity check. Value / error = " << val << " / " << err
@@ -3207,7 +3207,7 @@ template <> void HelperFunctions::findBinContentRange<TH3F>(TH3F const* h, float
 
 void HelperFunctions::rebinProfile(TProfile*& prof, const ExtendedBinning& binningX){
   if (!prof) return;
-  if (!binningX.isValid()) MELAerr << "HelperFunctions::rebinProfile: New binning is not valid!" << endl;
+  if (!binningX.isValid()) IVYerr << "HelperFunctions::rebinProfile: New binning is not valid!" << endl;
 
   const TString hname=prof->GetName();
   const TString htitle=prof->GetTitle();
@@ -3221,7 +3221,7 @@ void HelperFunctions::rebinProfile(TProfile*& prof, const ExtendedBinning& binni
   MELANCSplineFactory_1D spErrFac(xvar, "tmpSplineErr");
   vector<pair<MELANCSplineCore::T, MELANCSplineCore::T>> pList, pErrList;
   for (int ix=1; ix<=prof->GetNbinsX(); ix++){
-    if (prof->GetBinError(ix)==0.){ MELAout << "HelperFunctions::rebinProfile: Omitting bin " << ix << endl; continue; }
+    if (prof->GetBinError(ix)==0.){ IVYout << "HelperFunctions::rebinProfile: Omitting bin " << ix << endl; continue; }
     pList.emplace_back(prof->GetXaxis()->GetBinCenter(ix), prof->GetBinContent(ix));
     pErrList.emplace_back(prof->GetXaxis()->GetBinCenter(ix), pow(prof->GetBinError(ix), 2));
   }
@@ -3242,7 +3242,7 @@ void HelperFunctions::rebinProfile(TProfile*& prof, const ExtendedBinning& binni
       errval = spErr->getVal();
       if (errval<0.) errval=0.;
     }
-    else MELAerr << "HelperFunctions::rebinProfile: X val " << xval << " outside of range " << xvar.getMin() << " , " << xvar.getMax() << endl;
+    else IVYerr << "HelperFunctions::rebinProfile: X val " << xval << " outside of range " << xvar.getMin() << " , " << xvar.getMax() << endl;
     prof->SetBinEntries(ix+1, 1);
     prof->SetBinContent(ix+1, cval);
     prof->SetBinError(ix+1, sqrt(std::max(0., errval)));
@@ -3253,7 +3253,7 @@ void HelperFunctions::rebinProfile(TProfile*& prof, const ExtendedBinning& binni
 
 void HelperFunctions::rebinCumulant(TH1F*& histo, const ExtendedBinning& binningX){
   if (!histo) return;
-  if (!binningX.isValid()){ MELAerr << "HelperFunctions::rebinCumulant: Cannot rebin a 1D cumulant with an invalid binning" << endl; return; }
+  if (!binningX.isValid()){ IVYerr << "HelperFunctions::rebinCumulant: Cannot rebin a 1D cumulant with an invalid binning" << endl; return; }
 
   const TString hname=histo->GetName();
   const TString htitle=histo->GetTitle();
@@ -3296,7 +3296,7 @@ void HelperFunctions::rebinCumulant(TH1F*& histo, const ExtendedBinning& binning
 }
 void HelperFunctions::rebinCumulant(TH2F*& histo, const ExtendedBinning& binningX, const ExtendedBinning& binningY, std::vector<std::pair<TProfile const*, unsigned int>>* condProfs){
   if (!histo) return;
-  if (!binningX.isValid() || !binningY.isValid()){ MELAerr << "HelperFunctions::rebinCumulant: Cannot rebin a 2D cumulant with an invalid binning" << endl; return; }
+  if (!binningX.isValid() || !binningY.isValid()){ IVYerr << "HelperFunctions::rebinCumulant: Cannot rebin a 2D cumulant with an invalid binning" << endl; return; }
 
   const TString hname=histo->GetName();
   const TString htitle=histo->GetTitle();
@@ -3414,7 +3414,7 @@ void HelperFunctions::rebinCumulant(TH2F*& histo, const ExtendedBinning& binning
 }
 void HelperFunctions::rebinCumulant(TH3F*& histo, const ExtendedBinning& binningX, const ExtendedBinning& binningY, const ExtendedBinning& binningZ, std::vector<std::pair<TProfile const*, unsigned int>>* condProfs){
   if (!histo) return;
-  if (!binningX.isValid() || !binningY.isValid() || !binningZ.isValid()){ MELAerr << "HelperFunctions::rebinCumulant: Cannot rebin a 3D cumulant with an invalid binning" << endl; return; }
+  if (!binningX.isValid() || !binningY.isValid() || !binningZ.isValid()){ IVYerr << "HelperFunctions::rebinCumulant: Cannot rebin a 3D cumulant with an invalid binning" << endl; return; }
 
   const TString hname=histo->GetName();
   const TString htitle=histo->GetTitle();
@@ -3827,7 +3827,7 @@ void HelperFunctions::CopyFile(TString fname, TTree*(*fcnTree)(TTree*), TDirecto
   TDirectory* target = gDirectory;
   TFile* f = TFile::Open(fname, "read");
   if (!f || f->IsZombie()){
-    MELAerr << "HelperFunctions::CopyFile: Cannot copy file " << fname << endl;
+    IVYerr << "HelperFunctions::CopyFile: Cannot copy file " << fname << endl;
     target->cd();
     if (f && f->IsOpen()){ f->Close(); f=nullptr; }
     delete f;
@@ -3851,12 +3851,12 @@ void HelperFunctions::CopyDirectory(TDirectory* source, TTree*(*fcnTree)(TTree*)
   TIter nextkey(source->GetListOfKeys());
   vector<TString> copiedTrees;
   while ((key = (TKey*)nextkey())){
-    MELAout << "HelperFunctions::CopyDirectory: Copying key " << key->GetName() << endl;
+    IVYout << "HelperFunctions::CopyDirectory: Copying key " << key->GetName() << endl;
     const char* classname = key->GetClassName();
     TClass* cl = gROOT->GetClass(classname);
     if (!cl) continue;
     if (cl->InheritsFrom(TDirectory::Class())){
-      MELAout << "- HelperFunctions::CopyDirectory: Key " << key->GetName() << " is a directory." << endl;
+      IVYout << "- HelperFunctions::CopyDirectory: Key " << key->GetName() << " is a directory." << endl;
       source->cd(key->GetName());
       TDirectory* subdir = gDirectory;
       if (fcnDirectory) subdir = fcnDirectory(subdir);
@@ -3865,7 +3865,7 @@ void HelperFunctions::CopyDirectory(TDirectory* source, TTree*(*fcnTree)(TTree*)
       adir->cd();
     }
     else if (cl->InheritsFrom(TTree::Class())){
-      MELAout << "- HelperFunctions::CopyDirectory: Key " << key->GetName() << " is a tree." << endl;
+      IVYout << "- HelperFunctions::CopyDirectory: Key " << key->GetName() << " is a tree." << endl;
       TTree* T = (TTree*)source->Get(key->GetName());
       bool alreadyCopied=false;
       for (auto& k:copiedTrees){
@@ -3880,13 +3880,13 @@ void HelperFunctions::CopyDirectory(TDirectory* source, TTree*(*fcnTree)(TTree*)
         if (fcnTree) newT = fcnTree(T);
         if (!newT) newT = T->CloneTree(-1, "fast");
         if (newT){
-          MELAout << "- HelperFunctions::CopyDirectory: A new tree " << newT->GetName() << " is created." << endl;
+          IVYout << "- HelperFunctions::CopyDirectory: A new tree " << newT->GetName() << " is created." << endl;
           newT->Write(nullptr, TObject::kWriteDelete);
           copiedTrees.push_back(key->GetName());
         }
         //delete newT;
       }
-      else MELAout << "- HelperFunctions::CopyDirectory: A copy of " << key->GetName() << " already exists." << endl;
+      else IVYout << "- HelperFunctions::CopyDirectory: A copy of " << key->GetName() << " already exists." << endl;
     }
     else{
       source->cd();
@@ -3990,24 +3990,24 @@ void HelperFunctions::extractTreesFromDirectory(TDirectory* source, std::vector<
   TIter nextkey(source->GetListOfKeys());
   vector<TString> copiedTrees;
   while ((key = (TKey*) nextkey())){
-    MELAout << "HelperFunctions::GetTreesInDirectory: Acquiring key " << key->GetName() << endl;
+    IVYout << "HelperFunctions::GetTreesInDirectory: Acquiring key " << key->GetName() << endl;
     const char* classname = key->GetClassName();
     TClass* cl = gROOT->GetClass(classname);
     if (!cl) continue;
     if (cl->InheritsFrom(TDirectory::Class())){
-      MELAout << "- HelperFunctions::GetTreesInDirectory: Key " << key->GetName() << " is a directory." << endl;
+      IVYout << "- HelperFunctions::GetTreesInDirectory: Key " << key->GetName() << " is a directory." << endl;
       source->cd(key->GetName());
       TDirectory* subdir = gDirectory;
       source->cd();
       extractTreesFromDirectory(subdir, res, doClone);
     }
     else if (cl->InheritsFrom(TTree::Class())){
-      MELAout << "- HelperFunctions::GetTreesInDirectory: Key " << key->GetName() << " is a tree." << endl;
+      IVYout << "- HelperFunctions::GetTreesInDirectory: Key " << key->GetName() << " is a tree." << endl;
       TTree* T = (TTree*) source->Get(key->GetName());
       bool alreadyCopied=false;
       for (auto& k:copiedTrees){
         if (k==key->GetName()){
-          MELAout << "- HelperFunctions::GetTreesInDirectory: Tree " << key->GetName() << " already copied." << endl;
+          IVYout << "- HelperFunctions::GetTreesInDirectory: Tree " << key->GetName() << " already copied." << endl;
           alreadyCopied=true;
           break;
         }

@@ -1,10 +1,10 @@
 #include <cassert>
 #include "ReweightingFunctions.h"
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 
 
 using namespace std;
-using namespace MELAStreamHelpers;
+using namespace IvyStreamHelpers;
 
 
 std::vector<float*> ReweightingFunctions::getWeightRefs(BaseTree* tree, std::vector<TString> const& strWeights){
@@ -14,7 +14,7 @@ std::vector<float*> ReweightingFunctions::getWeightRefs(BaseTree* tree, std::vec
   for (auto const& s:strWeights){
     float* v = nullptr;
     tree->getValRef<float>(s, v);
-    if (!v) MELAerr << "ReweightingFunctions::getWeightRefs: Could not get the reference for weight " << s << endl;
+    if (!v) IVYerr << "ReweightingFunctions::getWeightRefs: Could not get the reference for weight " << s << endl;
     res.push_back(v);
   }
   return res;
@@ -23,7 +23,7 @@ float* ReweightingFunctions::getWeightRef(BaseTree* tree, TString const& strWeig
   float* res=nullptr;
   if (!tree || strWeight=="") return res;
   tree->getValRef<float>(strWeight, res);
-  if (!res) MELAerr << "ReweightingFunctions::getWeightRef: Could not get the reference for weight " << strWeight << endl;
+  if (!res) IVYerr << "ReweightingFunctions::getWeightRef: Could not get the reference for weight " << strWeight << endl;
   return res;
 }
 
@@ -87,7 +87,7 @@ float ReweightingFunctions::getAbsWeightThresholdByNeff(BaseTree* tree, std::vec
   double Neff = 0;
   double sum_wgts[2]={ 0 }; // [0]: w, [1]: w^2
   std::vector<float> smallest_weights;
-  if (verbosity>=TVar::ERROR) MELAout << "ReweightingFunctions::getAbsWeightThresholdByNeff: Determining the weight thresholds (Neff threshold = " << thr_Neff << ", number of events = " << nEntries << ")..." << endl;
+  if (verbosity>=TVar::ERROR) IVYout << "ReweightingFunctions::getAbsWeightThresholdByNeff: Determining the weight thresholds (Neff threshold = " << thr_Neff << ", number of events = " << nEntries << ")..." << endl;
   for (int ev=0; ev<nEntries; ev++){
     tree->getEvent(ev);
     HelperFunctions::progressbar(ev, nEntries);
@@ -105,21 +105,21 @@ float ReweightingFunctions::getAbsWeightThresholdByNeff(BaseTree* tree, std::vec
         npos++;
         if (Neff>=thr_Neff) break;
       }
-      if (verbosity>=TVar::ERROR) MELAout << "\t- Current Neff = " << Neff << " over " << ev+1 << " events..." << endl;
+      if (verbosity>=TVar::ERROR) IVYout << "\t- Current Neff = " << Neff << " over " << ev+1 << " events..." << endl;
     }
     if (Neff>=thr_Neff) break;
   }
 
   if (!smallest_weights.empty()){
     res = (sum_wgts[0] + std::sqrt(sum_wgts[1]*Neff)) / (Neff-1.);
-    if (verbosity>=TVar::ERROR) MELAout
+    if (verbosity>=TVar::ERROR) IVYout
       << "\t- " << res
       << " is the default weight threshold calculated from sN=" << sum_wgts[0] << ", vN=" << sum_wgts[1] << ", nN=" << Neff
       << " (N=" << npos << " / " << smallest_weights.size() << ", wN=" << smallest_weights.at(npos-1) << ", wLast=" << smallest_weights.back() << ")."
       << endl;
   }
   else{
-    if (verbosity>=TVar::INFO) MELAout << "\t- No weight threshold is found." << endl;
+    if (verbosity>=TVar::INFO) IVYout << "\t- No weight threshold is found." << endl;
   }
 
   return res;
@@ -148,7 +148,7 @@ std::vector<double> ReweightingFunctions::getSimpleNeffThrsPerBin(
   int nEntries = tree->getNEvents();
   if (nEntries==0) return res;
   thr_Neff = (thr_Neff>0. ? std::min(thr_Neff, double(nEntries)/3.*2.) : static_cast<double>(nEntries));
-  if (verbosity>=TVar::ERROR) MELAout << "ReweightingFunctions::getSimpleNeffThrsPerBin: Determining the distribution of Neff over the bins..." << endl;
+  if (verbosity>=TVar::ERROR) IVYout << "ReweightingFunctions::getSimpleNeffThrsPerBin: Determining the distribution of Neff over the bins..." << endl;
 
   std::vector<unsigned int> nEntries_per_bin(nbins, 0);
   for (int ev=0; ev<nEntries; ev++){
@@ -166,7 +166,7 @@ std::vector<double> ReweightingFunctions::getSimpleNeffThrsPerBin(
 
   // Determine the actual Neff thresholds per bin based on the raw event distribution
   for (unsigned int ibin=0; ibin<nbins; ibin++) res.at(ibin) = thr_Neff * ((double) nEntries_per_bin.at(ibin)) / ((double) nEntries);
-  if (verbosity>=TVar::ERROR) MELAout << "\t- Neff thresholds = " << res << endl;
+  if (verbosity>=TVar::ERROR) IVYout << "\t- Neff thresholds = " << res << endl;
 
   return res;
 }
@@ -183,7 +183,7 @@ std::vector<float> ReweightingFunctions::getAbsWeightThresholdsPerBinByNeff(
   std::vector<float> res(nbins, -1);
 
   int nEntries = tree->getNEvents();
-  if (verbosity>=TVar::ERROR) MELAout << "ReweightingFunctions::getAbsWeightThresholdsPerBinByNeff: Determining the weight thresholds (number of events = " << nEntries << ")..." << endl;
+  if (verbosity>=TVar::ERROR) IVYout << "ReweightingFunctions::getAbsWeightThresholdsPerBinByNeff: Determining the weight thresholds (number of events = " << nEntries << ")..." << endl;
   if (nEntries==0) return res;
 
   // A bit brute-force, but best to do this way...
@@ -221,13 +221,13 @@ std::vector<float> ReweightingFunctions::getAbsWeightThresholdsPerBinByNeff(
         ipos++;
       }
       if (ipos==nevts_bin){
-        if (verbosity>=TVar::ERROR) MELAout << "\t\t- Threshold for bin " << ibin << " is kept at " << res.at(ibin) << endl;
+        if (verbosity>=TVar::ERROR) IVYout << "\t\t- Threshold for bin " << ibin << " is kept at " << res.at(ibin) << endl;
         continue;
       }
       auto const& last_good_wgt = weights_bin.at(ipos-1);
       auto const& first_bad_wgt = weights_bin.at(ipos);
       res.at(ibin) = (last_good_wgt + first_bad_wgt) / 2.;
-      MELAout
+      IVYout
         << "\t\t- " << res.at(ibin)
         << " is the weight threshold found from iterating over the sample. The calculated threshold would be " << (Neff>1. ? (sumW.first + std::sqrt(sumW.second*Neff)) / (Neff-1.) : -1.)
         << " from sN=" << sumW.first << ", vN=" << sumW.second << ", nN=" << Neff
@@ -254,12 +254,12 @@ std::vector<std::vector<float>> ReweightingFunctions::getAbsWeightThresholdsPerB
 
   std::vector<std::vector<float>> res(nhypos, std::vector<float>(nbins, -1));
   if (nhypos==0){
-    if (verbosity>=TVar::ERROR) MELAerr << "ReweightingFunctions::getAbsWeightThresholdsPerBinByFixedFractionalThreshold: No hypotheses are passed." << endl;
+    if (verbosity>=TVar::ERROR) IVYerr << "ReweightingFunctions::getAbsWeightThresholdsPerBinByFixedFractionalThreshold: No hypotheses are passed." << endl;
     return res;
   }
 
   int nEntries = tree->getNEvents();
-  if (verbosity>=TVar::ERROR) MELAout << "ReweightingFunctions::getAbsWeightThresholdsPerBinByFixedFractionalThreshold: Determining the weight thresholds (number of events = " << nEntries << ")..." << endl;
+  if (verbosity>=TVar::ERROR) IVYout << "ReweightingFunctions::getAbsWeightThresholdsPerBinByFixedFractionalThreshold: Determining the weight thresholds (number of events = " << nEntries << ")..." << endl;
   if (nEntries==0) return res;
 
   std::vector<double> frac_list; frac_list.reserve(nhypos);
@@ -285,7 +285,7 @@ std::vector<std::vector<float>> ReweightingFunctions::getAbsWeightThresholdsPerB
       // We don't know N_i before looping over the events, so we don't know f*N_i.
       // However, N_i<=N, so f*N_i<f*N, so we can use f*N in place of f*N_i to limit the number of floats we hold.
       unsigned int const maxPrunedSize = std::max((unsigned int) std::ceil(double(nEntries)*frac_rem), nevts_bin_skipThr+1);
-      if (verbosity>=TVar::ERROR) MELAout << "\t- Maximum size of weight collection per bin for hypothesis " << ihypo << " is determined to be " << maxPrunedSize << "." << endl;
+      if (verbosity>=TVar::ERROR) IVYout << "\t- Maximum size of weight collection per bin for hypothesis " << ihypo << " is determined to be " << maxPrunedSize << "." << endl;
       auto& weights_hypo = weights_all.at(ihypo);
       for (auto& weights_hypo_bin:weights_hypo) weights_hypo_bin.reserve(maxPrunedSize);
 
@@ -325,7 +325,7 @@ std::vector<std::vector<float>> ReweightingFunctions::getAbsWeightThresholdsPerB
     }
   }
   for (unsigned int ihypo=0; ihypo<nhypos; ihypo++){
-    if (verbosity>=TVar::ERROR) MELAout << "Hypothesis " << ihypo << ":" << endl;
+    if (verbosity>=TVar::ERROR) IVYout << "Hypothesis " << ihypo << ":" << endl;
     double const& frac_rem = frac_rem_list.at(ihypo);
     double const& tolerance = tolerance_list.at(ihypo);
     if (skip_list.at(ihypo)) continue;
@@ -335,19 +335,19 @@ std::vector<std::vector<float>> ReweightingFunctions::getAbsWeightThresholdsPerB
       double sumWgts_hypo = 0;
       for (unsigned int ibin=0; ibin<nbins; ibin++) sumWgts_hypo += sumWgts_all.at(ihypo).at(ibin);
       if (sumWgts_hypo==0.){
-        if (verbosity>=TVar::ERROR) MELAout << "\t- Hypothesis " << ihypo << " probably does not apply to this sample because sums of weights after reweighting are all 0." << endl;
+        if (verbosity>=TVar::ERROR) IVYout << "\t- Hypothesis " << ihypo << " probably does not apply to this sample because sums of weights after reweighting are all 0." << endl;
         isValidHypothesis = false;
       }
     }
 
     for (unsigned int ibin=0; ibin<nbins; ibin++){
-      if (verbosity>=TVar::ERROR) MELAout << "\t- Bin " << ibin << ":" << endl;
+      if (verbosity>=TVar::ERROR) IVYout << "\t- Bin " << ibin << ":" << endl;
       unsigned int const& nevts_bin = counts_all.at(ihypo).at(ibin);
       auto const& sumWgts_hypo_bin = sumWgts_all.at(ihypo).at(ibin);
       auto const& weights_hypo_bin = weights_all.at(ihypo).at(ibin);
 
       if (nevts_bin<nevts_bin_skipThr){
-        if (verbosity>=TVar::ERROR) MELAout << "\t\t- Nevts = " << nevts_bin << "<3, skipping..." << endl;
+        if (verbosity>=TVar::ERROR) IVYout << "\t\t- Nevts = " << nevts_bin << "<3, skipping..." << endl;
         if (!isValidHypothesis) res.at(ihypo).at(ibin) = -99;
         continue;
       }
@@ -359,11 +359,11 @@ std::vector<std::vector<float>> ReweightingFunctions::getAbsWeightThresholdsPerB
       unsigned int const index_entry_prev = index_entry+1;
       float threshold = (weights_hypo_bin.at(index_entry_prev) + weights_hypo_bin.at(index_entry))*0.5;
 
-      if (verbosity>=TVar::ERROR) MELAout << "\t\t- Raw threshold before checking tolerance: " << threshold << " / largest weight: " << weights_hypo_bin.front() << endl;
+      if (verbosity>=TVar::ERROR) IVYout << "\t\t- Raw threshold before checking tolerance: " << threshold << " / largest weight: " << weights_hypo_bin.front() << endl;
       if (weights_hypo_bin.front()<threshold*tolerance) threshold = -1; // Prevent false-positives
       res.at(ihypo).at(ibin) = threshold;
-      MELAout << "\t\t- Final threshold: " << threshold << endl;
-      MELAout << "\t\t- Number of events rejected: " << (threshold>0.f ? index_entry : (unsigned int) 0) << " / " << nevts_bin << endl;
+      IVYout << "\t\t- Final threshold: " << threshold << endl;
+      IVYout << "\t\t- Number of events rejected: " << (threshold>0.f ? index_entry : (unsigned int) 0) << " / " << nevts_bin << endl;
       double sumWgts_hypo_bin_afterThr = sumWgts_hypo_bin;
       if (threshold>0.f){
         for (auto const& wgt:weights_hypo_bin){
@@ -371,7 +371,7 @@ std::vector<std::vector<float>> ReweightingFunctions::getAbsWeightThresholdsPerB
           sumWgts_hypo_bin_afterThr -= double(wgt);
         }
       }
-      MELAout
+      IVYout
         << "\t\t- Sum of weights after / before thresholds: " << sumWgts_hypo_bin_afterThr << " / " << sumWgts_hypo_bin
         << " (fraction = " << sumWgts_hypo_bin_afterThr / sumWgts_hypo_bin << ")"
         << endl;

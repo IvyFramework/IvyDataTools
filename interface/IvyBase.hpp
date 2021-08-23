@@ -5,14 +5,14 @@
 
 
 using namespace std;
-using namespace MELAStreamHelpers;
+using namespace IvyStreamHelpers;
 
 
 template<typename T> void IvyBase::addConsumed(TString name){
   std::unordered_map<TString, T*>* theMap = nullptr;
   IvyBase::getConsumedMap<T>(theMap);
   if (theMap) (*theMap)[name] = nullptr;
-  else if (verbosity>=TVar::ERROR) MELAerr << "IvyBase::addConsumed(" << name << "): Map could not be found." << endl;
+  else if (verbosity>=TVar::ERROR) IVYerr << "IvyBase::addConsumed(" << name << "): Map could not be found." << endl;
 }
 template<typename T> bool IvyBase::linkConsumed(BaseTree* tree){
   bool result=true;
@@ -23,22 +23,22 @@ template<typename T> bool IvyBase::linkConsumed(BaseTree* tree){
       if (tree->branchExists(it->first)){
         tree->getValRef<T>(it->first, it->second);
         result &= true;
-        if (verbosity>=TVar::INFO) MELAout << "IvyBase::linkConsumed(" << tree->sampleIdentifier << "): Linking successful for variable " << it->first << " -> " << it->second << endl;
+        if (verbosity>=TVar::INFO) IVYout << "IvyBase::linkConsumed(" << tree->sampleIdentifier << "): Linking successful for variable " << it->first << " -> " << it->second << endl;
       }
       else if (std::find(this->sloppyConsumes.begin(), this->sloppyConsumes.end(), it->first)!=this->sloppyConsumes.end()){
         it->second=nullptr;
         result &= true;
-        if (verbosity>=TVar::INFO) MELAout << "IvyBase::linkConsumed(" << tree->sampleIdentifier << "): Linking failed for variable " << it->first << ", but the variable is sloppy." << endl;
+        if (verbosity>=TVar::INFO) IVYout << "IvyBase::linkConsumed(" << tree->sampleIdentifier << "): Linking failed for variable " << it->first << ", but the variable is sloppy." << endl;
       }
       else{
         result &= false;
-        if (verbosity>=TVar::ERROR) MELAerr << "IvyBase::linkConsumed(" << tree->sampleIdentifier << "): Linking failed for variable " << it->first << endl;
+        if (verbosity>=TVar::ERROR) IVYerr << "IvyBase::linkConsumed(" << tree->sampleIdentifier << "): Linking failed for variable " << it->first << endl;
       }
     }
   }
   else{
     result = false;
-    if (verbosity>=TVar::ERROR) MELAerr << "IvyBase::linkConsumed(" << tree->sampleIdentifier << "): Map could not be found." << endl;
+    if (verbosity>=TVar::ERROR) IVYerr << "IvyBase::linkConsumed(" << tree->sampleIdentifier << "): Map could not be found." << endl;
   }
   return result;
 }
@@ -55,7 +55,7 @@ template<typename T> bool IvyBase::getConsumed(TString name, T*& val) const{
     }
     else if (isSloppy) return true;
   }
-  else if (verbosity>=TVar::ERROR) MELAerr << "IvyBase::getConsumed(" << name << "): Map could not be found." << endl;
+  else if (verbosity>=TVar::ERROR) IVYerr << "IvyBase::getConsumed(" << name << "): Map could not be found." << endl;
   return false;
 }
 template<typename T> bool IvyBase::getConsumed(TString name, T const*& val) const{
@@ -71,7 +71,7 @@ template<typename T> bool IvyBase::getConsumed(TString name, T const*& val) cons
     }
     else if (isSloppy) return true;
   }
-  else if (verbosity>=TVar::ERROR) MELAerr << "IvyBase::getConsumed(" << name << "): Map could not be found." << endl;
+  else if (verbosity>=TVar::ERROR) IVYerr << "IvyBase::getConsumed(" << name << "): Map could not be found." << endl;
   return false;
 }
 

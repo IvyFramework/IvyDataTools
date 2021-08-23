@@ -9,11 +9,11 @@
 #include "SampleHelpersCore.h"
 #include "HelperFunctions.h"
 #include "StatisticsHelpers.h"
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 
 
 using namespace std;
-using namespace MELAStreamHelpers;
+using namespace IvyStreamHelpers;
 
 
 int main(int argc, char** argv){
@@ -147,7 +147,7 @@ int main(int argc, char** argv){
       }
     }
     else{
-      MELAerr << "Command " << strCmd << " with arguments " << strArgs << " is not supported." << endl;
+      IVYerr << "Command " << strCmd << " with arguments " << strArgs << " is not supported." << endl;
       print_help = true;
     }
   }

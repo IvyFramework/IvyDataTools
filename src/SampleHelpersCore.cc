@@ -2,11 +2,11 @@
 #include <dirent.h>
 #include <regex>
 #include "SampleHelpersCore.h"
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 
 
 using namespace std;
-using namespace MELAStreamHelpers;
+using namespace IvyStreamHelpers;
 
 
 namespace SampleHelpers{
@@ -33,7 +33,7 @@ std::vector<TString> SampleHelpers::lsdir(TString const& indir){
       }
       closedir(dp);
     }
-    else MELAerr << "SampleHelpers::lsdir: Could not open the directory " << indir << "." << endl;
+    else IVYerr << "SampleHelpers::lsdir: Could not open the directory " << indir << "." << endl;
   }
   else{
     TString tmpfname = Form("tmpfile_SampleHelpers_lsdir_%s.tmp", indir.Data());
@@ -72,7 +72,7 @@ std::vector<TString> SampleHelpers::lsdir(TString const& indir){
       std::remove(tmpfname.Data());
     }
     else{
-      MELAerr << "SampleHelpers::lsdir: Command '" << strcmd << "' returned exit status " << status_cmd << "." << endl;
+      IVYerr << "SampleHelpers::lsdir: Command '" << strcmd << "' returned exit status " << status_cmd << "." << endl;
       assert(0);
     }
   }
@@ -96,7 +96,7 @@ float SampleHelpers::findPoleMass(const TString samplename){
       mass = std::stof(strmass);
     }
     catch (std::invalid_argument& e){
-      MELAerr << "SampleHelpers::findPoleMass: Sample '" << samplename << "' contains the mass string '" << strmass << "', but parsing of this mass string failed!" << endl;
+      IVYerr << "SampleHelpers::findPoleMass: Sample '" << samplename << "' contains the mass string '" << strmass << "', but parsing of this mass string failed!" << endl;
       assert(0);
     }
   }

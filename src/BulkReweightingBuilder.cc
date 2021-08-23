@@ -5,12 +5,12 @@
 #include "ExtendedHistogram_1D.h"
 #include "ExtendedHistogram_2D.h"
 #include "MELAAccumulators.h"
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 
 
 using namespace std;
 using namespace TNumericUtil;
-using namespace MELAStreamHelpers;
+using namespace IvyStreamHelpers;
 using namespace HelperFunctions;
 
 
@@ -73,7 +73,7 @@ void BulkReweightingBuilder::setup(
   assert(thr_frac_Neff<=1.f);
   unsigned int const nbins = (binning.isValid() ? binning.getNbins() : static_cast<unsigned int>(1));
   for (auto const& tree:registeredTrees){
-    MELAout << "BulkReweightingBuilder::setup: Processing " << tree->sampleIdentifier << "..." << endl;
+    IVYout << "BulkReweightingBuilder::setup: Processing " << tree->sampleIdentifier << "..." << endl;
 
     // Mute all branches except the ones of interest in order to speed up the process
     {
@@ -95,7 +95,7 @@ void BulkReweightingBuilder::setup(
       tree->muteAllBranchesExcept(bnames_preserved);
     }
 
-    MELAout << "\t- Obtaining weight thresholds..." << endl;
+    IVYout << "\t- Obtaining weight thresholds..." << endl;
     absWeightThresholdsPerBinList[tree] = ReweightingFunctions::getAbsWeightThresholdsPerBinByFixedFractionalThreshold(
       tree,
       componentRefsList_reweightingweights[tree], rule_reweightingweights_list, reweightingweights_frac_tolerance_pair_list,
@@ -114,7 +114,7 @@ void BulkReweightingBuilder::setup(
     std::vector<double> sampleZeroMECompensation_tree(nbins, 1);
     //std::vector<unsigned int> Nrejected_tree(nbins, 0);
     std::vector<std::vector<std::pair<double, double>>> sum_wgts_withrewgt_tree(nhypos, std::vector<std::pair<double, double>>(nbins, std::pair<double, double>(0, 0)));
-    MELAout << "\t- Obtaining weight sums..." << endl;
+    IVYout << "\t- Obtaining weight sums..." << endl;
     for (int ev=0; ev<nEntries; ev++){
       tree->getEvent(ev);
       HelperFunctions::progressbar(ev, nEntries);
@@ -135,7 +135,7 @@ void BulkReweightingBuilder::setup(
         float wgt_rewgt = rule_reweightingweights_list.at(ihypo)(tree, componentRefsList_reweightingweights[tree].at(ihypo));
         if (wgt_thr>0.f && std::abs(wgt_rewgt)>wgt_thr) wgt_rewgt = 0.f;
         if (wgt_rewgt==0.f && wgt_thr!=-99.f){
-          //MELAout << "Hypothesis " << ihypo << " has wgt_rewgt=" << wgt_rewgt << " and wgt_thr=" << wgt_thr << endl;
+          //IVYout << "Hypothesis " << ihypo << " has wgt_rewgt=" << wgt_rewgt << " and wgt_thr=" << wgt_thr << endl;
           allHyposFine = false;
           break; // We can break because the following statement only proceeds if allHyposFine==true
         }
@@ -155,12 +155,12 @@ void BulkReweightingBuilder::setup(
     }
 
     //// Print the number of rejected events
-    //MELAout << "\t\t- Numbers of rejected events in each bin: " << Nrejected_tree << endl;
+    //IVYout << "\t\t- Numbers of rejected events in each bin: " << Nrejected_tree << endl;
 
     // Compute Neff to be able to combine the trees ultimately
     for (unsigned int ibin=0; ibin<nbins; ibin++){
       if (sum_normwgts_all_tree.at(ibin)<0. || sum_normwgts_nonzerorewgt_tree.at(ibin)<0.){
-        MELAout << "\t\t- Bin " << ibin << " has a negative sum of norm. weights before or after threshold applications. The contribution of this sample from this bin will be set to 0." << endl;
+        IVYout << "\t\t- Bin " << ibin << " has a negative sum of norm. weights before or after threshold applications. The contribution of this sample from this bin will be set to 0." << endl;
         sum_normwgts_all_tree.at(ibin) = 0;
         sum_normwgts_nonzerorewgt_tree.at(ibin) = 0;
         for (auto& sum_wgts_withrewgt_tree_hypo:sum_wgts_withrewgt_tree){ sum_wgts_withrewgt_tree_hypo.at(ibin).first = sum_wgts_withrewgt_tree_hypo.at(ibin).second = 0; }
@@ -199,19 +199,19 @@ void BulkReweightingBuilder::setup(
   /*
   // Print raw values for debugging purposes
   for (auto const& tree:registeredTrees){
-    MELAout << "Raw quantities for " << tree->sampleIdentifier << ":" << endl;
-    MELAout << "Raw absWeightThresholdsPerBinList = " << absWeightThresholdsPerBinList[tree] << endl;
-    MELAout << "Raw NeffsPerBin = " << NeffsPerBin[tree] << endl;
-    MELAout << "Raw sum_normwgts_all = " << sum_normwgts_all[tree] << endl;
-    MELAout << "Raw sum_normwgts_nonzerorewgt = " << sum_normwgts_nonzerorewgt[tree] << endl;
-    MELAout << "Raw sum_wgts_withrewgt = " << sum_wgts_withrewgt[tree] << endl;
-    MELAout << "Raw sampleZeroMECompensation = " << sampleZeroMECompensation[tree] << endl;
+    IVYout << "Raw quantities for " << tree->sampleIdentifier << ":" << endl;
+    IVYout << "Raw absWeightThresholdsPerBinList = " << absWeightThresholdsPerBinList[tree] << endl;
+    IVYout << "Raw NeffsPerBin = " << NeffsPerBin[tree] << endl;
+    IVYout << "Raw sum_normwgts_all = " << sum_normwgts_all[tree] << endl;
+    IVYout << "Raw sum_normwgts_nonzerorewgt = " << sum_normwgts_nonzerorewgt[tree] << endl;
+    IVYout << "Raw sum_wgts_withrewgt = " << sum_wgts_withrewgt[tree] << endl;
+    IVYout << "Raw sampleZeroMECompensation = " << sampleZeroMECompensation[tree] << endl;
   }
   */
 
   // First pass on relative normalizations
   if (thr_frac_Neff>0.){
-    MELAout << "\t- Adjusting Neff values for Neff threshold " << thr_frac_Neff << ":" << endl;
+    IVYout << "\t- Adjusting Neff values for Neff threshold " << thr_frac_Neff << ":" << endl;
     std::unordered_map<BaseTree*, unsigned int> tree_bestBin_map;
     bool useBestBins = (strBinningVars.size()==1);
     if (useBestBins){
@@ -251,7 +251,7 @@ void BulkReweightingBuilder::setup(
         double& NeffsPerBin_bin = NeffsPerBin_tree.at(ibin);
         double const frac_Neff = NeffsPerBin_bin/Neff_total;
         if (frac_Neff<thr_frac_Neff && (tree_bin_best<0 || std::abs(tree_bin_best-static_cast<int>(ibin))>1)){
-          MELAout << "\t\t- Bin " << ibin << " in sample " << tree->sampleIdentifier << " has a fractional Neff=" << frac_Neff << " < " << thr_frac_Neff << ". Removing this bin from reweighting considerations." << endl;
+          IVYout << "\t\t- Bin " << ibin << " in sample " << tree->sampleIdentifier << " has a fractional Neff=" << frac_Neff << " < " << thr_frac_Neff << ". Removing this bin from reweighting considerations." << endl;
           NeffsPerBin_bin = 0;
           sum_normwgts_all_tree.at(ibin) = 0;
           sum_normwgts_nonzerorewgt_tree.at(ibin) = 0;
@@ -280,7 +280,7 @@ void BulkReweightingBuilder::setup(
             double& NeffsPerBin_bin = NeffsPerBin_tree.at(ibin);
             if (NeffsPerBin_bin==0.) seeZero = true;
             if (seeZero){
-              MELAout << "\t\t- Bin " << ibin << " in sample " << tree->sampleIdentifier << " has acceptable Neff, but it is beyond the first occurence of 0s from the right. Removing this bin from reweighting considerations." << endl;
+              IVYout << "\t\t- Bin " << ibin << " in sample " << tree->sampleIdentifier << " has acceptable Neff, but it is beyond the first occurence of 0s from the right. Removing this bin from reweighting considerations." << endl;
               NeffsPerBin_bin = 0;
               sum_normwgts_all_tree.at(ibin) = 0;
               sum_normwgts_nonzerorewgt_tree.at(ibin) = 0;
@@ -296,7 +296,7 @@ void BulkReweightingBuilder::setup(
             double& NeffsPerBin_bin = NeffsPerBin_tree.at(ibin);
             if (NeffsPerBin_bin==0.) seeZero = true;
             if (seeZero){
-              MELAout << "\t\t- Bin " << ibin << " in sample " << tree->sampleIdentifier << " has acceptable Neff, but it is beyond the first occurence of 0s from the left. Removing this bin from reweighting considerations." << endl;
+              IVYout << "\t\t- Bin " << ibin << " in sample " << tree->sampleIdentifier << " has acceptable Neff, but it is beyond the first occurence of 0s from the left. Removing this bin from reweighting considerations." << endl;
               NeffsPerBin_bin = 0;
               sum_normwgts_all_tree.at(ibin) = 0;
               sum_normwgts_nonzerorewgt_tree.at(ibin) = 0;
@@ -310,7 +310,7 @@ void BulkReweightingBuilder::setup(
   }
 
   // Second pass on relative normalizations
-  MELAout << "\t- Sample normalizations before extra normalizations:" << endl;
+  IVYout << "\t- Sample normalizations before extra normalizations:" << endl;
   for (auto const& tree:registeredTrees){
     auto& sampleNormalization_tree = sampleNormalization.find(tree)->second;
     auto const& NeffsPerBin_tree = NeffsPerBin.find(tree)->second;
@@ -321,12 +321,12 @@ void BulkReweightingBuilder::setup(
       for (auto const& it:NeffsPerBin) sum_Neff_bin += it.second.at(ibin);
       if (sum_Neff_bin>0.) sampleNormalization_bin = NeffsPerBin_bin / sum_Neff_bin;
     }
-    MELAout << "[" << tree->sampleIdentifier << "]: " << sampleNormalization_tree << endl;
+    IVYout << "[" << tree->sampleIdentifier << "]: " << sampleNormalization_tree << endl;
   }
 
   // Pairwise normalizations
   if (tree_normTree_pairs && ihypo_Neff>=0){
-    MELAout << "\t- Computing the pairwise normalization factors..." << endl;
+    IVYout << "\t- Computing the pairwise normalization factors..." << endl;
     std::unordered_map<BaseTree*, double> extraNormFactors;
     // Determine the pairwise normalizations first
     for (auto const& tree_normTree_pair:(*tree_normTree_pairs)){
@@ -351,22 +351,22 @@ void BulkReweightingBuilder::setup(
           sum_wgts_common_normtree += sum_wgts_common_normtree_bin * nonzeroNorm_normtree;
         }
       }
-      if (sum_wgts_common_basetree==0.) MELAerr << "\t\t- Base tree " << tree->sampleIdentifier << " has no overlap with its norm tree " << normTree->sampleIdentifier << endl;
-      if (sum_wgts_common_normtree==0.) MELAerr << "\t\t- Norm tree " << tree->sampleIdentifier << " has no overlap with its base tree " << normTree->sampleIdentifier << endl;
+      if (sum_wgts_common_basetree==0.) IVYerr << "\t\t- Base tree " << tree->sampleIdentifier << " has no overlap with its norm tree " << normTree->sampleIdentifier << endl;
+      if (sum_wgts_common_normtree==0.) IVYerr << "\t\t- Norm tree " << tree->sampleIdentifier << " has no overlap with its base tree " << normTree->sampleIdentifier << endl;
 
       double extra_norm = 1;
       if (sum_wgts_common_basetree!=0.) extra_norm = sum_wgts_common_normtree / sum_wgts_common_basetree;
-      MELAout << "\t\t- Base tree " << tree->sampleIdentifier << " has an extra normalization of " << extra_norm << endl;
+      IVYout << "\t\t- Base tree " << tree->sampleIdentifier << " has an extra normalization of " << extra_norm << endl;
       extraNormFactors[tree] = extra_norm;
     }
     // Multiply all relevant ones
-    MELAout << "\t- Applying the computed pairwise normalization factors..." << endl;
+    IVYout << "\t- Applying the computed pairwise normalization factors..." << endl;
     for (auto const& tree_normTree_pair:(*tree_normTree_pairs)){
       BaseTree* tree = tree_normTree_pair.first;
       BaseTree* baseTree = tree;
       BaseTree* normTree = tree_normTree_pair.second;
       while (normTree!=nullptr){
-        MELAout << "\t\t- Normalizing " << tree->sampleIdentifier << " by the normalization factor (=" << extraNormFactors[baseTree] << ") of " << baseTree->sampleIdentifier << endl;
+        IVYout << "\t\t- Normalizing " << tree->sampleIdentifier << " by the normalization factor (=" << extraNormFactors[baseTree] << ") of " << baseTree->sampleIdentifier << endl;
         for (auto& v:sampleNormalization[tree]) v *= extraNormFactors[baseTree];
         samplePairwiseNormalization[tree] *= extraNormFactors[baseTree];
         baseTree = normTree; normTree = nullptr;
@@ -378,26 +378,26 @@ void BulkReweightingBuilder::setup(
         }
       }
     }
-    MELAout << "\t- Sample normalizations after pairwise normalizations:" << endl;
-    for (auto const& tree:registeredTrees) MELAout << "[" << tree->sampleIdentifier << "]: " << sampleNormalization[tree] << endl;
+    IVYout << "\t- Sample normalizations after pairwise normalizations:" << endl;
+    for (auto const& tree:registeredTrees) IVYout << "[" << tree->sampleIdentifier << "]: " << sampleNormalization[tree] << endl;
   }
 
   // Finally, add the 0-ME compensation factors
-  MELAout << "\t- Sample normalizations after 0-ME compensation factors:" << endl;
+  IVYout << "\t- Sample normalizations after 0-ME compensation factors:" << endl;
   for (auto const& tree:registeredTrees){
     auto& sampleNormalization_tree = sampleNormalization.find(tree)->second;
     auto const& sampleZeroMECompensation_tree = sampleZeroMECompensation.find(tree)->second;
     for (unsigned int ibin=0; ibin<nbins; ibin++) sampleNormalization_tree.at(ibin) *= sampleZeroMECompensation_tree.at(ibin);
-    MELAout << "[" << tree->sampleIdentifier << "]: " << sampleNormalization_tree << endl;
+    IVYout << "[" << tree->sampleIdentifier << "]: " << sampleNormalization_tree << endl;
   }
 
-  MELAout << "BulkReweightingBuilder::setup has completed successfully." << endl;
+  IVYout << "BulkReweightingBuilder::setup has completed successfully." << endl;
 }
 
 double BulkReweightingBuilder::getOverallReweightingNormalization(BaseTree* tree) const{
   auto it_binningVarRefs = binningVarRefs.find(tree);
   if (it_binningVarRefs == binningVarRefs.cend()){
-    MELAerr << "BulkReweightingBuilder::getOverallReweightingNormalization: Tree " << tree->sampleIdentifier << " is not registered properly." << endl;
+    IVYerr << "BulkReweightingBuilder::getOverallReweightingNormalization: Tree " << tree->sampleIdentifier << " is not registered properly." << endl;
     return 1;
   }
 
@@ -409,7 +409,7 @@ double BulkReweightingBuilder::getOverallReweightingNormalization(BaseTree* tree
   auto it = sampleNormalization.find(tree);
   if (it!=sampleNormalization.cend()) return it->second.at(ibin);
   else{
-    MELAerr << "BulkReweightingBuilder::getOverallReweightingNormalization: No normalization factor is found for tree " << tree->sampleIdentifier << "." << endl;
+    IVYerr << "BulkReweightingBuilder::getOverallReweightingNormalization: No normalization factor is found for tree " << tree->sampleIdentifier << "." << endl;
     return 1;
   }
 }
@@ -417,14 +417,14 @@ double BulkReweightingBuilder::getSamplePairwiseNormalization(BaseTree* tree) co
   auto it = samplePairwiseNormalization.find(tree);
   if (it!=samplePairwiseNormalization.cend()) return it->second;
   else{
-    MELAerr << "BulkReweightingBuilder::getSamplePairwiseNormalization: No normalization factor is found for tree " << tree->sampleIdentifier << "." << endl;
+    IVYerr << "BulkReweightingBuilder::getSamplePairwiseNormalization: No normalization factor is found for tree " << tree->sampleIdentifier << "." << endl;
     return 1;
   }
 }
 bool BulkReweightingBuilder::checkWeightsBelowThreshold(BaseTree* tree) const{
   auto it_binningVarRefs = binningVarRefs.find(tree);
   if (it_binningVarRefs == binningVarRefs.cend()){
-    MELAerr << "BulkReweightingBuilder::checkWeightsBelowThreshold: Tree " << tree->sampleIdentifier << " is not registered properly." << endl;
+    IVYerr << "BulkReweightingBuilder::checkWeightsBelowThreshold: Tree " << tree->sampleIdentifier << " is not registered properly." << endl;
     return false;
   }
 
@@ -546,10 +546,10 @@ void BulkReweightingBuilder::setupFromFile(TString cinput){
   HostHelpers::ExpandEnvironmentVariables(cinput);
 
   if (!HostHelpers::FileReadable(cinput.Data())){
-    MELAerr << "BulkReweightingBuilder::setupFromFile: File " << cinput << " is not readable." << endl;
+    IVYerr << "BulkReweightingBuilder::setupFromFile: File " << cinput << " is not readable." << endl;
     assert(0);
   }
-  MELAout << "BulkReweightingBuilder::setupFromFile: Setting up reweighting from file " << cinput << endl;
+  IVYout << "BulkReweightingBuilder::setupFromFile: Setting up reweighting from file " << cinput << endl;
   TDirectory* curdir = gDirectory;
   TFile* finput = TFile::Open(cinput, "read");
   finput->cd();
@@ -576,7 +576,7 @@ void BulkReweightingBuilder::setupFromFile(TString cinput){
       }
     }
     if (!hasSameBinningVars){
-      MELAerr << "\t- Binning variables were specified as " << strBinningVars << ", but the input file has " << *v_strBinningVars << "." << endl;
+      IVYerr << "\t- Binning variables were specified as " << strBinningVars << ", but the input file has " << *v_strBinningVars << "." << endl;
       assert(0);
     }
 
@@ -596,7 +596,7 @@ void BulkReweightingBuilder::setupFromFile(TString cinput){
       }
     }
     if (!hasSameWeights){
-      MELAerr << "\t- Nominal weight variables were specified as " << strNominalWeights << ", but the input file has " << *v_strNominalWeights << "." << endl;
+      IVYerr << "\t- Nominal weight variables were specified as " << strNominalWeights << ", but the input file has " << *v_strNominalWeights << "." << endl;
       assert(0);
     }
   }
@@ -613,7 +613,7 @@ void BulkReweightingBuilder::setupFromFile(TString cinput){
       }
     }
     if (!hasSameWeights){
-      MELAerr << "\t- Cross section weight variables were specified as " << strCrossSectionWeights << ", but the input file has " << *v_strCrossSectionWeights << "." << endl;
+      IVYerr << "\t- Cross section weight variables were specified as " << strCrossSectionWeights << ", but the input file has " << *v_strCrossSectionWeights << "." << endl;
       assert(0);
     }
   }
@@ -638,7 +638,7 @@ void BulkReweightingBuilder::setupFromFile(TString cinput){
       if (hasSameWeights){ jhypo = ihypo; break; }
     }
     if (jhypo<0){
-      MELAerr << "\t- Reweighting hypothesis with weights " << strReweightingWeights << " is not specified in the input file." << endl;
+      IVYerr << "\t- Reweighting hypothesis with weights " << strReweightingWeights << " is not specified in the input file." << endl;
       assert(0);
     }
     hypo_order.push_back(jhypo);
@@ -659,7 +659,7 @@ void BulkReweightingBuilder::setupFromFile(TString cinput){
     TString const sid = tree->sampleIdentifier;
     TDirectory* dir_tree = (TDirectory*) finput->Get(sid);
     if (!dir_tree){
-      MELAerr << "\t- No directory named " << sid << endl;
+      IVYerr << "\t- No directory named " << sid << endl;
       assert(0);
     }
     dir_tree->cd();
@@ -722,47 +722,47 @@ void BulkReweightingBuilder::print() const{
   unsigned int const nhypos = strReweightingWeightsList.size();
   unsigned int const nbins = (binning.isValid() ? binning.getNbins() : static_cast<unsigned int>(1));
 
-  MELAout << "----- BulkReweightingBuilder contents -----" << endl;
+  IVYout << "----- BulkReweightingBuilder contents -----" << endl;
 
-  MELAout << "Binning:" << endl;
-  MELAout << "\t- Corrected number of bins: " << nbins << endl;
-  MELAout << "\t- Extended binning: [" << binning.getName() << "] => " << binning.getBinningVector() << endl;
-  MELAout << "\t- Variables: " << strBinningVars << endl;
-  MELAout << "\t- Rule: " << rule_binningVar << endl;
+  IVYout << "Binning:" << endl;
+  IVYout << "\t- Corrected number of bins: " << nbins << endl;
+  IVYout << "\t- Extended binning: [" << binning.getName() << "] => " << binning.getBinningVector() << endl;
+  IVYout << "\t- Variables: " << strBinningVars << endl;
+  IVYout << "\t- Rule: " << rule_binningVar << endl;
 
-  MELAout << "Nominal weights:" << endl;
-  MELAout << "\t- Variables: " << strNominalWeights << endl;
-  MELAout << "\t- Rule: " << rule_nominalweights << endl;
+  IVYout << "Nominal weights:" << endl;
+  IVYout << "\t- Variables: " << strNominalWeights << endl;
+  IVYout << "\t- Rule: " << rule_nominalweights << endl;
 
-  MELAout << "xsec weights:" << endl;
-  MELAout << "\t- Variables: " << strCrossSectionWeights << endl;
-  MELAout << "\t- Rule: " << rule_xsecweights << endl;
+  IVYout << "xsec weights:" << endl;
+  IVYout << "\t- Variables: " << strCrossSectionWeights << endl;
+  IVYout << "\t- Rule: " << rule_xsecweights << endl;
 
-  MELAout << "Reweighting weights:" << endl;
+  IVYout << "Reweighting weights:" << endl;
   for (unsigned int ihypo=0; ihypo<nhypos; ihypo++){
-    MELAout << "\t- Hypothesis " << ihypo << ":" << endl;
-    MELAout << "\t\t- Variables: " << strReweightingWeightsList.at(ihypo) << endl;
-    MELAout << "\t\t- Rule: " << rule_reweightingweights_list.at(ihypo) << endl;
-    MELAout << "\t\t- Large weight fraction: " << reweightingweights_frac_tolerance_pair_list.at(ihypo).first << endl;
-    MELAout << "\t\t- Large weight tolerance: " << reweightingweights_frac_tolerance_pair_list.at(ihypo).second << endl;
+    IVYout << "\t- Hypothesis " << ihypo << ":" << endl;
+    IVYout << "\t\t- Variables: " << strReweightingWeightsList.at(ihypo) << endl;
+    IVYout << "\t\t- Rule: " << rule_reweightingweights_list.at(ihypo) << endl;
+    IVYout << "\t\t- Large weight fraction: " << reweightingweights_frac_tolerance_pair_list.at(ihypo).first << endl;
+    IVYout << "\t\t- Large weight tolerance: " << reweightingweights_frac_tolerance_pair_list.at(ihypo).second << endl;
   }
 
-  MELAout << "Number of registered trees: " << registeredTrees.size() << endl;
+  IVYout << "Number of registered trees: " << registeredTrees.size() << endl;
   for (auto const& tree:registeredTrees){
-    MELAout << "\t- Tree " << tree->sampleIdentifier << ":" << endl;
-    MELAout << "\t\t- Initial sample weight: " << normWeights.find(tree)->second << endl;
-    MELAout << "\t\t- Sum of all norm. weights: " << sum_normwgts_all.find(tree)->second << endl;
-    MELAout << "\t\t- Sum of non-zero reweighted norm. weights: " << sum_normwgts_nonzerorewgt.find(tree)->second << endl;
-    MELAout << "\t\t- Neffs: " << NeffsPerBin.find(tree)->second << endl;
-    MELAout << "\t\t- Sample overall pairwise normalization factor: " << samplePairwiseNormalization.find(tree)->second << endl;
-    MELAout << "\t\t- Sample zero-ME compensations: " << sampleZeroMECompensation.find(tree)->second << endl;
-    MELAout << "\t\t- Sample overall normalization factors: " << sampleNormalization.find(tree)->second << endl;
+    IVYout << "\t- Tree " << tree->sampleIdentifier << ":" << endl;
+    IVYout << "\t\t- Initial sample weight: " << normWeights.find(tree)->second << endl;
+    IVYout << "\t\t- Sum of all norm. weights: " << sum_normwgts_all.find(tree)->second << endl;
+    IVYout << "\t\t- Sum of non-zero reweighted norm. weights: " << sum_normwgts_nonzerorewgt.find(tree)->second << endl;
+    IVYout << "\t\t- Neffs: " << NeffsPerBin.find(tree)->second << endl;
+    IVYout << "\t\t- Sample overall pairwise normalization factor: " << samplePairwiseNormalization.find(tree)->second << endl;
+    IVYout << "\t\t- Sample zero-ME compensations: " << sampleZeroMECompensation.find(tree)->second << endl;
+    IVYout << "\t\t- Sample overall normalization factors: " << sampleNormalization.find(tree)->second << endl;
     for (unsigned int ihypo=0; ihypo<nhypos; ihypo++){
-      MELAout << "\t\t- Hypothesis " << ihypo << ":" << endl;
-      MELAout << "\t\t\t- Thresholds: " << absWeightThresholdsPerBinList.find(tree)->second.at(ihypo) << endl;
-      MELAout << "\t\t\t- Sum of reweighting weights and weights-squared: " << sum_wgts_withrewgt.find(tree)->second.at(ihypo) << endl;
+      IVYout << "\t\t- Hypothesis " << ihypo << ":" << endl;
+      IVYout << "\t\t\t- Thresholds: " << absWeightThresholdsPerBinList.find(tree)->second.at(ihypo) << endl;
+      IVYout << "\t\t\t- Sum of reweighting weights and weights-squared: " << sum_wgts_withrewgt.find(tree)->second.at(ihypo) << endl;
     }
   }
 
-  MELAout << "-------------------------------------------" << endl;
+  IVYout << "-------------------------------------------" << endl;
 }

@@ -37,7 +37,7 @@
 #include "HelperFunctionsCore.h"
 #include "ExtendedBinning.h"
 #include "SimpleEntry.h"
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 
 
 namespace HelperFunctions{
@@ -528,7 +528,7 @@ template void HelperFunctions::extractObjectsFromDirectory<TSpline3>(TDirectory*
 template void HelperFunctions::extractObjectsFromDirectory<TCanvas>(TDirectory* source, std::vector<TCanvas*>& objlist, TVar::VerbosityLevel verbosity);
 
 template <typename T, typename U> void HelperFunctions::getGenericHistogramSlice(T*& res, U const* histo, unsigned char XDirection, int iy, int jy, TString newname){
-  using namespace MELAStreamHelpers;
+  using namespace IvyStreamHelpers;
 
   if (!histo || XDirection>=2) return;
   if (newname=="") newname=Form("Slice_%s_%i_%i_%s", (XDirection==0 ? "X" : "Y"), iy, jy, histo->GetName());
@@ -544,7 +544,7 @@ template <typename T, typename U> void HelperFunctions::getGenericHistogramSlice
     for (int i=1; i<=yaxis->GetNbins()+1; i++) bins.push_back(yaxis->GetBinLowEdge(i));
     iy = std::max(0, iy); jy = std::min(xaxis->GetNbins()+1, jy);
   }
-  if (iy>jy) MELAerr << "HelperFunctions::getGenericHistogramSlice: iy>jy!" << std::endl;
+  if (iy>jy) IVYerr << "HelperFunctions::getGenericHistogramSlice: iy>jy!" << std::endl;
 
   res = new T(newname, "", bins.size()-1, bins.data());
 
@@ -566,7 +566,7 @@ template <typename T, typename U> void HelperFunctions::getGenericHistogramSlice
   }
 }
 template <typename T, typename U> void HelperFunctions::getGenericHistogramSlice(T*& res, U const* histo, unsigned char XDirection, int iy, int jy, int iz, int jz, TString newname){
-  using namespace MELAStreamHelpers;
+  using namespace IvyStreamHelpers;
 
   if (!histo || XDirection>=3) return;
   if (newname=="") newname=Form("Slice_%s_%i_%i_%i_%i_%s", (XDirection==0 ? "X" : (XDirection==1 ? "Y" : "Z")), iy, jy, iz, jz, histo->GetName());
@@ -593,8 +593,8 @@ template <typename T, typename U> void HelperFunctions::getGenericHistogramSlice
   for (int i=1; i<=xaxis->GetNbins()+1; i++) bins.push_back(xaxis->GetBinLowEdge(i));
   iy = std::max(0, iy); jy = std::min(yaxis->GetNbins()+1, jy);
   iz = std::max(0, iz); jz = std::min(zaxis->GetNbins()+1, jz);
-  if (iy>jy) MELAerr << "HelperFunctions::getHistogramSlice: iy>jy!" << std::endl;
-  if (iz>jz) MELAerr << "HelperFunctions::getHistogramSlice: iz>jz!" << std::endl;
+  if (iy>jy) IVYerr << "HelperFunctions::getHistogramSlice: iy>jy!" << std::endl;
+  if (iz>jz) IVYerr << "HelperFunctions::getHistogramSlice: iz>jz!" << std::endl;
   
   res = new T(newname, "", bins.size()-1, bins.data());
 
@@ -622,7 +622,7 @@ template <typename T, typename U> void HelperFunctions::getGenericHistogramSlice
   }
 }
 template <typename T, typename U> void HelperFunctions::getGenericHistogramSlice(T*& res, U const* histo, unsigned char XDirection, unsigned char YDirection, int iz, int jz, TString newname){
-  using namespace MELAStreamHelpers;
+  using namespace IvyStreamHelpers;
 
   if (!histo || XDirection==YDirection || XDirection>=3 || YDirection>=3) return;
   if (newname=="") newname=Form("Slice_%s%s_%i_%i_%s", (XDirection==0 ? "X" : (XDirection==1 ? "Y" : "Z")), (YDirection==0 ? "X" : (YDirection==1 ? "Y" : "Z")), iz, jz, histo->GetName());

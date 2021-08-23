@@ -12,7 +12,7 @@
 #include "TWinNTSystem.h"
 #define ROOT_GSYSTEM_TYPE TWinNTSystem
 #endif
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 
 
 HostHelpers::Hosts HostHelpers::GetHostLocation(){
@@ -39,7 +39,7 @@ TString HostHelpers::GetHostLocalRedirector(Hosts const& host, bool isForFileOps
   case kEOSCMS:
     return "root://eoscms.cern.ch/";
   default:
-    MELAStreamHelpers::MELAerr << "HostHelpers::GetHostRemoteConnectionSpecifier: Host " << host << " might not support remote connection to read files. Returning the widest but slowest possible option." << std::endl;
+    IvyStreamHelpers::IVYerr << "HostHelpers::GetHostRemoteConnectionSpecifier: Host " << host << " might not support remote connection to read files. Returning the widest but slowest possible option." << std::endl;
     return (isForFileOps ? "" : "root://cms-xrd-global.cern.ch/");
   }
 }
@@ -55,7 +55,7 @@ TString HostHelpers::GetHostPathToStore(Hosts const& host){
   case kEOSCMS:
     return "/eos/cms";
   default:
-    MELAStreamHelpers::MELAerr << "HostHelpers::GetHostPathToStore: Host " << host << " is not supported. Returning empty string..." << std::endl;
+    IvyStreamHelpers::IVYerr << "HostHelpers::GetHostPathToStore: Host " << host << " is not supported. Returning empty string..." << std::endl;
     return "";
   }
 }
@@ -89,7 +89,7 @@ TString HostHelpers::GetX509Proxy(){
   if (stat(res.Data(), &sb) == 0) return res;
   if (uid) res = Form("/tmp/x509up_u%u", uid);
   if (stat(res.Data(), &sb) == 0) return res;
-  MELAStreamHelpers::MELAerr << "HostHelpers::GetX509Proxy: No grid proxy found Please put one in ~, /tmp, or define through the environment variable X509_USER_PROXY." << std::endl;
+  IvyStreamHelpers::IVYerr << "HostHelpers::GetX509Proxy: No grid proxy found Please put one in ~, /tmp, or define through the environment variable X509_USER_PROXY." << std::endl;
   assert(0);
   return "";
 }
@@ -127,7 +127,7 @@ bool HostHelpers::FileReadable(const char* fname){
     const char strext_root[]=".root";
     const char* strext_isroot = strstr(fname, strext_root);
     if (strext_isroot && strcmp(strext_isroot, strext_root)==0){
-      MELAStreamHelpers::MELAout
+      IvyStreamHelpers::IVYout
         << "HostHelpers::FileReadable: "
         << fname << " is remote, so will check if it is readable by explicitly opening it first..."
         << std::endl;
@@ -156,7 +156,7 @@ int HostHelpers::ExecuteCommand(const char* strCmd){
   sigaction(SIGCHLD, NULL, &childact);
   if (sys_ret==1 || childact.sa_handler==SIG_IGN) return system(strCmd);
   else{
-    MELAStreamHelpers::MELAerr << "HostHelpers::ExecuteCommand failed because the processor is not available (exit code " << sys_ret << ")!" << std::endl;
+    IvyStreamHelpers::IVYerr << "HostHelpers::ExecuteCommand failed because the processor is not available (exit code " << sys_ret << ")!" << std::endl;
     return -1;
   }
 }

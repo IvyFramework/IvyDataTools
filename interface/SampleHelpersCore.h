@@ -21,7 +21,7 @@
 #include "TList.h"
 #include "HostHelpersCore.h"
 #include "HelperFunctionsCore.h"
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 
 
 class Mela;
@@ -59,7 +59,7 @@ template<typename T> void SampleHelpers::bookBranch(TTree* tree, TString strname
         TString aname = alias->GetName();
         if (aname==strbname){
           strbname = alias->GetTitle();
-          MELAStreamHelpers::MELAout << "SampleHelpers::bookBranch: Using branch name " << strbname << " instead of the alias " << strname << "." << std::endl;
+          IvyStreamHelpers::IVYout << "SampleHelpers::bookBranch: Using branch name " << strbname << " instead of the alias " << strname << "." << std::endl;
           break;
         }
       }
@@ -74,10 +74,10 @@ template<typename T> void SampleHelpers::bookBranch(TTree* tree, TString strname
       if (bnamegen!="") tree->SetBranchStatus(bnamegen, 1);
       else tree->SetBranchStatus(strbname, 1);
       tree->SetBranchAddress(strbname, var);
-      MELAStreamHelpers::MELAout << "SampleHelpers::bookBranch: Booked " << strbname << " to address " << var << "." << std::endl;
-      if (!tree->GetBranchStatus(strbname)) MELAStreamHelpers::MELAerr << "SampleHelpers::bookBranch: Booked branch " << strbname << " has status 0!" << std::endl;
+      IvyStreamHelpers::IVYout << "SampleHelpers::bookBranch: Booked " << strbname << " to address " << var << "." << std::endl;
+      if (!tree->GetBranchStatus(strbname)) IvyStreamHelpers::IVYerr << "SampleHelpers::bookBranch: Booked branch " << strbname << " has status 0!" << std::endl;
     }
-    else MELAStreamHelpers::MELAout << "SampleHelpers::bookBranch: Branch " << strbname << " does not exist in tree " << tree->GetName() << "!" << std::endl;
+    else IvyStreamHelpers::IVYout << "SampleHelpers::bookBranch: Branch " << strbname << " does not exist in tree " << tree->GetName() << "!" << std::endl;
   }
 }
 template<typename T> void SampleHelpers::bookEDMBranch(TTree* tree, TString strname, T* var){
@@ -109,8 +109,8 @@ template<typename T> void SampleHelpers::putBranch(TTree* tree, TString strname,
   if (tree){
     // Do not check for branch alias
     if (!SampleHelpers::branchExists(tree, strname)){
-      //MELAStreamHelpers::MELAout << "SampleHelpers::putBranch: Branching " << strname << std::endl;
-      if (!tree->Branch(strname, &var)) MELAStreamHelpers::MELAerr << "SampleHelpers::putBranch: Did not succeed in creating a new branch for " << strname << " in tree " << tree->GetName() << std::endl;
+      //IvyStreamHelpers::IVYout << "SampleHelpers::putBranch: Branching " << strname << std::endl;
+      if (!tree->Branch(strname, &var)) IvyStreamHelpers::IVYerr << "SampleHelpers::putBranch: Did not succeed in creating a new branch for " << strname << " in tree " << tree->GetName() << std::endl;
     }
   }
 }

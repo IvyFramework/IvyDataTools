@@ -5,11 +5,11 @@
 #include "BaseEDMInputTree.h"
 #include "BaseEDMInputTree.hpp"
 #include "HelperFunctions.h"
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 
 
 using namespace std;
-using namespace MELAStreamHelpers;
+using namespace IvyStreamHelpers;
 using namespace HelperFunctions;
 
 
@@ -46,9 +46,9 @@ void BaseEDMInputTree::synchronizeEDMBranches(){
 void BaseEDMInputTree::print() const{
   BaseTree::print();
 
-#define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) for (auto const& it:bridge##name##s){ if (it.second){ MELAout << "\t- " << it.first << " details:" << endl; it.second->print(); } }
-#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:bridgeV##name##s){ if (it.second){ MELAout << "\t- " << it.first << " details:" << endl; it.second->print(); } }
-#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:bridgeVV##name##s){ if (it.second){ MELAout << "\t- " << it.first << " details:" << endl; it.second->print(); } }
+#define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) for (auto const& it:bridge##name##s){ if (it.second){ IVYout << "\t- " << it.first << " details:" << endl; it.second->print(); } }
+#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:bridgeV##name##s){ if (it.second){ IVYout << "\t- " << it.first << " details:" << endl; it.second->print(); } }
+#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:bridgeVV##name##s){ if (it.second){ IVYout << "\t- " << it.first << " details:" << endl; it.second->print(); } }
   SIMPLE_DATA_INPUT_DIRECTIVES
   VECTOR_DATA_INPUT_DIRECTIVES
   DOUBLEVECTOR_DATA_INPUT_DIRECTIVES

@@ -1,11 +1,11 @@
 #include "HelperFunctions.h"
 #include "ExtendedHistogram_3D.h"
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 
 
 using namespace std;
 using namespace HelperFunctions;
-using namespace MELAStreamHelpers;
+using namespace IvyStreamHelpers;
 
 
 ExtendedHistogram_3D::ExtendedHistogram_3D() : ExtendedHistogram(), histo(nullptr), prof_x(nullptr), prof_y(nullptr), prof_z(nullptr){}

@@ -4,7 +4,7 @@
 #include "TVar.hh"
 #include "BaseTree.h"
 #include "HelperFunctionsCore.h"
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 
 
 class IvyBase{
@@ -82,7 +82,7 @@ template<typename T> bool IvyBase::getConsumedValue(TString name, T& val) const{
     return true;
   }
   else{
-    if (!res && verbosity>=TVar::ERROR) MELAStreamHelpers::MELAerr << "IvyBase::getConsumedValue: Cannot consume " << name << std::endl;
+    if (!res && verbosity>=TVar::ERROR) IvyStreamHelpers::IVYerr << "IvyBase::getConsumedValue: Cannot consume " << name << std::endl;
     return res;
   }
 }
@@ -91,8 +91,8 @@ template<typename T> bool IvyBase::getConsumedCIterators(TString name, typename 
   bool res = this->getConsumedValue<T*>(name, vec);
   if (!res || !vec){
     if (verbosity>=TVar::ERROR){
-      if (!res) MELAStreamHelpers::MELAerr << "IvyBase::getConsumedCIterators: Cannot consume " << name << std::endl;
-      if (!vec) MELAStreamHelpers::MELAerr << "IvyBase::getConsumedCIterators: Vector of " << name << " is null." << std::endl;
+      if (!res) IvyStreamHelpers::IVYerr << "IvyBase::getConsumedCIterators: Cannot consume " << name << std::endl;
+      if (!vec) IvyStreamHelpers::IVYerr << "IvyBase::getConsumedCIterators: Vector of " << name << " is null." << std::endl;
     }
     return false;
   }

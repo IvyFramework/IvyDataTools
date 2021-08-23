@@ -6,11 +6,11 @@
 #include "HelperFunctions.h"
 #include "HostHelpersCore.h"
 #include "HiggsXSBRReader.h"
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 
 
 using namespace std;
-using namespace MELAStreamHelpers;
+using namespace IvyStreamHelpers;
 
 
 HiggsXSBRReader::HiggsXSBRReader(TString fname, TString partial_width_type){
@@ -35,19 +35,19 @@ HiggsXSBRReader::HiggsXSBRReader(TString fname, TString partial_width_type){
         type_vallist_map[tstr] = std::vector<double>();
       }
       if (std::find(column_list.begin(), column_list.end(), partial_width_type)==column_list.end()){
-        MELAerr << "HiggsXSBRReader::HiggsXSBRReader: Type '" << partial_width_type << "' does not exist." << endl;
+        IVYerr << "HiggsXSBRReader::HiggsXSBRReader: Type '" << partial_width_type << "' does not exist." << endl;
       }
       if (std::find(column_list.begin(), column_list.end(), "mass")==column_list.end()){
-        MELAerr << "HiggsXSBRReader::HiggsXSBRReader: Type 'mass' does not exist." << endl;
+        IVYerr << "HiggsXSBRReader::HiggsXSBRReader: Type 'mass' does not exist." << endl;
       }
       if (std::find(column_list.begin(), column_list.end(), "total_width")==column_list.end()){
-        MELAerr << "HiggsXSBRReader::HiggsXSBRReader: Type 'total_width' does not exist." << endl;
+        IVYerr << "HiggsXSBRReader::HiggsXSBRReader: Type 'total_width' does not exist." << endl;
       }
       firstLine=false;
     }
     else{
       if (column_list.size()!=splitline.size()){
-        MELAerr << "HiggsXSBRReader::HiggsXSBRReader: ERROR! column_list.size() (" << column_list.size() << ") != splitline.size() (" << splitline.size() << ")" << endl;
+        IVYerr << "HiggsXSBRReader::HiggsXSBRReader: ERROR! column_list.size() (" << column_list.size() << ") != splitline.size() (" << splitline.size() << ")" << endl;
       }
       for (size_t ic=0; ic<column_list.size(); ic++){
         type_vallist_map[column_list.at(ic)].push_back(std::stod(splitline.at(ic)));

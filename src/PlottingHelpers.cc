@@ -2,14 +2,14 @@
 #include <cmath>
 #include "HelperFunctions.h"
 #include "PlottingHelpers.h"
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 #include "TStyle.h"
 #include "TROOT.h"
 #include "TText.h"
 
 
 using namespace std;
-using namespace MELAStreamHelpers;
+using namespace IvyStreamHelpers;
 
 
 namespace PlottingHelpers{
@@ -51,7 +51,7 @@ namespace PlottingHelpers{
     space_x = double(space_x_pixels)/double(canvas_size_x);
     hStep = double(npixels_per_pad_x)/double(canvas_size_x);
     hHalfOffset = (Nx==1 ? 0. : space_x/2.);
-    //MELAout << "lMargin, rMargin, space_x, hStep, hHalfOffset = " << lMargin << ", " << rMargin << ", " << space_x << ", " << hStep << ", " << hHalfOffset << endl;
+    //IVYout << "lMargin, rMargin, space_x, hStep, hHalfOffset = " << lMargin << ", " << rMargin << ", " << space_x << ", " << hStep << ", " << hHalfOffset << endl;
 
     bMargin = double(bMargin_pixels)/double(canvas_size_y);
     tMargin = double(tMargin_pixels)/double(canvas_size_y);
@@ -60,7 +60,7 @@ namespace PlottingHelpers{
     vHalfOffset = (Ny==1 ? 0. : space_y/2.);
     // Reset vfrac_bottom for pixel differences as well
     vfrac_bottom = double(npixels_bottompad_y)/double(npixels_per_pad_y);
-    //MELAout << "bMargin, tMargin, space_y, vStep, vHalfOffset = " << bMargin << ", " << tMargin << ", " << space_y << ", " << vStep << ", " << vHalfOffset << endl;
+    //IVYout << "bMargin, tMargin, space_y, vStep, vHalfOffset = " << bMargin << ", " << tMargin << ", " << space_y << ", " << vStep << ", " << vHalfOffset << endl;
 
     canvas = new TCanvas(canvasname, "", canvas_size_x, canvas_size_y);
 
@@ -80,7 +80,7 @@ namespace PlottingHelpers{
 
   void PlotCanvas::partitionCanvas(){
     if (Nx<0 || Ny<0){
-      MELAerr << "PlotCanvas::partitionCanvas: Invalid Nx, Ny = " << Nx << ", " << Ny << endl;
+      IVYerr << "PlotCanvas::partitionCanvas: Invalid Nx, Ny = " << Nx << ", " << Ny << endl;
       assert(0);
     }
 
@@ -139,7 +139,7 @@ namespace PlottingHelpers{
         TPad* pad = nullptr;
 
         TString padname = canvasname + Form("_insidepanel_%i_%i", i, j);
-        if (gROOT->FindObject(padname)) MELAerr << "PlotCanvas::partitionCanvas: There is already a pad named " << padname << "!" << endl;
+        if (gROOT->FindObject(padname)) IVYerr << "PlotCanvas::partitionCanvas: There is already a pad named " << padname << "!" << endl;
 
         pad = new TPad(padname, "", hposl, vposd, hposr, vposu);
 
@@ -169,7 +169,7 @@ namespace PlottingHelpers{
       TPad* pad = nullptr;
 
       TString padname = canvasname + Form("_borderpanel_%i", iborder);
-      if (gROOT->FindObject(padname)) MELAerr << "PlotCanvas::partitionCanvas: There is already a pad named " << padname << "!" << endl;
+      if (gROOT->FindObject(padname)) IVYerr << "PlotCanvas::partitionCanvas: There is already a pad named " << padname << "!" << endl;
 
       switch (iborder){
       case 0:
@@ -180,7 +180,7 @@ namespace PlottingHelpers{
         vposd = 0;
         double stdoffset = getStdPixelSize_XYTitle()/canvas_size_y*1.5;
         if (stdoffset>=bMargin){
-          MELAerr << "PlotCanvas::partitionCanvas: Requested bottom offset " << stdoffset << ">= " << bMargin << ". Scaling to " << bMargin*0.75 << "." << endl;
+          IVYerr << "PlotCanvas::partitionCanvas: Requested bottom offset " << stdoffset << ">= " << bMargin << ". Scaling to " << bMargin*0.75 << "." << endl;
           vposu = bMargin*0.75;
         }
         else vposu = stdoffset;
@@ -192,7 +192,7 @@ namespace PlottingHelpers{
         hposl = 0.;
         double stdoffset = getStdPixelSize_XYTitle()/canvas_size_x*1.5;
         if (stdoffset>=lMargin){
-          MELAerr << "PlotCanvas::partitionCanvas: Requested left offset " << stdoffset << ">= " << lMargin << ". Scaling to " << lMargin*0.75 << "." << endl;
+          IVYerr << "PlotCanvas::partitionCanvas: Requested left offset " << stdoffset << ">= " << lMargin << ". Scaling to " << lMargin*0.75 << "." << endl;
           hposr = lMargin*0.75;
         }
         else hposr = stdoffset;
@@ -332,8 +332,8 @@ namespace PlottingHelpers{
     cmstxt->SetTextFont(63);
     cmstxt->SetTextSize(cms_pixel_ysize);
     addText(cmstxt->DrawLatexNDC(0. + cms_pixel_xsize*0.5/((1.-rMargin-lMargin)*canvas_size_x), 0.55, "CMS"));
-    //MELAout << "CMS label relative position: " << 0. + cms_pixel_xsize*0.5/((1.-rMargin-lMargin)*canvas_size_x) << ", " << 0.55 << endl;
-    //MELAout << "CMS label size: " << cms_pixel_xsize << ", " << cms_pixel_ysize << endl;
+    //IVYout << "CMS label relative position: " << 0. + cms_pixel_xsize*0.5/((1.-rMargin-lMargin)*canvas_size_x) << ", " << 0.55 << endl;
+    //IVYout << "CMS label size: " << cms_pixel_xsize << ", " << cms_pixel_ysize << endl;
 
     // Draw the CMS extra label
     double cmsprelim_pixel_ysize = getStdPixelSize_CMSLogoExtras();

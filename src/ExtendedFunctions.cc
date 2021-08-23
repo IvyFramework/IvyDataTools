@@ -5,12 +5,12 @@
 #include "TVectorD.h"
 #include "HelperFunctions.h"
 #include "ExtendedFunctions.h"
-#include "MELAStreamHelpers.hh"
+#include "IvyStreamHelpers.hh"
 
 
 using namespace std;
 using namespace HelperFunctions;
-using namespace MELAStreamHelpers;
+using namespace IvyStreamHelpers;
 
 
 ExtendedFunctions::SimpleGaussian::SimpleGaussian(double mean_, double sigma_, SimpleGaussian::RangeSetting rangeset_, double min_, double max_) :
@@ -250,7 +250,7 @@ double ExtendedFunctions::PiecewisePolynomial::eval(double x){
     return res;
   }
   else{
-    MELAerr << "PiecewisePolynomial::eval: Something went wrong, and the determinant is 0!" << endl;
+    IVYerr << "PiecewisePolynomial::eval: Something went wrong, and the determinant is 0!" << endl;
     return d_epsilon;
   }
 }
