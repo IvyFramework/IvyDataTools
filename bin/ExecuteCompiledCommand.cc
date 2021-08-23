@@ -8,6 +8,7 @@
 #include "HostHelpersCore.h"
 #include "SampleHelpersCore.h"
 #include "HelperFunctions.h"
+#include "StatisticsHelpers.h"
 #include "MELAStreamHelpers.hh"
 
 
@@ -82,6 +83,50 @@ int main(int argc, char** argv){
         exit_status = 0;
       }
     }
+    else if (strCmdLower == "getnumberorderbase10"){
+      if (strArgs.size()!=1) print_help = true;
+      else{
+        double const val = std::stod(strArgs.front().Data());
+        cout << HelperFunctions::getFirstSignificantDecimalPowerBase10(val) << endl;
+        exit_status = 0;
+      }
+    }
+    else if (strCmdLower == "computechisqprob"){
+      if (strArgs.size()!=2) print_help = true;
+      else{
+        double chisq = std::stod(strArgs.front().Data());
+        double ndof = std::stod(strArgs.back().Data());
+        double CL = StatisticsHelpers::getConfidenceLevelValue(std::sqrt(chisq), ndof);
+        cout << CL << endl;
+        exit_status = 0;
+      }
+    }
+    else if (strCmdLower == "computechisqquantile"){
+      if (strArgs.size()!=2) print_help = true;
+      else{
+        double CL = std::stod(strArgs.front().Data());
+        double ndof = std::stod(strArgs.back().Data());
+        double quant = StatisticsHelpers::chisq_quantile(CL, ndof);
+        cout << quant << endl;
+        exit_status = 0;
+      }
+    }
+    else if (strCmdLower == "computepoissoncountinginterval"){
+      if (strArgs.size()!=2 && strArgs.size()!=3) print_help = true;
+      else{
+        double count = std::stod(strArgs.front().Data());
+        double CL = std::stod(strArgs.at(1).Data());
+        double counterrsq = (strArgs.size()==2 ? count : std::pow(std::stod(strArgs.back().Data()), 2));
+        double vlow=0, vhigh=0;
+        StatisticsHelpers::getPoissonCountingConfidenceInterval_Frequentist(count, counterrsq, CL, vlow, vhigh);
+        int count_precision_low = HelperFunctions::getFirstSignificantDecimalPowerBase10(vlow);
+        int count_precision_high = HelperFunctions::getFirstSignificantDecimalPowerBase10(vhigh);
+        if (count_precision_low>0) count_precision_low = 0;
+        if (count_precision_high>0) count_precision_high = 0;
+        cout << HelperFunctions::castValueToString(vlow, -count_precision_low+5, 5)  << " " << HelperFunctions::castValueToString(vhigh, -count_precision_high+5, 5) << endl;
+        exit_status = 0;
+      }
+    }
     else{
       MELAerr << "Command " << strCmd << " with arguments " << strArgs << " is not supported." << endl;
       print_help = true;
@@ -89,8 +134,12 @@ int main(int argc, char** argv){
   }
 
   if (print_help){
-    cout << "ExecuteCompiledCommand usage:" << endl;
+    cout << "ExecuteCompiledCommand usage (commands are case-insensitive):" << endl;
+    cout << endl;
     cout << "  help: Print this help message." << endl;
+    cout << endl;
+    cout << "*** Helper commands for bash operations ***" << endl;
+    cout << endl;
     cout << "  lstrip [line] [characters (optional)]: Strip line off a set of characters from the beginning. If character string is empty, strip off whitespace." << endl;
     cout << "  rstrip [line] [characters (optional)]: Strip line off a set of characters from the end. If character string is empty, strip off whitespace." << endl;
     cout << "  lrstrip [line] [characters (optional)]: lstrip and rstrip combined." << endl;
@@ -98,10 +147,17 @@ int main(int argc, char** argv){
     cout << "  DirectoryExists [path]: Check if directory exists. Path convention is the same as the 'lsdir' command." << endl;
     cout << "  FileExists [path]: Check if file exists. Path convention is the same as the 'lsdir' command." << endl;
     cout << "  FileReadable [path]: Check if file is readable. Path convention is the same as the 'lsdir' command." << endl;
-    cout << "  GetHostLocalRedirector [host identifier]: The host identifier should be a common string such as 't2.ucsd.edu', 'iihe.ac.be', or 'eos.cms.cern.ch'." << endl;
+    cout << "  GetHostLocalRedirector [host identifier]: The host identifier should be a common string such as 't2.ucsd.edu', 'iihe.ac.be', 'eos.cms.cern.ch' etc." << endl;
     cout << "  GetHostPathToStore [host identifier]: Same as above." << endl;
     cout << "  GetStandardHostPathToStore [path] [host identifier]: The path can start with '/store', or it can be an absolute path. Same as above for the host identifier." << endl;
     cout << "  GetX509Proxy: This is a call to get the best x509 user proxy, collecting a bunch of checks together." << endl;
+    cout << endl;
+    cout << "*** Helper functions for quick computations ***" << endl;
+    cout << endl;
+    cout << "  GetNumberOrderBase10 [number]: Compute the order of a number in base 10 (e.g., 120 -> 2, 0.023 -> -2). 0 returns 0." << endl;
+    cout << "  ComputeChisqProb [chisq] [ndof]: Compute the probability corresponding to the CL for a chisq and a certain ndof (e.g., [5.99, 2] -> 0.95)." << endl;
+    cout << "  ComputeChisqQuantile [CL] [ndof]: Compute the chi-square quantile corresponding to a CL and a certain ndof." << endl;
+    cout << "  ComputePoissonCountingInterval [count] [CL] [count error (optional)]: Compute the Clopper-Pearson confidence interval for a count of events at a certain CL." << endl;
   }
 
   return exit_status;

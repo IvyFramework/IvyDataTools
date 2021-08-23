@@ -36,7 +36,7 @@ EXTCXXFLAGS   = $(MELACXXFLAGS)
 EXTLIBS       = $(MELALIBS)
 
 ROOTCFLAGS    = $(shell root-config --cflags) -Lrootlib
-ROOTLIBS     = $(shell root-config --libs) -Lrootlib
+ROOTLIBS     = $(shell root-config --libs) -lMathMore -Lrootlib
 
 ARCH         := $(shell root-config --arch)
 

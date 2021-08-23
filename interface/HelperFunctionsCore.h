@@ -110,9 +110,10 @@ template<typename T> std::string HelperFunctions::castValueToString(T const& val
   double addval = (remainder_prevtoLastDigit==0 ? std::pow(10., -(iprec+1)) : 0.); // Form is smart enough to round 0.00006 to 0.0001, but 0.00005 becomes 0.0000.
   std::string res = Form(strprintf.Data(), static_cast<double>(val)+addval);
   if (res.find('.')!=std::string::npos){ while (res.back()=='0') res.pop_back(); }
+  if (res.back()=='.') res.pop_back();
   return res;
 }
 
-template<typename T> int HelperFunctions::getFirstSignificantDecimalPowerBase10(T const& val){ return std::floor(std::log10(std::abs(val))); }
+template<typename T> int HelperFunctions::getFirstSignificantDecimalPowerBase10(T const& val){ return (val==0. ? 0. : std::floor(std::log10(std::abs(val)))); }
 
 #endif
