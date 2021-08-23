@@ -20,16 +20,16 @@
 #include "TChain.h"
 #include "TList.h"
 #include "HostHelpersCore.h"
-#include "HelperFunctions.h"
+#include "HelperFunctionsCore.h"
 #include "MELAStreamHelpers.hh"
 
 
+class Mela;
+
+
 namespace SampleHelpers{
-  extern std::shared_ptr<Mela> GlobalMELA;
   extern TDirectory* const rootTDirectory;
   extern volatile sig_atomic_t doSignalInterrupt;
-
-  void makeGlobalMELA(int CoM, TVar::VerbosityLevel verbosity=TVar::ERROR);
 
   void setSignalInterrupt(int snum);
 

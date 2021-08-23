@@ -38,7 +38,6 @@
 #include "ExtendedBinning.h"
 #include "SimpleEntry.h"
 #include "MELAStreamHelpers.hh"
-#include "Mela.h"
 
 
 namespace HelperFunctions{
@@ -177,17 +176,6 @@ namespace HelperFunctions{
   // Spline functions
   template<int N> TF1* getFcn_a0plusa1overXN(TSpline3* sp, double xmin, double xmax, bool useLowBound);
   template<int N> TF1* getFcn_a0plusa1timesXN(TSpline3* sp, double xmin, double xmax, bool useLowBound);
-
-  // Non-template functions
-  TString todaysdate();
-
-  void progressbar(unsigned int val, unsigned int tot);
-
-  void splitOption(const std::string& rawoption, std::string& wish, std::string& value, char delimiter);
-  void splitOption(const TString& rawoption, TString& wish, TString& value, char delimiter);
-
-  void splitOptionRecursive(const std::string& rawoption, std::vector<std::string>& splitoptions, char delimiter, bool uniqueResults=true);
-  void splitOptionRecursive(const TString& rawoption, std::vector<TString>& splitoptions, char delimiter, bool uniqueResults=true);
 
   void getExtendedBinning(TAxis const* theAxis, ExtendedBinning& res);
   void getExtendedBinning(TH1 const* histo, unsigned int iaxis, ExtendedBinning& res);

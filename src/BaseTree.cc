@@ -3,7 +3,7 @@
 #include "HostHelpersCore.h"
 #include "BaseTree.h"
 #include "BaseTree.hpp"
-#include "HelperFunctions.h"
+#include "HelperFunctionsCore.h"
 #include "MELAStreamHelpers.hh"
 
 

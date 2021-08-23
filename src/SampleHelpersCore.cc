@@ -15,8 +15,6 @@ namespace SampleHelpers{
   volatile sig_atomic_t doSignalInterrupt = 0;
 }
 
-void SampleHelpers::makeGlobalMELA(int CoM, TVar::VerbosityLevel verbosity){ if (!GlobalMELA) GlobalMELA.reset(new Mela(CoM, 125, verbosity)); }
-
 void SampleHelpers::setSignalInterrupt(int snum){
   if (snum==SIGINT) doSignalInterrupt = 1;
 }

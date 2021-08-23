@@ -79,6 +79,17 @@ namespace HelperFunctions{
   // Value-to-string casts
   template<typename T> std::string castValueToString(T const& val, unsigned short max_decimals=4, unsigned short precision=4);
 
+  // Non-template functions for string operations
+  TString todaysdate();
+
+  void progressbar(unsigned int val, unsigned int tot);
+
+  void splitOption(const std::string& rawoption, std::string& wish, std::string& value, char delimiter);
+  void splitOption(const TString& rawoption, TString& wish, TString& value, char delimiter);
+
+  void splitOptionRecursive(const std::string& rawoption, std::vector<std::string>& splitoptions, char delimiter, bool uniqueResults=true);
+  void splitOptionRecursive(const TString& rawoption, std::vector<TString>& splitoptions, char delimiter, bool uniqueResults=true);
+
   // Find the power of the first significant figure
   template<typename T> int getFirstSignificantDecimalPowerBase10(T const& val);
 
