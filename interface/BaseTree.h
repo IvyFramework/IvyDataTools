@@ -8,7 +8,6 @@
 #include "StdExtensions.h"
 #include "SimpleEntry.h"
 #include "TFile.h"
-#include "TBits.h"
 #include "TTree.h"
 #include "TH1F.h"
 #include "CMSLorentzVector.h"
@@ -97,10 +96,12 @@ public:
   TFile* getInputFile();
   TTree* getSelectedTree();
   TTree* getFailedTree();
+  TH1F* getCountersHistogram();
   std::vector<TTree*>& getValidTrees();
   TFile const* getInputFile() const;
   TTree const* getSelectedTree() const;
   TTree const* getFailedTree() const;
+  TH1F const* getCountersHistogram() const;
   std::vector<TTree*> const& getValidTrees() const;
 
   bool getSelectedEvent(int ev);
@@ -119,10 +120,6 @@ public:
   int getSelectedNEvents() const;
   int getFailedNEvents() const;
   int getNEvents() const;
-
-  // Overloads of getNEvents
-  virtual unsigned int getNGenNoPU();
-  virtual float getNGenWithPU();
 
   template<typename T> void getVal(TString branchname, T& val) const;
   template<typename T> void setVal(TString branchname, T const& val);

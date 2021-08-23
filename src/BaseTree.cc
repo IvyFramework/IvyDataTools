@@ -328,10 +328,12 @@ BaseTree::BranchType BaseTree::searchBranchType(TString branchname) const{
 TFile* BaseTree::getInputFile(){ return finput; }
 TTree* BaseTree::getSelectedTree(){ return tree; }
 TTree* BaseTree::getFailedTree(){ return failedtree; }
+TH1F* BaseTree::getCountersHistogram(){ return hCounters; }
 std::vector<TTree*>& BaseTree::getValidTrees(){ return treelist; }
 TFile const* BaseTree::getInputFile() const{ return finput; }
 TTree const* BaseTree::getSelectedTree() const{ return tree; }
 TTree const* BaseTree::getFailedTree() const{ return failedtree; }
+TH1F const* BaseTree::getCountersHistogram() const{ return hCounters; }
 std::vector<TTree*> const& BaseTree::getValidTrees() const{ return treelist; }
 
 bool BaseTree::getSelectedEvent(int ev){
@@ -436,10 +438,6 @@ int BaseTree::getNEvents() const{
   for (auto const& tt:treelist) n_acc += tt->GetEntries();
   return n_acc;
 }
-
-// Overloads of getNEvents
-unsigned int BaseTree::getNGenNoPU(){ int res = this->getNEvents(); return std::max(res, 0); }
-float BaseTree::getNGenWithPU(){ return this->getNEvents(); }
 
 bool BaseTree::isValid() const{ return valid; }
 bool BaseTree::branchExists(TString branchname, BranchType* type){

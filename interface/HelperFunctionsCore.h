@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cctype>
 #include <unordered_map>
+#include "TMath.h"
 #include "StdExtensions.h"
 #include "TUtilHelpers.hh"
 #include "CMSLorentzVector.h"
@@ -30,8 +31,24 @@ template<typename class_type> struct has_##member<class_type, decltype((void)cla
 
 namespace HelperFunctions{
 
+  // Functions for vectors and maps
+  template<typename T> void appendVector(std::vector<T>& a, std::vector<T> const& b);
+
+  template<typename T> void addByLowest(std::vector<T>& valArray, T val, bool unique);
+  template<typename T, typename U> void addByLowest(std::vector<std::pair<T, U>>& valArray, T val, U index);
+  template<typename T, typename U> void addByLowest(std::vector<std::pair<T, U>>& valArray, std::vector<std::pair<T, U>>& inArray, bool consecutive=false, bool inputordered=false);
+
+  template<typename T> void addByHighest(std::vector<T>& valArray, T val, bool unique);
+  template<typename T, typename U> void addByHighest(std::vector<std::pair<T, U>>& valArray, T val, U index);
+  template<typename T, typename U> void addByHighest(std::vector<std::pair<T, U>>& valArray, std::vector<std::pair<T, U>>& inArray, bool consecutive=false, bool inputordered=false);
+
+  template<typename T> bool checkListVariable(std::vector<T> const& list, T const& var);
+  template<typename T> bool hasCommonElements(std::vector<T> const& list1, std::vector<T> const& list2);
+
   template<typename T, typename U> bool getUnorderedMapIterator(T const& theKey, std::unordered_map<T, U> const& theMap, typename std::unordered_map<T, U>::const_iterator& it);
   template<typename T, typename U> bool getUnorderedMapIterator(T const& theKey, std::unordered_map<T, U>& theMap, typename std::unordered_map<T, U>::iterator& it);
+
+  template<typename T, typename U> void cleanUnorderedMap(std::unordered_map<T, U>& um);
 
   template<typename T> void resetPointer(T*& ptr);
 
@@ -65,9 +82,204 @@ namespace HelperFunctions{
   // Find the power of the first significant figure
   template<typename T> int getFirstSignificantDecimalPowerBase10(T const& val);
 
+  // Non-zero and NaN/Inf checkers
+  template<typename T> bool checkVarNonNegative(T const& val);
+  template<typename T> bool checkNonNegative(std::vector<T> const& vars, int ibegin=-1, int iend=-1);
+  template<typename T> bool checkVarNonZero(T const& val);
+  template<typename T> bool checkNonZero(std::vector<T> const& vars, int ibegin=-1, int iend=-1);
+  template<typename T> bool checkVarPositiveDef(T const& val);
+  template<typename T> bool checkPositiveDef(std::vector<T> const& vars, int ibegin=-1, int iend=-1);
+  template<typename T> bool checkVarNanInf(T const& val);
+  template<typename T> bool checkNanInf(std::vector<T> const& vars);
+
+  // Bit set and test
+  template<typename T> void set_bit(T& mask, unsigned int iBit, bool val=true);
+  template<typename T> bool test_bit(T const& mask, unsigned int iBit);
+  template<typename T> TString displayBitsAsString(T const& mask, unsigned int const& nbits);
+
+  // Math vector helpers
+  template<typename T> void deltaR(T const& e1, T const& p1, T const& e2, T const& p2, T& res);
+  template<typename T> void deltaEta(T const& v1, T const& v2, T& res);
+  template<typename T> void deltaPhi(T const& v1, T const& v2, T& res);
 }
 
-template<typename T> void HelperFunctions::resetPointer(T*& ptr){ delete ptr; ptr=nullptr; }
+template<typename T> void HelperFunctions::appendVector(std::vector<T>& a, std::vector<T> const& b){ a.insert(a.end(), b.cbegin(), b.cend()); }
+
+template<typename T> void HelperFunctions::addByLowest(std::vector<T>& valArray, T val, bool unique){
+  bool inserted = false;
+  if (unique){
+    for (typename std::vector<T>::iterator it = valArray.begin(); it<valArray.end(); it++){
+      if (*it==val){
+        inserted=true;
+        break;
+      }
+    }
+  }
+  if (!inserted){
+    for (typename std::vector<T>::iterator it = valArray.begin(); it<valArray.end(); it++){
+      if (*it>=val){
+        inserted=true;
+        valArray.insert(it, val);
+        break;
+      }
+    }
+  }
+  if (!inserted) valArray.push_back(val);
+}
+template<typename T, typename U> void HelperFunctions::addByLowest(std::vector<std::pair<T, U>>& valArray, T val, U index){
+  bool inserted = false;
+  for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it<valArray.end(); it++){
+    if ((*it).first>=val){
+      inserted=true;
+      if ((*it).second!=index) valArray.insert(it, std::pair<T, U>(val, index));
+      break;
+    }
+  }
+  if (!inserted) valArray.push_back(std::pair<T, U>(val, index));
+}
+template<typename T, typename U> void HelperFunctions::addByLowest(std::vector<std::pair<T, U>>& valArray, std::vector<std::pair<T, U>>& inArray, bool consecutive, bool inputordered){
+  if (consecutive){
+    bool inserted = false;
+    typename std::vector<std::pair<T, U>>::iterator inbegin = inArray.begin();
+    typename std::vector<std::pair<T, U>>::iterator inend = inArray.end();
+    for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it<valArray.end(); it++){
+      if ((*it).first>=(*inbegin).first){
+        inserted=true;
+        if ((*it).second!=(*inbegin).second) valArray.insert(it, inbegin, inend);
+        break;
+      }
+    }
+    if (!inserted) appendVector<std::pair<T, U>>(valArray, inArray);
+  }
+  else if (!inputordered){
+    for (typename std::vector<std::pair<T, U>>::iterator init = inArray.begin(); init<inArray.end(); init++){
+      bool inserted = false;
+      for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it<valArray.end(); it++){
+        if ((*it).first>=(*init).first){
+          inserted=true;
+          if ((*it).second!=(*init).second) valArray.insert(it, *init);
+          break;
+        }
+      }
+      if (!inserted) valArray.push_back(*init);
+    }
+  }
+  else if (inArray.size()>0){
+    typename std::vector<std::pair<T, U>>::iterator infirst = inArray.begin();
+    typename std::vector<std::pair<T, U>>::iterator inlast = inArray.end()-1;
+    typename std::vector<std::pair<T, U>>::iterator valfirst = valArray.begin();
+    typename std::vector<std::pair<T, U>>::iterator vallast = valArray.end()-1;
+    while ((*valfirst).first<(*infirst).first) valfirst++;
+    while ((*vallast).first>=(*inlast).first) vallast--;
+    vallast++;
+    inlast++;
+
+    for (typename std::vector<std::pair<T, U>>::iterator init = infirst; init<inlast; init++){
+      bool inserted = false;
+      for (typename std::vector<std::pair<T, U>>::iterator it = valfirst; it<vallast; it++){
+        if ((*it).first>=(*init).first){
+          inserted=true;
+          if ((*it).second!=(*init).second) valArray.insert(it, *init);
+          break;
+        }
+      }
+      if (!inserted) valArray.insert(vallast, *init);
+    }
+  }
+}
+
+template<typename T> void HelperFunctions::addByHighest(std::vector<T>& valArray, T val, bool unique){
+  bool inserted = false;
+  if (unique){
+    for (typename std::vector<T>::iterator it = valArray.begin(); it<valArray.end(); it++){
+      if (*it==val){
+        inserted=true;
+        break;
+      }
+    }
+  }
+  if (!inserted){
+    for (typename std::vector<T>::iterator it = valArray.begin(); it<valArray.end(); it++){
+      if (*it<=val){
+        inserted=true;
+        valArray.insert(it, val);
+        break;
+      }
+    }
+  }
+  if (!inserted) valArray.push_back(val);
+}
+template<typename T, typename U> void HelperFunctions::addByHighest(std::vector<std::pair<T, U>>& valArray, T val, U index){
+  bool inserted = false;
+  for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it<valArray.end(); it++){
+    if ((*it).first<=val){
+      inserted=true;
+      if ((*it).second!=index) valArray.insert(it, std::pair<T, U>(val, index));
+      break;
+    }
+  }
+  if (!inserted) valArray.push_back(std::pair<T, U>(val, index));
+}
+template<typename T, typename U> void HelperFunctions::addByHighest(std::vector<std::pair<T, U>>& valArray, std::vector<std::pair<T, U>>& inArray, bool consecutive, bool inputordered){
+  if (consecutive){
+    bool inserted = false;
+    typename std::vector<std::pair<T, U>>::iterator inbegin = inArray.begin();
+    typename std::vector<std::pair<T, U>>::iterator inend = inArray.end();
+    for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it<valArray.end(); it++){
+      if ((*it).first<=(*inbegin).first){
+        inserted=true;
+        if ((*it).second!=(*inbegin).second) valArray.insert(it, inbegin, inend);
+        break;
+      }
+    }
+    if (!inserted) appendVector<std::pair<T, U>>(valArray, inArray);
+  }
+  else if (!inputordered){
+    for (typename std::vector<std::pair<T, U>>::iterator init = inArray.begin(); init<inArray.end(); init++){
+      bool inserted = false;
+      for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it<valArray.end(); it++){
+        if ((*it).first<=(*init).first){
+          inserted=true;
+          if ((*it).second!=(*init).second) valArray.insert(it, *init);
+          break;
+        }
+      }
+      if (!inserted) valArray.push_back(*init);
+    }
+  }
+  else if (inArray.size()>0){
+    typename std::vector<std::pair<T, U>>::iterator infirst = inArray.begin();
+    typename std::vector<std::pair<T, U>>::iterator inlast = inArray.end()-1;
+    typename std::vector<std::pair<T, U>>::iterator valfirst = valArray.begin();
+    typename std::vector<std::pair<T, U>>::iterator vallast = valArray.end()-1;
+    while ((*valfirst).first>(*infirst).first) valfirst++;
+    while ((*vallast).first<=(*inlast).first) vallast--;
+    vallast++;
+    inlast++;
+
+    for (typename std::vector<std::pair<T, U>>::iterator init = infirst; init<inlast; init++){
+      bool inserted = false;
+      for (typename std::vector<std::pair<T, U>>::iterator it = valfirst; it<vallast; it++){
+        if ((*it).first<=(*init).first){
+          inserted=true;
+          if ((*it).second!=(*init).second) valArray.insert(it, *init);
+          break;
+        }
+      }
+      if (!inserted) valArray.insert(vallast, *init);
+    }
+  }
+}
+
+template<typename T> bool HelperFunctions::checkListVariable(std::vector<T> const& list, T const& var){ return (std::find(std::begin(list), std::end(list), var)!=std::end(list)); }
+template<typename T> bool HelperFunctions::hasCommonElements(std::vector<T> const& list1, std::vector<T> const& list2){
+  for (T const& el1:list1){
+    for (T const& el2:list2){
+      if (el1==el2) return true;
+    }
+  }
+  return false;
+}
 
 template<typename T, typename U> bool HelperFunctions::getUnorderedMapIterator(T const& theKey, std::unordered_map<T, U> const& theMap, typename std::unordered_map<T, U>::const_iterator& it){
   it = theMap.find(theKey);
@@ -78,6 +290,11 @@ template<typename T, typename U> bool HelperFunctions::getUnorderedMapIterator(T
   return (it!=theMap.end());
 }
 
+template<typename T, typename U> void HelperFunctions::cleanUnorderedMap(std::unordered_map<T, U>& um){ for (auto& it:um){ delete it.second; it.second=nullptr; } }
+
+template<typename T> void HelperFunctions::resetPointer(T*& ptr){ delete ptr; ptr=nullptr; }
+
+// String functions
 template<typename T> void HelperFunctions::castStringToValue(std::string const& name, T& val){ std::stringstream ss(name); ss >> val; }
 template<typename T> void HelperFunctions::castStringToValue(TString const& name, T& val){ std::string s(name.Data()); HelperFunctions::castStringToValue(s, val); }
 template<typename T> void HelperFunctions::castStringToValue(const char* name, T& val){ std::string s(name); HelperFunctions::castStringToValue(s, val); }
@@ -114,6 +331,87 @@ template<typename T> std::string HelperFunctions::castValueToString(T const& val
   return res;
 }
 
+// Find the power of the first significant figure
 template<typename T> int HelperFunctions::getFirstSignificantDecimalPowerBase10(T const& val){ return (val==0. ? 0. : std::floor(std::log10(std::abs(val)))); }
+
+// Non-zero and NaN/Inf checkers
+template<typename T> bool HelperFunctions::checkVarNonNegative(T const& val){ return (val>=0.); }
+template<typename T> bool HelperFunctions::checkNonNegative(std::vector<T> const& vars, int ibegin, int iend){
+  int ipos=0;
+  for (T const& v:vars){
+    if ((ibegin>=0 && ipos<ibegin) || (iend>=0 && ipos>=iend)) continue;
+    ipos++;
+    if (!checkVarNonNegative<T>(v)) return false;
+  }
+  return true;
+}
+template<typename T> bool HelperFunctions::checkVarNonZero(T const& val){ return (val!=0.); }
+template<typename T> bool HelperFunctions::checkNonZero(std::vector<T> const& vars, int ibegin, int iend){
+  int ipos=0;
+  for (T const& v:vars){
+    if ((ibegin>=0 && ipos<ibegin) || (iend>=0 && ipos>=iend)) continue;
+    ipos++;
+    if (!checkVarNonZero<T>(v)) return false;
+  }
+  return true;
+}
+template<typename T> bool HelperFunctions::checkVarPositiveDef(T const& val){ return (val>0.); }
+template<typename T> bool HelperFunctions::checkPositiveDef(std::vector<T> const& vars, int ibegin, int iend){
+  int ipos=0;
+  for (T const& v:vars){
+    if ((ibegin>=0 && ipos<ibegin) || (iend>=0 && ipos>=iend)) continue;
+    ipos++;
+    if (!checkVarPositiveDef<T>(v)) return false;
+  }
+  return true;
+}
+// Following https://stackoverflow.com/a/42138465
+template<typename T> bool HelperFunctions::checkVarNanInf(T const& val){
+  return !(std::isnan(val) || std::isinf(val) || (std::numeric_limits<T>::has_quiet_NaN && val==std::numeric_limits<T>::quiet_NaN()));
+}
+template<typename T> bool HelperFunctions::checkNanInf(std::vector<T> const& vars){
+  for (T const& v:vars){ if (!checkVarNanInf<T>(v)) return false; }
+  return true;
+}
+
+// Bit set and test
+template<typename T> void HelperFunctions::set_bit(T& mask, unsigned int iBit, bool val){
+  if (val) mask |= (1<<iBit);
+  else if (test_bit(mask, iBit)){
+    T tmp_mask = (1<<iBit);
+    mask = mask ^ tmp_mask;
+  }
+}
+template<typename T> bool HelperFunctions::test_bit(T const& mask, unsigned int iBit){ return (mask >> iBit) & 1; }
+template<typename T> TString HelperFunctions::displayBitsAsString(T const& mask, unsigned int const& nbits){
+  assert(nbits>0);
+  TString res;
+  unsigned int ibit = nbits-1;
+  while (true){
+    res = res + (test_bit(mask, ibit) ? "1" : "0");
+    if (ibit==0) break;
+    ibit--;
+  }
+  return res;
+}
+
+// Math vector helpers
+template<typename T> void HelperFunctions::deltaR(T const& e1, T const& p1, T const& e2, T const& p2, T& res){
+  T deta;
+  deltaEta(e1, e2, deta);
+  T dphi;
+  deltaPhi(p1, p2, dphi);
+  res = std::sqrt(std::pow(deta, 2) + std::pow(dphi, 2));
+}
+template<typename T> void HelperFunctions::deltaEta(T const& v1, T const& v2, T& res){
+  res = v1 - v2;
+}
+template<typename T> void HelperFunctions::deltaPhi(T const& v1, T const& v2, T& res){
+  res = v1 - v2;
+  T const pi_val = TMath::Pi();
+  T const twopi_val = TMath::Pi()*T(2);
+  if (res>pi_val){ while (res>pi_val) res -= twopi_val; }
+  else if (res<-pi_val){ while (res<-pi_val) res += twopi_val; }
+}
 
 #endif
