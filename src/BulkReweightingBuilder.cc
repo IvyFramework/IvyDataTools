@@ -4,12 +4,10 @@
 #include "SimpleEntry.h"
 #include "ExtendedHistogram_1D.h"
 #include "ExtendedHistogram_2D.h"
-#include "MELAAccumulators.h"
 #include "IvyStreamHelpers.hh"
 
 
 using namespace std;
-using namespace TNumericUtil;
 using namespace IvyStreamHelpers;
 using namespace HelperFunctions;
 

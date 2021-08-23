@@ -24,9 +24,6 @@
 #include "IvyStreamHelpers.hh"
 
 
-class Mela;
-
-
 namespace SampleHelpers{
   extern TDirectory* const rootTDirectory;
   extern volatile sig_atomic_t doSignalInterrupt;

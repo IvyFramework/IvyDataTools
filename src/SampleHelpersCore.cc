@@ -10,7 +10,6 @@ using namespace IvyStreamHelpers;
 
 
 namespace SampleHelpers{
-  shared_ptr<Mela> GlobalMELA;
   TDirectory* const rootTDirectory = gDirectory;
   volatile sig_atomic_t doSignalInterrupt = 0;
 }

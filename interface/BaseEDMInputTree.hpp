@@ -19,7 +19,7 @@ template<> bool BaseEDMInputTree::bookEDMBranch<type>(TString branchname, type v
 template<> bool BaseEDMInputTree::bookEDMBranch<BaseTree::BranchType_##name##_t>(TString branchname){ return this->bookEDMBranch<type>(branchname, default_value); } \
 template<> void CMSEDMWrapperLinker<type>::assignProductToTarget(CMSEDMWrapperLinker<type>::Wrapped_t& product){ *targetVal = product; } \
 template<> void CMSEDMWrapperLinker<type, type>::print() const{ \
-  using MELAStreamHelpers::IVYout; \
+  using IvyStreamHelpers::IVYout; \
   Wrapped_t const* product = nullptr; if (var) product = var->product(); \
   IVYout << "\t\t- edm product: "; if (product) IVYout << *product; else IVYout << "null"; IVYout << " (address: " << product << ")" << std::endl; \
   IVYout << "\t\t- Target: "; if (targetVal) IVYout << *targetVal; else IVYout << "null"; IVYout << " (address: " << targetVal << ")" << std::endl; \
@@ -39,7 +39,7 @@ template<> bool BaseEDMInputTree::bookEDMBranch<type*>(TString branchname, type*
 template<> bool BaseEDMInputTree::bookEDMBranch<BaseTree::BranchType_v##name##_t>(TString branchname){ return this->bookEDMBranch<type*>(branchname, nullptr); } \
 template<> void CMSEDMWrapperLinker<type, type*>::assignProductToTarget(CMSEDMWrapperLinker<type, type*>::Wrapped_t& product){ *targetVal = &product; } \
 template<> void CMSEDMWrapperLinker<type, type*>::print() const{ \
-  using MELAStreamHelpers::IVYout; \
+  using IvyStreamHelpers::IVYout; \
   Wrapped_t const* product = nullptr; if (var) product = var->product(); \
   IVYout << "\t\t- edm product: "; if (product) IVYout << *product; else IVYout << "null"; IVYout << " (address: " << product << ")" << std::endl; \
   IVYout << "\t\t- Target: "; if (targetVal && *targetVal) IVYout << **targetVal; else IVYout << "null"; IVYout << " (address: "; if (targetVal) IVYout << *targetVal; else IVYout << "null"; IVYout << ")" << std::endl; \
@@ -59,7 +59,7 @@ template<> bool BaseEDMInputTree::bookEDMBranch<type*>(TString branchname, type*
 template<> bool BaseEDMInputTree::bookEDMBranch<BaseTree::BranchType_vv##name##_t>(TString branchname){ return this->bookEDMBranch<type*>(branchname, nullptr); } \
 template<> void CMSEDMWrapperLinker<type, type*>::assignProductToTarget(CMSEDMWrapperLinker<type, type*>::Wrapped_t& product){ *targetVal = &product; } \
 template<> void CMSEDMWrapperLinker<type, type*>::print() const{ \
-  using MELAStreamHelpers::IVYout; \
+  using IvyStreamHelpers::IVYout; \
   Wrapped_t const* product = nullptr; if (var) product = var->product(); \
   IVYout << "\t\t- edm product: "; if (product) IVYout << *product; else IVYout << "null"; IVYout << " (address: " << product << ")" << std::endl; \
   IVYout << "\t\t- Target: "; if (targetVal && *targetVal) IVYout << **targetVal; else IVYout << "null"; IVYout << " (address: "; if (targetVal) IVYout << *targetVal; else IVYout << "null"; IVYout << ")" << std::endl; \
