@@ -33,6 +33,7 @@ int main(int argc, char** argv){
   if (strCmd == "") print_help = true;
   if (!print_help){
     TString strCmdLower = strCmd; strCmdLower.ToLower();
+    // Utilities for the shell
     if (strCmdLower == "lstrip" || strCmdLower == "rstrip" || strCmdLower == "lrstrip"){
       if (strArgs.empty() || strArgs.size()>2) print_help = true;
       else{
@@ -83,6 +84,7 @@ int main(int argc, char** argv){
         exit_status = 0;
       }
     }
+    // Utilities for quick computations
     else if (strCmdLower == "getnumberorderbase10"){
       if (strArgs.size()!=1) print_help = true;
       else{
@@ -127,6 +129,23 @@ int main(int argc, char** argv){
         exit_status = 0;
       }
     }
+    else if (strCmdLower == "computepoissonefficienyfrequentistinterval"){
+      if (strArgs.size()!=3 && strArgs.size()!=4) print_help = true;
+      else{
+        double total = std::stod(strArgs.front().Data());
+        double pass = std::stod(strArgs.at(1).Data());
+        double CL = std::stod(strArgs.at(2).Data());
+        double total_errsq = (strArgs.size()==3 ? total : std::pow(std::stod(strArgs.back().Data()), 2));
+        double vlow=0, vhigh=0;
+        StatisticsHelpers::getPoissonEfficiencyConfidenceInterval_Frequentist(total, pass, total_errsq, CL, vlow, vhigh);
+        int count_precision_low = HelperFunctions::getFirstSignificantDecimalPowerBase10(vlow);
+        int count_precision_high = HelperFunctions::getFirstSignificantDecimalPowerBase10(vhigh);
+        if (count_precision_low>0) count_precision_low = 0;
+        if (count_precision_high>0) count_precision_high = 0;
+        cout << HelperFunctions::castValueToString(vlow, -count_precision_low+5, 5)  << " " << HelperFunctions::castValueToString(vhigh, -count_precision_high+5, 5) << endl;
+        exit_status = 0;
+      }
+    }
     else{
       MELAerr << "Command " << strCmd << " with arguments " << strArgs << " is not supported." << endl;
       print_help = true;
@@ -157,7 +176,8 @@ int main(int argc, char** argv){
     cout << "  GetNumberOrderBase10 [number]: Compute the order of a number in base 10 (e.g., 120 -> 2, 0.023 -> -2). 0 returns 0." << endl;
     cout << "  ComputeChisqProb [chisq] [ndof]: Compute the probability corresponding to the CL for a chisq and a certain ndof (e.g., [5.99, 2] -> 0.95)." << endl;
     cout << "  ComputeChisqQuantile [CL] [ndof]: Compute the chi-square quantile corresponding to a CL and a certain ndof." << endl;
-    cout << "  ComputePoissonCountingInterval [count] [CL] [count error (optional)]: Compute the Clopper-Pearson confidence interval for a count of events at a certain CL." << endl;
+    cout << "  ComputePoissonCountingInterval [count] [CL] [count error (optional)]: Compute the Poisson confidence interval for a count of events at a certain CL." << endl;
+    cout << "  ComputePoissonEfficienyFrequentistInterval [total] [pass] [CL] [total error (optional)]: Compute the Clopper-Pearson confidence interval for counts of total and passing events at a certain CL." << endl;
   }
 
   return exit_status;
