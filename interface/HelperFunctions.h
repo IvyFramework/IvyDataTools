@@ -34,7 +34,6 @@
 #include "TProfile.h"
 #include "TGraphErrors.h"
 #include "TGraphAsymmErrors.h"
-#include "HelperFunctionsCore.h"
 #include "ExtendedBinning.h"
 #include "SimpleEntry.h"
 #include "IvyStreamHelpers.hh"
@@ -670,56 +669,6 @@ template <typename T, typename U> void HelperFunctions::getGenericHistogramSlice
 
 /****************************************************************/
 // Explicit instantiations
-template void HelperFunctions::appendVector<TString>(std::vector<TString>& a, std::vector<TString> const& b);
-
-template void HelperFunctions::addByLowest<SimpleEntry>(std::vector<SimpleEntry>& valArray, SimpleEntry val, bool unique);
-template void HelperFunctions::addByLowest<int>(std::vector<int>& valArray, int val, bool unique);
-template void HelperFunctions::addByLowest<float>(std::vector<float>& valArray, float val, bool unique);
-template void HelperFunctions::addByLowest<double>(std::vector<double>& valArray, double val, bool unique);
-template void HelperFunctions::addByLowest<SimpleEntry, int>(std::vector<std::pair<SimpleEntry, int>>& valArray, SimpleEntry val, int index);
-template void HelperFunctions::addByLowest<double, int>(std::vector<std::pair<double, int>>& valArray, double val, int index);
-template void HelperFunctions::addByLowest<double, double>(std::vector<std::pair<double, double>>& valArray, double val, double index);
-template void HelperFunctions::addByLowest<double, int>(std::vector<std::pair<double, int>>& valArray, std::vector<std::pair<double, int>>& inArray, bool consecutive, bool inputordered);
-template void HelperFunctions::addByLowest<double, double>(std::vector<std::pair<double, double>>& valArray, std::vector<std::pair<double, double>>& inArray, bool consecutive, bool inputordered);
-
-template void HelperFunctions::addByHighest<SimpleEntry>(std::vector<SimpleEntry>& valArray, SimpleEntry val, bool unique);
-template void HelperFunctions::addByHighest<int>(std::vector<int>& valArray, int val, bool unique);
-template void HelperFunctions::addByHighest<float>(std::vector<float>& valArray, float val, bool unique);
-template void HelperFunctions::addByHighest<double>(std::vector<double>& valArray, double val, bool unique);
-template void HelperFunctions::addByHighest<SimpleEntry, int>(std::vector<std::pair<SimpleEntry, int>>& valArray, SimpleEntry val, int index);
-template void HelperFunctions::addByHighest<double, int>(std::vector<std::pair<double, int>>& valArray, double val, int index);
-template void HelperFunctions::addByHighest<double, double>(std::vector<std::pair<double, double>>& valArray, double val, double index);
-template void HelperFunctions::addByHighest<double, int>(std::vector<std::pair<double, int>>& valArray, std::vector<std::pair<double, int>>& inArray, bool consecutive, bool inputordered);
-template void HelperFunctions::addByHighest<double, double>(std::vector<std::pair<double, double>>& valArray, std::vector<std::pair<double, double>>& inArray, bool consecutive, bool inputordered);
-
-template bool HelperFunctions::checkListVariable<std::string>(const std::vector<std::string>& list, const std::string& var);
-template bool HelperFunctions::checkListVariable<TString>(const std::vector<TString>& list, const TString& var);
-template bool HelperFunctions::checkListVariable<double>(const std::vector<double>& list, const double& var);
-
-template bool HelperFunctions::checkNonNegative<short>(std::vector<short> const& vars, int ibegin, int iend);
-template bool HelperFunctions::checkNonNegative<unsigned int>(std::vector<unsigned int> const& vars, int ibegin, int iend);
-template bool HelperFunctions::checkNonNegative<int>(std::vector<int> const& vars, int ibegin, int iend);
-template bool HelperFunctions::checkNonNegative<float>(std::vector<float> const& vars, int ibegin, int iend);
-template bool HelperFunctions::checkNonNegative<double>(std::vector<double> const& vars, int ibegin, int iend);
-
-template bool HelperFunctions::checkNonZero<short>(std::vector<short> const& vars, int ibegin, int iend);
-template bool HelperFunctions::checkNonZero<unsigned int>(std::vector<unsigned int> const& vars, int ibegin, int iend);
-template bool HelperFunctions::checkNonZero<int>(std::vector<int> const& vars, int ibegin, int iend);
-template bool HelperFunctions::checkNonZero<float>(std::vector<float> const& vars, int ibegin, int iend);
-template bool HelperFunctions::checkNonZero<double>(std::vector<double> const& vars, int ibegin, int iend);
-
-template bool HelperFunctions::checkPositiveDef<short>(std::vector<short> const& vars, int ibegin, int iend);
-template bool HelperFunctions::checkPositiveDef<unsigned int>(std::vector<unsigned int> const& vars, int ibegin, int iend);
-template bool HelperFunctions::checkPositiveDef<int>(std::vector<int> const& vars, int ibegin, int iend);
-template bool HelperFunctions::checkPositiveDef<float>(std::vector<float> const& vars, int ibegin, int iend);
-template bool HelperFunctions::checkPositiveDef<double>(std::vector<double> const& vars, int ibegin, int iend);
-
-template bool HelperFunctions::checkNanInf<short>(std::vector<short> const& vars);
-template bool HelperFunctions::checkNanInf<unsigned int>(std::vector<unsigned int> const& vars);
-template bool HelperFunctions::checkNanInf<int>(std::vector<int> const& vars);
-template bool HelperFunctions::checkNanInf<float>(std::vector<float> const& vars);
-template bool HelperFunctions::checkNanInf<double>(std::vector<double> const& vars);
-
 template double HelperFunctions::getHistogramIntegralAndError<TH1F>(TH1F const* histo, int ix, int jx, bool useWidth, double* error);
 template double HelperFunctions::getHistogramIntegralAndError<TH1D>(TH1D const* histo, int ix, int jx, bool useWidth, double* error);
 template double HelperFunctions::getHistogramIntegralAndError<TH2F>(TH2F const* histo, int ix, int jx, int iy, int jy, bool useWidth, double* error);

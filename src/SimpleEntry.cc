@@ -7,10 +7,11 @@
 using namespace std;
 
 
-SimpleEntry::SimpleEntry() : id(0), trackingval(0), weight(0) {}
-SimpleEntry::SimpleEntry(int id_, float trackingval_, float weight_) : id(id_), trackingval(trackingval_), weight(weight_) {}
-SimpleEntry::SimpleEntry(int id_, float trackingval_, std::vector<float> recoval_, float weight_) : id(id_), trackingval(trackingval_), weight(weight_), recoval(recoval_) {}
+SimpleEntry::SimpleEntry() : BaseIOMessenger(), id(0), trackingval(0), weight(0) {}
+SimpleEntry::SimpleEntry(int const& id_, float const& trackingval_, float weight_) : BaseIOMessenger(), id(id_), trackingval(trackingval_), weight(weight_) {}
+SimpleEntry::SimpleEntry(int const& id_, float const& trackingval_, std::vector<float> const& recoval_, float weight_) : BaseIOMessenger(), id(id_), trackingval(trackingval_), weight(weight_), recoval(recoval_) {}
 SimpleEntry::SimpleEntry(SimpleEntry const& other) :
+  BaseIOMessenger(other),
 #define SIMPLE_DATA_OUTPUT_DIRECTIVE(name_t, type) named##name_t##s(other.named##name_t##s),
 #define VECTOR_DATA_OUTPUT_DIRECTIVE(name_t, type) namedV##name_t##s(other.namedV##name_t##s),
 #define DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVE(name_t, type) namedVV##name_t##s(other.namedVV##name_t##s),
@@ -25,7 +26,7 @@ SimpleEntry::SimpleEntry(SimpleEntry const& other) :
   weight(other.weight),
   recoval(other.recoval)
 {}
-SimpleEntry::SimpleEntry(SimpleEntry&& other) : id(0), trackingval(0), weight(0)
+SimpleEntry::SimpleEntry(SimpleEntry&& other) : BaseIOMessenger(other), id(0), trackingval(0), weight(0)
 { this->swap(other); }
 
 void SimpleEntry::swap(SimpleEntry& other){
@@ -104,5 +105,5 @@ void SimpleEntry::print(){
   cout << endl;
 }
 
-void ExtBin::addEvent(SimpleEntry evt){ collection.push_back(evt); }
+void ExtBin::addEvent(SimpleEntry const& evt){ collection.push_back(evt); }
 

@@ -34,12 +34,12 @@ namespace HelperFunctions{
   // Functions for vectors and maps
   template<typename T> void appendVector(std::vector<T>& a, std::vector<T> const& b);
 
-  template<typename T> void addByLowest(std::vector<T>& valArray, T val, bool unique);
-  template<typename T, typename U> void addByLowest(std::vector<std::pair<T, U>>& valArray, T val, U index);
+  template<typename T> void addByLowest(std::vector<T>& valArray, T const& val, bool unique);
+  template<typename T, typename U> void addByLowest(std::vector<std::pair<T, U>>& valArray, T const& val, U const& index);
   template<typename T, typename U> void addByLowest(std::vector<std::pair<T, U>>& valArray, std::vector<std::pair<T, U>>& inArray, bool consecutive=false, bool inputordered=false);
 
-  template<typename T> void addByHighest(std::vector<T>& valArray, T val, bool unique);
-  template<typename T, typename U> void addByHighest(std::vector<std::pair<T, U>>& valArray, T val, U index);
+  template<typename T> void addByHighest(std::vector<T>& valArray, T const& val, bool unique);
+  template<typename T, typename U> void addByHighest(std::vector<std::pair<T, U>>& valArray, T const& val, U const& index);
   template<typename T, typename U> void addByHighest(std::vector<std::pair<T, U>>& valArray, std::vector<std::pair<T, U>>& inArray, bool consecutive=false, bool inputordered=false);
 
   template<typename T> bool checkListVariable(std::vector<T> const& list, T const& var);
@@ -116,7 +116,7 @@ namespace HelperFunctions{
 
 template<typename T> void HelperFunctions::appendVector(std::vector<T>& a, std::vector<T> const& b){ a.insert(a.end(), b.cbegin(), b.cend()); }
 
-template<typename T> void HelperFunctions::addByLowest(std::vector<T>& valArray, T val, bool unique){
+template<typename T> void HelperFunctions::addByLowest(std::vector<T>& valArray, T const& val, bool unique){
   bool inserted = false;
   if (unique){
     for (typename std::vector<T>::iterator it = valArray.begin(); it<valArray.end(); it++){
@@ -137,7 +137,7 @@ template<typename T> void HelperFunctions::addByLowest(std::vector<T>& valArray,
   }
   if (!inserted) valArray.push_back(val);
 }
-template<typename T, typename U> void HelperFunctions::addByLowest(std::vector<std::pair<T, U>>& valArray, T val, U index){
+template<typename T, typename U> void HelperFunctions::addByLowest(std::vector<std::pair<T, U>>& valArray, T const& val, U const& index){
   bool inserted = false;
   for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it<valArray.end(); it++){
     if ((*it).first>=val){
@@ -199,7 +199,7 @@ template<typename T, typename U> void HelperFunctions::addByLowest(std::vector<s
   }
 }
 
-template<typename T> void HelperFunctions::addByHighest(std::vector<T>& valArray, T val, bool unique){
+template<typename T> void HelperFunctions::addByHighest(std::vector<T>& valArray, T const& val, bool unique){
   bool inserted = false;
   if (unique){
     for (typename std::vector<T>::iterator it = valArray.begin(); it<valArray.end(); it++){
@@ -220,7 +220,7 @@ template<typename T> void HelperFunctions::addByHighest(std::vector<T>& valArray
   }
   if (!inserted) valArray.push_back(val);
 }
-template<typename T, typename U> void HelperFunctions::addByHighest(std::vector<std::pair<T, U>>& valArray, T val, U index){
+template<typename T, typename U> void HelperFunctions::addByHighest(std::vector<std::pair<T, U>>& valArray, T const& val, U const& index){
   bool inserted = false;
   for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it<valArray.end(); it++){
     if ((*it).first<=val){
@@ -424,5 +424,6 @@ template<typename T> void HelperFunctions::deltaPhi(T const& v1, T const& v2, T&
   if (res>pi_val){ while (res>pi_val) res -= twopi_val; }
   else if (res<-pi_val){ while (res<-pi_val) res += twopi_val; }
 }
+
 
 #endif
