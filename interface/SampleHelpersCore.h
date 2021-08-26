@@ -16,6 +16,7 @@
 #include <unordered_map>
 #include <csignal>
 #include "TFile.h"
+#include "TBranch.h"
 #include "TTree.h"
 #include "TChain.h"
 #include "TList.h"
@@ -41,7 +42,7 @@ namespace SampleHelpers{
 
   template<typename T> void bookBranch(TTree* tree, TString strname, T* var);
   template<typename T> void bookEDMBranch(TTree* tree, TString strname, T* var);
-  template<typename T> void putBranch(TTree* tree, TString strname, T& var);
+  template<typename T> void putBranch(TTree* tree, TString strname, T& var, bool forceRelink=false);
 }
 
 template<typename T> void SampleHelpers::bookBranch(TTree* tree, TString strname, T* var){
@@ -102,12 +103,19 @@ template<typename T> void SampleHelpers::bookEDMBranch(TTree* tree, TString strn
     SampleHelpers::bookBranch(tree, strbname, var);
   }
 }
-template<typename T> void SampleHelpers::putBranch(TTree* tree, TString strname, T& var){
+template<typename T> void SampleHelpers::putBranch(TTree* tree, TString strname, T& var, bool forceRelink){
   if (tree){
     // Do not check for branch alias
     if (!SampleHelpers::branchExists(tree, strname)){
       //IvyStreamHelpers::IVYout << "SampleHelpers::putBranch: Branching " << strname << std::endl;
       if (!tree->Branch(strname, &var)) IvyStreamHelpers::IVYerr << "SampleHelpers::putBranch: Did not succeed in creating a new branch for " << strname << " in tree " << tree->GetName() << std::endl;
+    }
+    else if (forceRelink){
+      TBranch* br = tree->GetBranch(strname);
+      if (br){
+        br->ResetAddress();
+        br->SetAddress(&var);
+      }
     }
   }
 }
