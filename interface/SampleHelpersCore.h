@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <unordered_map>
 #include <csignal>
+#include "TH1F.h"
 #include "TFile.h"
 #include "TBranch.h"
 #include "TTree.h"

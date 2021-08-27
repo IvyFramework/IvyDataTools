@@ -19,7 +19,7 @@ template<typename T> void CLNAME::getVal(TString const& strname, T& val) const{ 
   if (HelperFunctions::getUnorderedMapIterator(strname, this->getMap<T>(), it)) val = it->second; \
 }
 
-SIMPLEENTRYCOMMANDS;
+SIMPLEENTRYCOMMANDS
 
 #undef SIMPLEENTRYCOMMAND
 #undef SIMPLEENTRYCOMMANDS
@@ -55,9 +55,9 @@ template<> std::unordered_map<TString, type>& SimpleEntry::getNamedMap<type>(){ 
 template<> void SimpleEntry::setNamedVal<type>(TString const& strname, type const& val){ this->SimpleTensorEntry::setVal<type>(strname, val); } \
 template<> void SimpleEntry::getNamedVal<type>(TString const& strname, type& val) const{ this->SimpleTensorEntry::getVal<type>(strname, val); }
 
-SIMPLE_DATA_OUTPUT_DIRECTIVES;
-VECTOR_DATA_OUTPUT_DIRECTIVES;
-DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVES;
+SIMPLE_DATA_OUTPUT_DIRECTIVES
+VECTOR_DATA_OUTPUT_DIRECTIVES
+DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVES
 
 #undef DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVE
 #undef VECTOR_DATA_OUTPUT_DIRECTIVE

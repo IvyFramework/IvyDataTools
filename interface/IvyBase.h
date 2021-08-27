@@ -1,7 +1,7 @@
 #ifndef IVYBASE_H
 #define IVYBASE_H
 
-#include "TVar.hh"
+#include "VerbosityLevel.h"
 #include "BaseTree.h"
 #include "HelperFunctionsCore.h"
 #include "IvyStreamHelpers.hh"
@@ -9,7 +9,7 @@
 
 class IvyBase{
 protected:
-  TVar::VerbosityLevel verbosity;
+  MiscUtils::VerbosityLevel verbosity;
   BaseTree* currentTree;
 
   TTree* eventCache_currentTTree;
@@ -59,8 +59,8 @@ public:
   void defineConsumedSloppy(TString name);
 
   // Verbosity
-  void setVerbosity(TVar::VerbosityLevel flag){ verbosity=flag; }
-  TVar::VerbosityLevel getVerbosity() const{ return verbosity; }
+  void setVerbosity(MiscUtils::VerbosityLevel flag){ verbosity=flag; }
+  MiscUtils::VerbosityLevel getVerbosity() const{ return verbosity; }
 
   // Tree
   virtual bool wrapTree(BaseTree* tree);
@@ -82,7 +82,7 @@ template<typename T> bool IvyBase::getConsumedValue(TString name, T& val) const{
     return true;
   }
   else{
-    if (!res && verbosity>=TVar::ERROR) IvyStreamHelpers::IVYerr << "IvyBase::getConsumedValue: Cannot consume " << name << std::endl;
+    if (!res && verbosity>=MiscUtils::ERROR) IvyStreamHelpers::IVYerr << "IvyBase::getConsumedValue: Cannot consume " << name << std::endl;
     return res;
   }
 }
@@ -90,7 +90,7 @@ template<typename T> bool IvyBase::getConsumedCIterators(TString name, typename 
   T* vec=nullptr;
   bool res = this->getConsumedValue<T*>(name, vec);
   if (!res || !vec){
-    if (verbosity>=TVar::ERROR){
+    if (verbosity>=MiscUtils::ERROR){
       if (!res) IvyStreamHelpers::IVYerr << "IvyBase::getConsumedCIterators: Cannot consume " << name << std::endl;
       if (!vec) IvyStreamHelpers::IVYerr << "IvyBase::getConsumedCIterators: Vector of " << name << " is null." << std::endl;
     }

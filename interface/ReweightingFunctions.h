@@ -5,7 +5,7 @@
 #include "BaseTree.h"
 #include "ExtendedBinning.h"
 #include "HelperFunctions.h"
-#include "TVar.hh"
+#include "VerbosityLevel.h"
 
 
 namespace ReweightingFunctions{
@@ -22,7 +22,7 @@ namespace ReweightingFunctions{
   float getOneMinusB1OverA1Weight(BaseTree* tree, std::vector<float*> const& vals); // wgt = 1 - wB/wA
   float getA1OverB1Weight(BaseTree* tree, std::vector<float*> const& vals); // wgt = wA/wB
 
-  float getAbsWeightThresholdByNeff(BaseTree* tree, std::vector<float*> const& vals, ReweightingFunction_t rule, double thr_Neff, TVar::VerbosityLevel verbosity=TVar::ERROR);
+  float getAbsWeightThresholdByNeff(BaseTree* tree, std::vector<float*> const& vals, ReweightingFunction_t rule, double thr_Neff, MiscUtils::VerbosityLevel verbosity=MiscUtils::ERROR);
 
   // Some generic variable and bin retrieval rules
   typedef float(*ReweightingVariableFunction_t)(BaseTree*, std::vector<float*> const&);
@@ -35,20 +35,20 @@ namespace ReweightingFunctions{
     ExtendedBinning const& binning, std::vector<float*> const& var_vals, ReweightingVariableBinFunction_t varbin_rule,
     std::vector<float*> const& wgt_vals, ReweightingFunction_t wgt_rule,
     double thr_Neff,
-    TVar::VerbosityLevel verbosity=TVar::ERROR
+    MiscUtils::VerbosityLevel verbosity=MiscUtils::ERROR
   );
   std::vector<float> getAbsWeightThresholdsPerBinByNeff(
     BaseTree* tree,
     std::vector<float*> const& wgt_vals, ReweightingFunction_t wgt_rule,
     ExtendedBinning const& binning, std::vector<float*> const& var_vals, ReweightingVariableBinFunction_t varbin_rule,
     double tolerance=-1,
-    TVar::VerbosityLevel verbosity=TVar::ERROR
+    MiscUtils::VerbosityLevel verbosity=MiscUtils::ERROR
   );
   std::vector<std::vector<float>> getAbsWeightThresholdsPerBinByFixedFractionalThreshold(
     BaseTree* tree,
     std::vector<std::vector<float*>> const& wgt_vals_list, std::vector<ReweightingFunction_t> const& wgt_rule_list, std::vector< std::pair<double, double> > const& frac_tolerance_pair_list,
     ExtendedBinning const& binning, std::vector<float*> const& var_vals, ReweightingVariableBinFunction_t varbin_rule,
-    TVar::VerbosityLevel verbosity=TVar::ERROR
+    MiscUtils::VerbosityLevel verbosity=MiscUtils::ERROR
   );
 
 }

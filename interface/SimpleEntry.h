@@ -14,7 +14,7 @@
 struct SimpleScalarEntry : public virtual BaseIOMessenger{
 
 #define SIMPLE_DATA_OUTPUT_DIRECTIVE(name_t, type) std::unordered_map<TString, type> named##name_t##s;
-  SIMPLE_DATA_OUTPUT_DIRECTIVES;
+  SIMPLE_DATA_OUTPUT_DIRECTIVES
 #undef SIMPLE_DATA_OUTPUT_DIRECTIVE
 
   SimpleScalarEntry();
@@ -36,7 +36,7 @@ struct SimpleScalarEntry : public virtual BaseIOMessenger{
 struct SimpleVectorEntry : public virtual BaseIOMessenger{
 
 #define VECTOR_DATA_OUTPUT_DIRECTIVE(name_t, type) std::unordered_map<TString, type> namedV##name_t##s;
-  VECTOR_DATA_OUTPUT_DIRECTIVES;
+  VECTOR_DATA_OUTPUT_DIRECTIVES
 #undef VECTOR_DATA_OUTPUT_DIRECTIVE
 
   SimpleVectorEntry();
@@ -58,7 +58,7 @@ struct SimpleVectorEntry : public virtual BaseIOMessenger{
 struct SimpleTensorEntry : public virtual BaseIOMessenger{
 
 #define DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVE(name_t, type) std::unordered_map<TString, type> namedVV##name_t##s;
-  DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVES;
+  DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVES
 #undef DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVE
 
   SimpleTensorEntry();

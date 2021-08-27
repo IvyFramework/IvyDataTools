@@ -1,6 +1,7 @@
 #!/bin/bash
 
 (
+
 set -euo pipefail
 
 cd $(dirname ${BASH_SOURCE[0]})
@@ -36,7 +37,18 @@ if [[ ${forceStandalone} -eq 0 ]] && [[ ! -z "${CMSSW_BASE+x}" ]]; then
 
 fi
 
-printenv () {
+printenv() {
+  # Print the environment variables from MELA as well if they are needed.
+  if [[ -d ../../JHUGenMELA ]]; then
+    melaenvopts="env"
+    if [[ ${forceStandalone} -eq 1 ]]; then
+      melaenvopts="${melaenvopts} standalone"
+    fi
+    ../../JHUGenMELA/setup.sh ${melaenvopts}
+    # After printing, actually do this part of the setup
+    eval $(../../JHUGenMELA/setup.sh ${melaenvopts})
+  fi
+
   if [[ ${usingCMSSW} -eq 1 ]]; then
     return 0
   fi
@@ -68,7 +80,16 @@ printenv () {
     echo "export PATH=${pathappend}${end}"
   fi
 }
-doenv () {
+doenv() {
+  # Set up the environment variables from MELA as well if they are needed.
+  if [[ -d ../../JHUGenMELA ]]; then
+    melaenvopts="env"
+    if [[ ${forceStandalone} -eq 1 ]]; then
+      melaenvopts="${melaenvopts} standalone"
+    fi
+    eval $(../../JHUGenMELA/setup.sh ${melaenvopts})
+  fi
+
   if [[ ${usingCMSSW} -eq 1 ]]; then
     return 0
   fi
@@ -135,7 +156,7 @@ if [[ "$nSetupArgs" -eq 1 ]] && [[ "${setupArgs[0]}" == *"clean"* ]]; then
       make clean
     fi
 
-    exit
+    exit $?
 elif [[ "$nSetupArgs" -ge 1 ]] && [[ "$nSetupArgs" -le 2 ]] && [[ "${setupArgs[0]}" == *"-j"* ]]; then
     : ok
 else
@@ -152,5 +173,13 @@ if [[ ${usingCMSSW} -eq 1 ]]; then
 else
   make "${setupArgs[@]}"
 fi
+
+compile_status=$?
+if [[ ${compile_status} -ne 0 ]]; then
+  echo "Compilation failed with status ${compile_status}."
+  exit ${compile_status}
+fi
+
 printenvinstr
+
 )

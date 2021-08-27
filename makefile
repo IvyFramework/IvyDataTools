@@ -32,8 +32,10 @@ MELACXXFLAGS =  -I$(MELADIR)interface/ -L$(MELALIBDIR)
 MELALIBS =  -lJHUGenMELAMELA
 
 
-EXTCXXFLAGS   = $(MELACXXFLAGS)
-EXTLIBS       = $(MELALIBS)
+#EXTCXXFLAGS   = $(MELACXXFLAGS)
+#EXTLIBS       = $(MELALIBS)
+EXTCXXFLAGS   = 
+EXTLIBS       = 
 
 ROOTCFLAGS    = $(shell root-config --cflags) -Lrootlib
 ROOTLIBS     = $(shell root-config --libs) -lMathMore -Lrootlib
@@ -41,7 +43,9 @@ ROOTLIBS     = $(shell root-config --libs) -lMathMore -Lrootlib
 ARCH         := $(shell root-config --arch)
 
 CXX           = g++
-CXXFLAGS      = -fPIC -g -O2 $(ROOTCFLAGS) -D_COMPILE_STANDALONE_ -I$(ROOFITSYS)/include/ -I$(INCLUDEDIR) $(EXTCXXFLAGS)
+CXXINC        = -I$(ROOFITSYS)/include/ -I$(INCLUDEDIR)
+CXXDEFINES    = -D_COMPILE_STANDALONE_
+CXXFLAGS      = -fPIC -g -O2 $(ROOTCFLAGS) $(CXXDEFINES) -I$(CXXINC) $(EXTCXXFLAGS)
 LINKERFLAGS   = -Wl,-rpath=$(LIBDIR),-soname,$(LIB)
 
 NLIBS         = $(ROOTLIBS)
@@ -66,7 +70,7 @@ EXES = $(subst $(BINDIR),$(EXEDIR),$(EXESPRIM))
 
 
 .PHONY: all help compile clean
-.SILENT: alldirs scripts clean $(OBJECTS) $(LIBRULE) $(EXES)
+.SILENT: alldirs scripts clean $(OBJECTS) $(OBJDIR)LinkDef_out.o $(LIBRULE) $(EXES)
 
 all: $(OBJECTS) $(LIBRULE) python $(EXES) scripts
 
@@ -82,9 +86,9 @@ scripts: | alldirs
 python:
 	touch $(PYTHONDIR)__init__.py
 
-$(LIBRULE):	$(OBJECTS) | alldirs
+$(LIBRULE):	$(OBJECTS) $(OBJDIR)LinkDef_out.o | alldirs
 	echo "Linking $(LIB)"; \
-	$(CXX) $(LINKERFLAGS) -shared $(OBJECTS) -o $@
+	$(CXX) $(LINKERFLAGS) -shared $(OBJECTS) $(OBJDIR)LinkDef_out.o -o $@
 
 $(OBJDIR)%.d:	$(SRCDIR)%.c* | alldirs
 	echo "Checking dependencies for $<"; \
@@ -95,6 +99,13 @@ $(OBJDIR)%.o: 	$(SRCDIR)%.c* | alldirs
 	echo "Compiling $<"; \
 	$(CXX) $(CXXFLAGS) $< -c -o $@ $(LIBS)
 
+$(OBJDIR)LinkDef_out.o:   $(OBJECTS) | alldirs
+	echo "Making CINT dictionaries"; \
+        rootcint -f $(OBJDIR)LinkDef_out.cc $(CXXINC) $(SRCDIR)LinkDef.h; \
+        cat $(SRCDIR)LinkDef.h $(OBJDIR)LinkDef_out.cc > $(OBJDIR)LinkDef_out.cxx; \
+        rm $(OBJDIR)LinkDef_out.cc; mv $(OBJDIR)LinkDef_out_rdict.pcm $(LIBDIR)LinkDef_out_rdict.pcm; \
+        $(CXX) $(CXXFLAGS) -c $(OBJDIR)LinkDef_out.cxx -o $(OBJDIR)LinkDef_out.o; \
+	rm -f $(OBJDIR)LinkDef_out.cxx
 
 $(EXEDIR)%::	$(BINDIR)%.cc $(LIBRULE) | alldirs
 	echo "Compiling $<"; \

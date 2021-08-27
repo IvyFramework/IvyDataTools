@@ -2,9 +2,9 @@
 #include <cstring>
 #include "HelperFunctions.h"
 #include "StatisticsHelpers.h"
-#include "MELANCSplineFactory_1D.h"
-#include "MELANCSplineFactory_2D.h"
-#include "MELANCSplineFactory_3D.h"
+#include "RooNCSplineFactory_1D.h"
+#include "RooNCSplineFactory_2D.h"
+#include "RooNCSplineFactory_3D.h"
 
 
 using namespace std;
@@ -3217,9 +3217,9 @@ void HelperFunctions::rebinProfile(TProfile*& prof, const ExtendedBinning& binni
   double err_under_over[2]={ prof->GetBinError(0), prof->GetBinError(prof->GetNbinsX()+1) };
   RooRealVar xvar("xvar", "", boundaries[0], boundaries[1]);
 
-  MELANCSplineFactory_1D spFac(xvar, "tmpSpline");
-  MELANCSplineFactory_1D spErrFac(xvar, "tmpSplineErr");
-  vector<pair<MELANCSplineCore::T, MELANCSplineCore::T>> pList, pErrList;
+  RooNCSplineFactory_1D spFac(xvar, "tmpSpline");
+  RooNCSplineFactory_1D spErrFac(xvar, "tmpSplineErr");
+  vector<pair<RooNCSplineCore::T, RooNCSplineCore::T>> pList, pErrList;
   for (int ix=1; ix<=prof->GetNbinsX(); ix++){
     if (prof->GetBinError(ix)==0.){ IVYout << "HelperFunctions::rebinProfile: Omitting bin " << ix << endl; continue; }
     pList.emplace_back(prof->GetXaxis()->GetBinCenter(ix), prof->GetBinContent(ix));
@@ -3227,8 +3227,8 @@ void HelperFunctions::rebinProfile(TProfile*& prof, const ExtendedBinning& binni
   }
   spFac.setPoints(pList);
   spErrFac.setPoints(pErrList);
-  const MELANCSpline_1D_fast* sp = spFac.getFunc();
-  const MELANCSpline_1D_fast* spErr = spErrFac.getFunc();
+  const RooNCSpline_1D_fast* sp = spFac.getFunc();
+  const RooNCSpline_1D_fast* spErr = spErrFac.getFunc();
 
   delete prof;
   prof = new TProfile(hname, htitle, binningX.getNbins(), binningX.getBinning());
@@ -3263,21 +3263,21 @@ void HelperFunctions::rebinCumulant(TH1F*& histo, const ExtendedBinning& binning
     std::max(binningX.getBinLowEdge(binningX.getNbins()), histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1))
   );
   int nx=0;
-  MELANCSplineCore::BoundaryCondition bcBeginX = MELANCSplineCore::bcQuadraticWithNullSlope;
-  MELANCSplineCore::BoundaryCondition bcEndX = MELANCSplineCore::bcQuadraticWithNullSlope;
-  vector<pair<MELANCSplineCore::T, MELANCSplineCore::T>> pList, pErrList;
+  RooNCSplineCore::BoundaryCondition bcBeginX = RooNCSplineCore::bcQuadraticWithNullSlope;
+  RooNCSplineCore::BoundaryCondition bcEndX = RooNCSplineCore::bcQuadraticWithNullSlope;
+  vector<pair<RooNCSplineCore::T, RooNCSplineCore::T>> pList, pErrList;
   for (int ix=0; ix<=histo->GetNbinsX(); ix++){
     pList.emplace_back(histo->GetXaxis()->GetBinUpEdge(ix), histo->GetBinContent(ix));
     pErrList.emplace_back(histo->GetXaxis()->GetBinUpEdge(ix), pow(histo->GetBinError(ix), 2));
     nx++;
   }
-  if (nx<=3){ bcBeginX = MELANCSplineCore::bcNaturalSpline; bcEndX = MELANCSplineCore::bcNaturalSpline; }
-  MELANCSplineFactory_1D spFac(xvar, "tmpSpline", bcBeginX, bcEndX);
-  MELANCSplineFactory_1D spErrFac(xvar, "tmpSplineErr", bcBeginX, bcEndX);
+  if (nx<=3){ bcBeginX = RooNCSplineCore::bcNaturalSpline; bcEndX = RooNCSplineCore::bcNaturalSpline; }
+  RooNCSplineFactory_1D spFac(xvar, "tmpSpline", bcBeginX, bcEndX);
+  RooNCSplineFactory_1D spErrFac(xvar, "tmpSplineErr", bcBeginX, bcEndX);
   spFac.setPoints(pList);
   spErrFac.setPoints(pErrList);
-  const MELANCSpline_1D_fast* sp = spFac.getFunc();
-  const MELANCSpline_1D_fast* spErr = spErrFac.getFunc();
+  const RooNCSpline_1D_fast* sp = spFac.getFunc();
+  const RooNCSpline_1D_fast* spErr = spErrFac.getFunc();
 
   delete histo;
   histo = new TH1F(hname, htitle, binningX.getNbins(), binningX.getBinning());
@@ -3331,10 +3331,10 @@ void HelperFunctions::rebinCumulant(TH2F*& histo, const ExtendedBinning& binning
   }
 
   int nx=0, ny=0;
-  MELANCSplineCore::BoundaryCondition bcBeginX = MELANCSplineCore::bcQuadraticWithNullSlope;
-  MELANCSplineCore::BoundaryCondition bcEndX = MELANCSplineCore::bcQuadraticWithNullSlope;
-  MELANCSplineCore::BoundaryCondition bcBeginY = MELANCSplineCore::bcQuadraticWithNullSlope;
-  MELANCSplineCore::BoundaryCondition bcEndY = MELANCSplineCore::bcQuadraticWithNullSlope;
+  RooNCSplineCore::BoundaryCondition bcBeginX = RooNCSplineCore::bcQuadraticWithNullSlope;
+  RooNCSplineCore::BoundaryCondition bcEndX = RooNCSplineCore::bcQuadraticWithNullSlope;
+  RooNCSplineCore::BoundaryCondition bcBeginY = RooNCSplineCore::bcQuadraticWithNullSlope;
+  RooNCSplineCore::BoundaryCondition bcEndY = RooNCSplineCore::bcQuadraticWithNullSlope;
   vector<splineTriplet_t> pList, pErrList;
   for (unsigned int ix=0; ix<=nbinsXoriginal+1; ix++){
     double xval;
@@ -3366,14 +3366,14 @@ void HelperFunctions::rebinCumulant(TH2F*& histo, const ExtendedBinning& binning
     }
     nx++;
   }
-  if (nx<=3){ bcBeginX = MELANCSplineCore::bcNaturalSpline; bcEndX = MELANCSplineCore::bcNaturalSpline; }
-  if (ny<=3){ bcBeginY = MELANCSplineCore::bcNaturalSpline; bcEndY = MELANCSplineCore::bcNaturalSpline; }
-  MELANCSplineFactory_2D spFac(xvar, yvar, "tmpSpline", bcBeginX, bcEndX, bcBeginY, bcEndY);
-  MELANCSplineFactory_2D spErrFac(xvar, yvar, "tmpSplineErr", bcBeginX, bcEndX, bcBeginY, bcEndY);
+  if (nx<=3){ bcBeginX = RooNCSplineCore::bcNaturalSpline; bcEndX = RooNCSplineCore::bcNaturalSpline; }
+  if (ny<=3){ bcBeginY = RooNCSplineCore::bcNaturalSpline; bcEndY = RooNCSplineCore::bcNaturalSpline; }
+  RooNCSplineFactory_2D spFac(xvar, yvar, "tmpSpline", bcBeginX, bcEndX, bcBeginY, bcEndY);
+  RooNCSplineFactory_2D spErrFac(xvar, yvar, "tmpSplineErr", bcBeginX, bcEndX, bcBeginY, bcEndY);
   spFac.setPoints(pList);
   spErrFac.setPoints(pErrList);
-  const MELANCSpline_2D_fast* sp = spFac.getFunc();
-  const MELANCSpline_2D_fast* spErr = spErrFac.getFunc();
+  const RooNCSpline_2D_fast* sp = spFac.getFunc();
+  const RooNCSpline_2D_fast* spErr = spErrFac.getFunc();
 
   delete histo;
   histo = new TH2F(hname, htitle, binningX.getNbins(), binningX.getBinning(), binningY.getNbins(), binningY.getBinning());
@@ -3461,12 +3461,12 @@ void HelperFunctions::rebinCumulant(TH3F*& histo, const ExtendedBinning& binning
   }
 
   int nx=0, ny=0, nz=0;
-  MELANCSplineCore::BoundaryCondition bcBeginX = MELANCSplineCore::bcQuadraticWithNullSlope;
-  MELANCSplineCore::BoundaryCondition bcEndX = MELANCSplineCore::bcQuadraticWithNullSlope;
-  MELANCSplineCore::BoundaryCondition bcBeginY = MELANCSplineCore::bcQuadraticWithNullSlope;
-  MELANCSplineCore::BoundaryCondition bcEndY = MELANCSplineCore::bcQuadraticWithNullSlope;
-  MELANCSplineCore::BoundaryCondition bcBeginZ = MELANCSplineCore::bcQuadraticWithNullSlope;
-  MELANCSplineCore::BoundaryCondition bcEndZ = MELANCSplineCore::bcQuadraticWithNullSlope;
+  RooNCSplineCore::BoundaryCondition bcBeginX = RooNCSplineCore::bcQuadraticWithNullSlope;
+  RooNCSplineCore::BoundaryCondition bcEndX = RooNCSplineCore::bcQuadraticWithNullSlope;
+  RooNCSplineCore::BoundaryCondition bcBeginY = RooNCSplineCore::bcQuadraticWithNullSlope;
+  RooNCSplineCore::BoundaryCondition bcEndY = RooNCSplineCore::bcQuadraticWithNullSlope;
+  RooNCSplineCore::BoundaryCondition bcBeginZ = RooNCSplineCore::bcQuadraticWithNullSlope;
+  RooNCSplineCore::BoundaryCondition bcEndZ = RooNCSplineCore::bcQuadraticWithNullSlope;
   vector<splineQuadruplet_t> pList, pErrList;
   for (unsigned int ix=0; ix<=nbinsXoriginal+1; ix++){
     double xval;
@@ -3509,15 +3509,15 @@ void HelperFunctions::rebinCumulant(TH3F*& histo, const ExtendedBinning& binning
     }
     nx++;
   }
-  if (nx<=3){ bcBeginX = MELANCSplineCore::bcNaturalSpline; bcEndX = MELANCSplineCore::bcNaturalSpline; }
-  if (ny<=3){ bcBeginY = MELANCSplineCore::bcNaturalSpline; bcEndY = MELANCSplineCore::bcNaturalSpline; }
-  if (nz<=3){ bcBeginZ = MELANCSplineCore::bcNaturalSpline; bcEndZ = MELANCSplineCore::bcNaturalSpline; }
-  MELANCSplineFactory_3D spFac(xvar, yvar, zvar, "tmpSpline", bcBeginX, bcEndX, bcBeginY, bcEndY, bcBeginZ, bcEndZ);
-  MELANCSplineFactory_3D spErrFac(xvar, yvar, zvar, "tmpSplineErr", bcBeginX, bcEndX, bcBeginY, bcEndY, bcBeginZ, bcEndZ);
+  if (nx<=3){ bcBeginX = RooNCSplineCore::bcNaturalSpline; bcEndX = RooNCSplineCore::bcNaturalSpline; }
+  if (ny<=3){ bcBeginY = RooNCSplineCore::bcNaturalSpline; bcEndY = RooNCSplineCore::bcNaturalSpline; }
+  if (nz<=3){ bcBeginZ = RooNCSplineCore::bcNaturalSpline; bcEndZ = RooNCSplineCore::bcNaturalSpline; }
+  RooNCSplineFactory_3D spFac(xvar, yvar, zvar, "tmpSpline", bcBeginX, bcEndX, bcBeginY, bcEndY, bcBeginZ, bcEndZ);
+  RooNCSplineFactory_3D spErrFac(xvar, yvar, zvar, "tmpSplineErr", bcBeginX, bcEndX, bcBeginY, bcEndY, bcBeginZ, bcEndZ);
   spFac.setPoints(pList);
   spErrFac.setPoints(pErrList);
-  const MELANCSpline_3D_fast* sp = spFac.getFunc();
-  const MELANCSpline_3D_fast* spErr = spErrFac.getFunc();
+  const RooNCSpline_3D_fast* sp = spFac.getFunc();
+  const RooNCSpline_3D_fast* spErr = spErrFac.getFunc();
 
   delete histo;
   histo = new TH3F(hname, htitle, binningX.getNbins(), binningX.getBinning(), binningY.getNbins(), binningY.getBinning(), binningZ.getNbins(), binningZ.getBinning());
@@ -3638,9 +3638,9 @@ void HelperFunctions::rebinHistogram_NoCumulant(TH1F*& histo, const ExtendedBinn
     std::max(binningX.getBinLowEdge(binningX.getNbins()), histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1))
   );
 
-  MELANCSplineFactory_1D spFac(xvar, "tmpSpline");
-  MELANCSplineFactory_1D spErrFac(xvar, "tmpSplineErr");
-  vector<pair<MELANCSplineCore::T, MELANCSplineCore::T>> pList, pErrList;
+  RooNCSplineFactory_1D spFac(xvar, "tmpSpline");
+  RooNCSplineFactory_1D spErrFac(xvar, "tmpSplineErr");
+  vector<pair<RooNCSplineCore::T, RooNCSplineCore::T>> pList, pErrList;
   for (int ix=0; ix<=histo->GetNbinsX()+1; ix++){
     if (prof_x->GetBinError(ix)!=0.){
       pList.emplace_back(prof_x->GetBinContent(ix), histo->GetBinContent(ix));
@@ -3649,8 +3649,8 @@ void HelperFunctions::rebinHistogram_NoCumulant(TH1F*& histo, const ExtendedBinn
   }
   spFac.setPoints(pList);
   spErrFac.setPoints(pErrList);
-  const MELANCSpline_1D_fast* sp = spFac.getFunc();
-  const MELANCSpline_1D_fast* spErr = spErrFac.getFunc();
+  const RooNCSpline_1D_fast* sp = spFac.getFunc();
+  const RooNCSpline_1D_fast* spErr = spErrFac.getFunc();
 
   // Once cumulant is rebinned, errors are lost
   delete histo;
@@ -3690,8 +3690,8 @@ void HelperFunctions::rebinHistogram_NoCumulant(TH2F*& histo, const ExtendedBinn
     std::max(binningY.getBinLowEdge(binningY.getNbins()), histo->GetYaxis()->GetBinLowEdge(histo->GetNbinsY()+1))
   );
 
-  MELANCSplineFactory_2D spFac(xvar, yvar, "tmpSpline");
-  MELANCSplineFactory_2D spErrFac(xvar, yvar, "tmpSplineErr");
+  RooNCSplineFactory_2D spFac(xvar, yvar, "tmpSpline");
+  RooNCSplineFactory_2D spErrFac(xvar, yvar, "tmpSplineErr");
   vector<splineTriplet_t> pList, pErrList;
   for (int ix=0; ix<=histo->GetNbinsX()+1; ix++){
     if (prof_x->GetBinError(ix)==0.) continue;
@@ -3704,8 +3704,8 @@ void HelperFunctions::rebinHistogram_NoCumulant(TH2F*& histo, const ExtendedBinn
   }
   spFac.setPoints(pList);
   spErrFac.setPoints(pErrList);
-  const MELANCSpline_2D_fast* sp = spFac.getFunc();
-  const MELANCSpline_2D_fast* spErr = spErrFac.getFunc();
+  const RooNCSpline_2D_fast* sp = spFac.getFunc();
+  const RooNCSpline_2D_fast* spErr = spErrFac.getFunc();
 
   // Once cumulant is rebinned, errors are lost
   delete histo;
@@ -3757,8 +3757,8 @@ void HelperFunctions::rebinHistogram_NoCumulant(TH3F*& histo, const ExtendedBinn
     std::max(binningZ.getBinLowEdge(binningZ.getNbins()), histo->GetZaxis()->GetBinLowEdge(histo->GetNbinsZ()+1))
   );
 
-  MELANCSplineFactory_3D spFac(xvar, yvar, zvar, "tmpSpline");
-  MELANCSplineFactory_3D spErrFac(xvar, yvar, zvar, "tmpSplineErr");
+  RooNCSplineFactory_3D spFac(xvar, yvar, zvar, "tmpSpline");
+  RooNCSplineFactory_3D spErrFac(xvar, yvar, zvar, "tmpSplineErr");
   vector<splineQuadruplet_t> pList, pErrList;
   for (int ix=0; ix<=histo->GetNbinsX()+1; ix++){
     if (prof_x->GetBinError(ix)==0.) continue;
@@ -3774,8 +3774,8 @@ void HelperFunctions::rebinHistogram_NoCumulant(TH3F*& histo, const ExtendedBinn
   }
   spFac.setPoints(pList);
   spErrFac.setPoints(pErrList);
-  const MELANCSpline_3D_fast* sp = spFac.getFunc();
-  const MELANCSpline_3D_fast* spErr = spErrFac.getFunc();
+  const RooNCSpline_3D_fast* sp = spFac.getFunc();
+  const RooNCSpline_3D_fast* spErr = spErrFac.getFunc();
 
   // Once cumulant is rebinned, errors are lost
   delete histo;
@@ -3900,13 +3900,13 @@ void HelperFunctions::CopyDirectory(TDirectory* source, TTree*(*fcnTree)(TTree*)
   savdir->cd();
 }
 
-void HelperFunctions::distributeObjects(TDirectory* inputdir, std::vector<TDirectory*> const& outputdirs, TVar::VerbosityLevel verbosity){
+void HelperFunctions::distributeObjects(TDirectory* inputdir, std::vector<TDirectory*> const& outputdirs, MiscUtils::VerbosityLevel verbosity){
   unsigned int const nchunks = outputdirs.size();
 
   TDirectory* curdir = gDirectory;
 
   inputdir->cd();
-  if (verbosity>=TVar::INFO) cout << "HelperFunctions:distributeObjects: Now inside " << inputdir->GetName() << ":" << endl;
+  if (verbosity>=MiscUtils::INFO) cout << "HelperFunctions:distributeObjects: Now inside " << inputdir->GetName() << ":" << endl;
 
   TKey* key;
   TIter nextkey(inputdir->GetListOfKeys());
@@ -3920,7 +3920,7 @@ void HelperFunctions::distributeObjects(TDirectory* inputdir, std::vector<TDirec
       TDirectory* subdir = gDirectory;
       inputdir->cd();
 
-      if (verbosity>=TVar::INFO) cout << "\t- Found subdirectory " << key->GetName() << endl;
+      if (verbosity>=MiscUtils::INFO) cout << "\t- Found subdirectory " << key->GetName() << endl;
 
       std::vector<TDirectory*> outputsubdirs; outputsubdirs.reserve(outputdirs.size());
       for (auto& outputdir:outputdirs){
@@ -3941,7 +3941,7 @@ void HelperFunctions::distributeObjects(TDirectory* inputdir, std::vector<TDirec
         int nEntries = obj->GetEntries();
         int nEntries_step = static_cast<int>(nEntries / nchunks) + 1;
         int nEntries_first = 0;
-        if (verbosity>=TVar::INFO) cout << "\t- Found tree " << key->GetName() << " with " << nEntries << " entries:" << endl;
+        if (verbosity>=MiscUtils::INFO) cout << "\t- Found tree " << key->GetName() << " with " << nEntries << " entries:" << endl;
         for (unsigned int ichunk=0; ichunk<nchunks; ichunk++){
           TDirectory* outputdir = outputdirs.at(ichunk);
           outputdir->cd();
@@ -3949,7 +3949,7 @@ void HelperFunctions::distributeObjects(TDirectory* inputdir, std::vector<TDirec
           TTree* newtree = obj->CloneTree(0);
           int nEntries_last = std::min(nEntries_first+nEntries_step, nEntries);
           if (ichunk==nchunks-1) nEntries_last = nEntries;
-          if (verbosity>=TVar::INFO) cout << "\t\t- Tree[ " << nEntries_first << ", " << nEntries_last << ")" << endl;
+          if (verbosity>=MiscUtils::INFO) cout << "\t\t- Tree[ " << nEntries_first << ", " << nEntries_last << ")" << endl;
           for (int ev=nEntries_first; ev<nEntries_last; ev++){
             obj->GetEntry(ev);
             newtree->Fill();
@@ -3971,7 +3971,7 @@ void HelperFunctions::distributeObjects(TDirectory* inputdir, std::vector<TDirec
       if (dynamic_cast<TNamed*>(obj)) dynamic_cast<TNamed*>(obj)->SetName(objname);
       if (!HelperFunctions::checkListVariable(copiedKeys, keyname)){
         copiedKeys.push_back(keyname);
-        if (verbosity>=TVar::INFO) cout << "\t- Found key " << keyname << endl;
+        if (verbosity>=MiscUtils::INFO) cout << "\t- Found key " << keyname << endl;
         for (auto& outputdir:outputdirs) outputdir->WriteTObject(obj);
         inputdir->cd();
       }
