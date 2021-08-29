@@ -103,8 +103,7 @@ float SampleHelpers::findPoleMass(const TString samplename){
 }
 TTree* SampleHelpers::findTree(std::vector<TTree*> const& treeList, int evid){
   int ev = evid;
-  for (unsigned int t=0; t<treeList.size(); t++){
-    TTree* tree = treeList.at(t);
+  for (auto const& tree:treeList){
     int nevts = tree->GetEntries();
     if (ev<nevts) return tree;
     else ev -= nevts;
@@ -150,8 +149,7 @@ bool SampleHelpers::aliasExists(TTree* tree, TString strname){
 }
 void SampleHelpers::getEntry(std::vector<TTree*>& treeList, int evid){
   int ev = evid;
-  for (unsigned int t=0; t<treeList.size(); t++){
-    TTree* tree = treeList.at(t);
+  for (auto const& tree:treeList){
     int nevts = tree->GetEntries();
     if (ev<nevts){ tree->GetEntry(ev); break; }
     else ev -= nevts;
@@ -160,10 +158,10 @@ void SampleHelpers::getEntry(std::vector<TTree*>& treeList, int evid){
 }
 float SampleHelpers::getEntry(std::vector<std::pair<TTree*, TH1F*>>& treeList, int evid){
   int ev = evid;
-  for (unsigned int t=0; t<treeList.size(); t++){
-    TTree* tree = treeList.at(t).first;
+  for (auto const& pp:treeList){
+    TTree* tree = pp.first;
     int nevts = tree->GetEntries();
-    if (ev<nevts){ tree->GetEntry(ev); return float(1./treeList.at(t).second->GetBinContent(40)); }
+    if (ev<nevts){ tree->GetEntry(ev); return float(1./pp.second->GetBinContent(40)); }
     else ev -= nevts;
     if (ev<0) cerr << "getEntry::ERROR: Could not find the event " << evid << endl;
   }

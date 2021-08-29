@@ -8,6 +8,9 @@ all:
 else
 
 
+PROJECTNAME          = IvyFrameWork
+PACKAGENAME          = IvyDataTools
+
 COMPILEPATH          = $(PWD)/
 BASEINCLUDE          = $(COMPILEPATH)../../
 
@@ -21,29 +24,21 @@ EXEDIR               = $(COMPILEPATH)executables/
 TESTDIR              = $(COMPILEPATH)test/
 PYTHONDIR            = $(COMPILEPATH)python/
 RUNDIR               = $(COMPILEPATH)
-LIB                  = libIvyFrameWorkIvyDataTools.so
+LIBSHORT             = $(PROJECTNAME)$(PACKAGENAME)
+LIB                  = lib$(LIBSHORT).so
 LIBRULE              = $(LIBDIR)$(LIB)
 
-MELADIR              = $(BASEINCLUDE)JHUGenMELA/MELA/
-MELALIBDIR           = $(MELADIR)data/${SCRAM_ARCH}
 
-
-MELACXXFLAGS =  -I$(MELADIR)interface/ -L$(MELALIBDIR)
-MELALIBS =  -lJHUGenMELAMELA
-
-
-#EXTCXXFLAGS   = $(MELACXXFLAGS)
-#EXTLIBS       = $(MELALIBS)
 EXTCXXFLAGS   = 
 EXTLIBS       = 
 
 ROOTCFLAGS    = $(shell root-config --cflags) -Lrootlib
-ROOTLIBS     = $(shell root-config --libs) -lMathMore -Lrootlib
+ROOTLIBS     = $(shell root-config --libs) -lMathMore -lGenVector -Lrootlib
 
 ARCH         := $(shell root-config --arch)
 
 CXX           = g++
-CXXINC        = -I$(ROOFITSYS)/include/ -I$(INCLUDEDIR)
+CXXINC        = -I$(ROOFITSYS)/include/ -I$(BASEINCLUDE) -I$(INCLUDEDIR)
 CXXDEFINES    = -D_COMPILE_STANDALONE_
 CXXFLAGS      = -fPIC -g -O2 $(ROOTCFLAGS) $(CXXDEFINES) -I$(CXXINC) $(EXTCXXFLAGS)
 LINKERFLAGS   = -Wl,-rpath=$(LIBDIR),-soname,$(LIB)
@@ -109,7 +104,7 @@ $(OBJDIR)LinkDef_out.o:   $(OBJECTS) | alldirs
 
 $(EXEDIR)%::	$(BINDIR)%.cc $(LIBRULE) | alldirs
 	echo "Compiling $<"; \
-	$(CXX) $(CXXFLAGS) -o $@ $< $(LIBS) -L$(LIBDIR) -lIvyFrameWorkIvyDataTools
+	$(CXX) $(CXXFLAGS) -o $@ $< $(LIBS) -L$(LIBDIR) -l$(LIBSHORT)
 
 
 clean:

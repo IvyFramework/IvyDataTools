@@ -27,7 +27,7 @@ struct SimpleScalarEntry : public virtual BaseIOMessenger{
   template<typename T> void setVal(TString const& strname, T const& val);
   template<typename T> void getVal(TString const& strname, T& val) const;
 
-  virtual void swap(SimpleScalarEntry& other);
+  void swap(SimpleScalarEntry& other);
   SimpleScalarEntry& operator=(SimpleScalarEntry const& other);
 
 };
@@ -49,7 +49,7 @@ struct SimpleVectorEntry : public virtual BaseIOMessenger{
   template<typename T> void setVal(TString const& strname, T const& val);
   template<typename T> void getVal(TString const& strname, T& val) const;
 
-  virtual void swap(SimpleVectorEntry& other);
+  void swap(SimpleVectorEntry& other);
   SimpleVectorEntry& operator=(SimpleVectorEntry const& other);
 
 };
@@ -71,7 +71,7 @@ struct SimpleTensorEntry : public virtual BaseIOMessenger{
   template<typename T> void setVal(TString const& strname, T const& val);
   template<typename T> void getVal(TString const& strname, T& val) const;
 
-  virtual void swap(SimpleTensorEntry& other);
+  void swap(SimpleTensorEntry& other);
   SimpleTensorEntry& operator=(SimpleTensorEntry const& other);
 
 };
@@ -90,6 +90,9 @@ struct SimpleEntry : public SimpleScalarEntry, public SimpleVectorEntry, public 
   SimpleEntry(SimpleEntry const& other);
   SimpleEntry(SimpleEntry&& other);
 
+  using SimpleScalarEntry::swap;
+  using SimpleVectorEntry::swap;
+  using SimpleTensorEntry::swap;
   void swap(SimpleEntry& other);
   SimpleEntry& operator=(SimpleEntry const& other);
 

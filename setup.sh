@@ -38,17 +38,6 @@ if [[ ${forceStandalone} -eq 0 ]] && [[ ! -z "${CMSSW_BASE+x}" ]]; then
 fi
 
 printenv() {
-  # Print the environment variables from MELA as well if they are needed.
-  if [[ -d ../../JHUGenMELA ]]; then
-    melaenvopts="env"
-    if [[ ${forceStandalone} -eq 1 ]]; then
-      melaenvopts="${melaenvopts} standalone"
-    fi
-    ../../JHUGenMELA/setup.sh ${melaenvopts}
-    # After printing, actually do this part of the setup
-    eval $(../../JHUGenMELA/setup.sh ${melaenvopts})
-  fi
-
   if [[ ${usingCMSSW} -eq 1 ]]; then
     return 0
   fi
@@ -81,15 +70,6 @@ printenv() {
   fi
 }
 doenv() {
-  # Set up the environment variables from MELA as well if they are needed.
-  if [[ -d ../../JHUGenMELA ]]; then
-    melaenvopts="env"
-    if [[ ${forceStandalone} -eq 1 ]]; then
-      melaenvopts="${melaenvopts} standalone"
-    fi
-    eval $(../../JHUGenMELA/setup.sh ${melaenvopts})
-  fi
-
   if [[ ${usingCMSSW} -eq 1 ]]; then
     return 0
   fi

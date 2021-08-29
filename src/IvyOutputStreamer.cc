@@ -28,17 +28,7 @@ IvyOutputStreamer& IvyOutputStreamer::operator<<(std::ios_base& (*fcn)(std::ios_
   return *this;
 }
 template<> IvyOutputStreamer& IvyOutputStreamer::operator<< <TLorentzVector>(TLorentzVector const& val){
-  theFile << "{" << val.X() << ", " << val.Y() << ", " << val.Z() << ", " << val.T() << ", " << val.M() << "}";
-  if (stdout_ptr) *stdout_ptr << "{" << val.X() << ", " << val.Y() << ", " << val.Z() << ", " << val.T() << ", " << val.M() << "}";
-  return *this;
-}
-template<> IvyOutputStreamer& IvyOutputStreamer::operator<< <int, TLorentzVector>(std::pair<int, TLorentzVector> const& val){
-  *this << "(" << val.first << ") (X,Y,Z,T,M)=( "
-    << val.second.X() << " , "
-    << val.second.Y() << " , "
-    << val.second.Z() << " , "
-    << val.second.T() << " , "
-    << val.second.M() << " )";
+  *this << "[ " << val.X() << ", " << val.Y() << ", " << val.Z() << ", " << val.T() << ", " << val.M() << " ]";
   return *this;
 }
 

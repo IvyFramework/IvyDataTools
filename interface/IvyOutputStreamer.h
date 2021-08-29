@@ -14,6 +14,7 @@
 #include <utility>
 #include "TString.h"
 #include "TLorentzVector.h"
+#include "Math/LorentzVector.h"
 
 
 class IvyOutputStreamer{
@@ -26,6 +27,7 @@ public:
   ~IvyOutputStreamer();
 
   template<typename T> IvyOutputStreamer& operator<<(T const& val);
+  template<typename T> IvyOutputStreamer& operator<<(ROOT::Math::LorentzVector<T> const& val);
   template<typename T, typename U> IvyOutputStreamer& operator<<(std::pair<T, U> const& val);
   template<typename T> IvyOutputStreamer& operator<<(std::vector<T> const& val);
   IvyOutputStreamer& operator<<(std::ostream& (*fcn)(std::ostream&));
@@ -38,6 +40,10 @@ public:
   char fill() const;
   char fill(char fillch);
 
+  std::ofstream& getFileStream(){ return this->theFile; }
+  std::ofstream const& getFileStream() const{ return this->theFile; }
+  std::ostream* const& getStdOutPtr() const{ return this->stdout_ptr; }
+
   void open(const char* fname, std::ios_base::openmode fmode = std::ios_base::out);
   void close();
 
@@ -45,9 +51,17 @@ public:
 
 };
 
+namespace IvyStreamHelpers{
+  template<typename T> void print_generic_output(IvyOutputStreamer& ivy_os, T const& val){
+    auto& theFile = ivy_os.getFileStream();
+    auto& stdout_ptr = ivy_os.getStdOutPtr();
+    theFile << val;
+    if (stdout_ptr) *stdout_ptr << val;
+  }
+}
+
 template<typename T> IvyOutputStreamer& IvyOutputStreamer::operator<<(T const& val){
-  theFile << val;
-  if (stdout_ptr) *stdout_ptr << val;
+  IvyStreamHelpers::print_generic_output(*this, val);
   return *this;
 }
 template IvyOutputStreamer& IvyOutputStreamer::operator<< <bool>(bool const& val);
@@ -80,19 +94,23 @@ template IvyOutputStreamer& IvyOutputStreamer::operator<< <TString>(TString cons
 template IvyOutputStreamer& IvyOutputStreamer::operator<< <std::streambuf*>(std::streambuf* const& val);
 template IvyOutputStreamer& IvyOutputStreamer::operator<< <void*>(void* const& val);
 
-
-template<typename T, typename U> IvyOutputStreamer& IvyOutputStreamer::operator<<(std::pair<T, U> const& val){
-  *this << "(" << val.first << ", " << val.second << ")";
+template<typename T> IvyOutputStreamer& IvyOutputStreamer::operator<<(ROOT::Math::LorentzVector<T> const& val){
+  *this << "[ " << val.X() << ", " << val.Y() << ", " << val.Z() << ", " << val.T() << ", " << val.M() << " ]";
   return *this;
 }
-template<> IvyOutputStreamer& IvyOutputStreamer::operator<< <int, TLorentzVector>(std::pair<int, TLorentzVector> const& val);
 
+template<typename T, typename U> IvyOutputStreamer& IvyOutputStreamer::operator<<(std::pair<T, U> const& val){
+  *this << "{ " << val.first << ", " << val.second << " }";
+  return *this;
+}
 
 template<typename T> IvyOutputStreamer& IvyOutputStreamer::operator<<(std::vector<T> const& val){
+  *this << "{ ";
   for (typename std::vector<T>::const_iterator it=val.cbegin(); it!=val.cend(); it++){
     *this << *it;
     if (it!=val.cend()-1) *this << ", ";
   }
+  *this << " }";
   return *this;
 }
 template IvyOutputStreamer& IvyOutputStreamer::operator<< <bool>(std::vector<bool> const& val);
