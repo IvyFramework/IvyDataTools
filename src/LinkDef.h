@@ -3,6 +3,7 @@
 #include "RooNCSplineFactory_1D.h"
 #include "RooNCSplineFactory_2D.h"
 #include "RooNCSplineFactory_3D.h"
+#include "StdExtensions.h"
 
 #ifdef __CINT__
 
@@ -23,6 +24,13 @@
 #pragma link C++ class RooNCSplineFactory_1D;
 #pragma link C++ class RooNCSplineFactory_2D;
 #pragma link C++ class RooNCSplineFactory_3D;
+
+#pragma link C++ class std::vector<TString>;
+#pragma link C++ class std::vector< std::vector<char> >;
+#pragma link C++ class std::vector< std::vector<unsigned long> >;
+#pragma link C++ class std::vector< std::vector<long> >;
+#pragma link C++ class std::vector< std::vector<unsigned long long> >;
+//#pragma link C++ class std::vector< std::vector<long long> >;
 
 
 #endif

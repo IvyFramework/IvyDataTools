@@ -62,16 +62,16 @@ protected:
 #undef VECTOR_DATA_INPUT_DIRECTIVE
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
 
-  BranchType searchBranchType(TString branchname) const;
+  BranchType searchBranchType(TString const& branchname) const;
 
   void getValidBranchNamesWithoutAlias(TTree* t, std::vector<TString>& res, bool check_linked) const;
 
-  template<typename T> bool getBranchCIterator(TString branchname, typename std::unordered_map<TString, T>::iterator& it);
-  template<typename T> bool getBranchCIterator(TString branchname, typename std::unordered_map<TString, T>::const_iterator& it) const;
+  template<typename T> bool getBranchCIterator(TString const& branchname, typename std::unordered_map<TString, T>::iterator& it);
+  template<typename T> bool getBranchCIterator(TString const& branchname, typename std::unordered_map<TString, T>::const_iterator& it) const;
 
   template<BranchType T> void resetBranch();
 
-  template<BranchType T> void removeBranch(TString branchname);
+  template<BranchType T> void removeBranch(TString const& branchname);
 
   // [tree][file] is the order of output vector indices
   bool getValidFilesForTreeList(TString cinput, std::vector<TString> const& treenames, std::vector< std::vector<TString> >& res) const;
@@ -90,11 +90,11 @@ public:
   BaseTree(TFile* finput_, std::vector<TTree*> const& treelist_, TH1F* hCounters_, bool receiver_override); // Mixed definition constructor
   virtual ~BaseTree();
 
-  template<typename T> bool bookBranch(TString branchname, T valdef);
-  template<BranchType T> bool bookBranch(TString branchname);
+  template<typename T> bool bookBranch(TString const& branchname, T valdef);
+  template<BranchType T> bool bookBranch(TString const& branchname);
 
-  template<typename T> bool putBranch(TString branchname, T valdef);
-  template<BranchType T> bool putBranch(TString branchname);
+  template<typename T> bool putBranch(TString const& branchname, T valdef);
+  template<BranchType T> bool putBranch(TString const& branchname);
 
   virtual void resetBranches();
 
@@ -126,14 +126,14 @@ public:
   int getFailedNEvents() const;
   int getNEvents() const;
 
-  template<typename T> void getVal(TString branchname, T& val) const;
-  template<typename T> void setVal(TString branchname, T const& val);
-  template<typename T> void getValRef(TString branchname, T*& val) const;
-  template<typename T> void getValRef(TString branchname, T*& val);
+  template<typename T> void getVal(TString const& branchname, T& val) const;
+  template<typename T> void setVal(TString const& branchname, T const& val);
+  template<typename T> void getValRef(TString const& branchname, T*& val) const;
+  template<typename T> void getValRef(TString const& branchname, T*& val);
 
   void silenceUnused();
   void unmuteAllBranches();
-  void releaseBranch(TString branchname);
+  void releaseBranch(TString const& branchname);
   // This function below is for expert-use only!
   // The difference of the function below from the one above is that
   // the one above resets branch addresses
@@ -151,7 +151,7 @@ public:
   int doFlushBaskets();
 
   bool isValid() const;
-  bool branchExists(TString branchname, BranchType* type=nullptr);
+  bool branchExists(TString const& branchname, BranchType* type=nullptr);
   void getValidBranchNamesWithoutAlias(std::vector<TString>& res, bool check_linked) const;
 
   virtual bool isValidEvent() const;
