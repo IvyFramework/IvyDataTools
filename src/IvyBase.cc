@@ -30,13 +30,16 @@ bool IvyBase::linkConsumes(BaseTree* tree){
   if (!process && verbosity>=MiscUtils::ERROR) IVYerr << "IvyBase::linkConsumes: Tree " << tree->sampleIdentifier << " is already invalid." << endl;
   if (process){
 #define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) process &= this->linkConsumed<type>(tree);
-#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) process &= this->linkConsumed<type*>(tree);
-#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) process &= this->linkConsumed<type*>(tree);
-    SIMPLE_DATA_INPUT_DIRECTIVES
-    VECTOR_DATA_INPUT_DIRECTIVES
-    DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
+    FUNDAMENTAL_DATA_INPUT_DIRECTIVES
 #undef SIMPLE_DATA_INPUT_DIRECTIVE
+#define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) process &= this->linkConsumed<type*>(tree);
+    CLASS_DATA_INPUT_DIRECTIVES
+#undef SIMPLE_DATA_INPUT_DIRECTIVE
+#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) process &= this->linkConsumed<type*>(tree);
+    VECTOR_DATA_INPUT_DIRECTIVES
 #undef VECTOR_DATA_INPUT_DIRECTIVE
+#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) process &= this->linkConsumed<type*>(tree);
+    DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
     // Silence unused branches
     tree->silenceUnused();

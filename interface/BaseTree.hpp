@@ -100,10 +100,20 @@ template<> void BaseTree::getValRef<type>(TString const& branchname, type*& val)
   std::unordered_map<TString, std::pair<itType*, itType>*>::const_iterator it; \
   if (this->getBranchCIterator<std::pair<itType*, itType>*>(branchname, it)){ auto& tmp = it->second; if (tmp) val=tmp->first; } \
 } \
-template<> void BaseTree::getValRef<type>(TString const& branchname, type*& val){ \
+template<> void BaseTree::getValRef<type* const>(TString const& branchname, type* const*& val) const{ \
+  typedef type itType; \
+  std::unordered_map<TString, std::pair<itType*, itType>*>::const_iterator it; \
+  if (this->getBranchCIterator<std::pair<itType*, itType>*>(branchname, it)){ auto& tmp = it->second; if (tmp && tmp->first) val=&(tmp->first); } \
+} \
+template<> void BaseTree::getValRef<type*>(TString const& branchname, type**& val){ \
   typedef type itType; \
   std::unordered_map<TString, std::pair<itType*, itType>*>::iterator it; \
-  if (this->getBranchCIterator<std::pair<itType*, itType>*>(branchname, it)){ auto& tmp = it->second; if (tmp) val=tmp->first; } \
+  if (this->getBranchCIterator<std::pair<itType*, itType>*>(branchname, it)){ auto& tmp = it->second; if (tmp && tmp->first) val=&(tmp->first); } \
+} \
+template<> void BaseTree::getValRef<type* const>(TString const& branchname, type* const*& val){ \
+  typedef type itType; \
+  std::unordered_map<TString, std::pair<itType*, itType>*>::const_iterator it; \
+  if (this->getBranchCIterator<std::pair<itType*, itType>*>(branchname, it)){ auto& tmp = it->second; if (tmp && tmp->first) val=&(tmp->first); } \
 } \
 
 CLASS_DATA_INPUT_DIRECTIVES
@@ -166,17 +176,17 @@ template<> void BaseTree::getValRef<type>(TString const& branchname, type*& val)
 template<> void BaseTree::getValRef<type* const>(TString const& branchname, type* const*& val) const{ \
   typedef type itType; \
   std::unordered_map<TString, itType*>::const_iterator it; \
-  if (this->getBranchCIterator<itType*>(branchname, it)) val = &(it->second); \
+  if (this->getBranchCIterator<itType*>(branchname, it)){ if (it->second) val = &(it->second); } \
 } \
 template<> void BaseTree::getValRef<type*>(TString const& branchname, type**& val){ \
   typedef type itType; \
   std::unordered_map<TString, itType*>::iterator it; \
-  if (this->getBranchCIterator<itType*>(branchname, it)) val = &(it->second); \
+  if (this->getBranchCIterator<itType*>(branchname, it)){ if (it->second) val = &(it->second); } \
 } \
 template<> void BaseTree::getValRef<type* const>(TString const& branchname, type* const*& val){ \
   typedef type itType; \
   std::unordered_map<TString, itType*>::const_iterator it; \
-  if (this->getBranchCIterator<itType*>(branchname, it)) val = &(it->second); \
+  if (this->getBranchCIterator<itType*>(branchname, it)){ if (it->second) val = &(it->second); } \
 } \
 
 VECTOR_DATA_INPUT_DIRECTIVES
@@ -239,17 +249,17 @@ template<> void BaseTree::getValRef<type>(TString const& branchname, type*& val)
 template<> void BaseTree::getValRef<type* const>(TString const& branchname, type* const*& val) const{ \
   typedef type itType; \
   std::unordered_map<TString, itType*>::const_iterator it; \
-  if (this->getBranchCIterator<itType*>(branchname, it)) val = &(it->second); \
+  if (this->getBranchCIterator<itType*>(branchname, it)){ if (it->second) val = &(it->second); } \
 } \
 template<> void BaseTree::getValRef<type*>(TString const& branchname, type**& val){ \
   typedef type itType; \
   std::unordered_map<TString, itType*>::iterator it; \
-  if (this->getBranchCIterator<itType*>(branchname, it)) val = &(it->second); \
+  if (this->getBranchCIterator<itType*>(branchname, it)){ if (it->second) val = &(it->second); } \
 } \
 template<> void BaseTree::getValRef<type* const>(TString const& branchname, type* const*& val){ \
   typedef type itType; \
   std::unordered_map<TString, itType*>::const_iterator it; \
-  if (this->getBranchCIterator<itType*>(branchname, it)) val = &(it->second); \
+  if (this->getBranchCIterator<itType*>(branchname, it)){ if (it->second) val = &(it->second); } \
 } \
 
 DOUBLEVECTOR_DATA_INPUT_DIRECTIVES

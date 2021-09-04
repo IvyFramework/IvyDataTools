@@ -19,13 +19,16 @@ protected:
   std::vector<TString> sloppyConsumes; // In case some variables are known to be absent in some trees
 
 #define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) std::unordered_map<TString, type*> val##name##s;
-#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) std::unordered_map<TString, type**> valV##name##s;
-#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) std::unordered_map<TString, type**> valVV##name##s;
-  SIMPLE_DATA_INPUT_DIRECTIVES
-  VECTOR_DATA_INPUT_DIRECTIVES
-  DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
+  FUNDAMENTAL_DATA_INPUT_DIRECTIVES
 #undef SIMPLE_DATA_INPUT_DIRECTIVE
+#define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) std::unordered_map<TString, type**> val##name##s;
+  CLASS_DATA_INPUT_DIRECTIVES
+#undef SIMPLE_DATA_INPUT_DIRECTIVE
+#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) std::unordered_map<TString, type**> valV##name##s;
+  VECTOR_DATA_INPUT_DIRECTIVES
 #undef VECTOR_DATA_INPUT_DIRECTIVE
+#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) std::unordered_map<TString, type**> valVV##name##s;
+  DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
 
   template<typename T> bool linkConsumed(BaseTree* tree);

@@ -84,6 +84,23 @@ template bool IvyBase::linkConsumed<type>(BaseTree* tree); \
 template bool IvyBase::getConsumed<type>(TString, type*& val) const; \
 template bool IvyBase::getConsumed<type>(TString, type const*& val) const; \
 
+FUNDAMENTAL_DATA_INPUT_DIRECTIVES
+
+#undef SIMPLE_DATA_INPUT_DIRECTIVE
+
+
+#define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) \
+template<> void IvyBase::getConsumedMap<type*>(std::unordered_map<TString, type**>*& theMap){ theMap = &val##name##s; } \
+template<> void IvyBase::getConsumedMap<type*>(std::unordered_map<TString, type**> const*& theMap) const{ theMap = &val##name##s; } \
+template void IvyBase::addConsumed<type*>(TString); \
+template bool IvyBase::linkConsumed<type*>(BaseTree* tree); \
+template bool IvyBase::getConsumed<type*>(TString, type**& val) const; \
+template bool IvyBase::getConsumed<type*>(TString, type* const*& val) const; \
+
+CLASS_DATA_INPUT_DIRECTIVES
+
+#undef SIMPLE_DATA_INPUT_DIRECTIVE
+
 
 #define VECTOR_DATA_INPUT_DIRECTIVE(name, type) \
 template<> void IvyBase::getConsumedMap<type*>(std::unordered_map<TString, type**>*& theMap){ theMap = &valV##name##s; } \
@@ -92,6 +109,10 @@ template void IvyBase::addConsumed<type*>(TString); \
 template bool IvyBase::linkConsumed<type*>(BaseTree* tree); \
 template bool IvyBase::getConsumed<type*>(TString, type**& val) const; \
 template bool IvyBase::getConsumed<type*>(TString, type* const*& val) const; \
+
+VECTOR_DATA_INPUT_DIRECTIVES
+
+#undef VECTOR_DATA_INPUT_DIRECTIVE
 
 
 #define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) \
@@ -102,14 +123,8 @@ template bool IvyBase::linkConsumed<type*>(BaseTree* tree); \
 template bool IvyBase::getConsumed<type*>(TString, type**& val) const; \
 template bool IvyBase::getConsumed<type*>(TString, type* const*& val) const; \
 
-
-SIMPLE_DATA_INPUT_DIRECTIVES
-VECTOR_DATA_INPUT_DIRECTIVES
 DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
 
-
-#undef SIMPLE_DATA_INPUT_DIRECTIVE
-#undef VECTOR_DATA_INPUT_DIRECTIVE
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
 
 
