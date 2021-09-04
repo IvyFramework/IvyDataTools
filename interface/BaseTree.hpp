@@ -53,6 +53,63 @@ template<> void BaseTree::getValRef<type>(TString const& branchname, type*& val)
   if (this->getBranchCIterator<std::pair<itType, itType>*>(branchname, it)){ auto& tmp = it->second; if (tmp) val=&(tmp->first); } \
 } \
 
+FUNDAMENTAL_DATA_INPUT_DIRECTIVES
+
+#undef SIMPLE_DATA_INPUT_DIRECTIVE
+
+
+#define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) \
+template<> bool BaseTree::getBranchCIterator<std::pair<type*, type>*>(TString const& branchname, std::unordered_map<TString, std::pair<type*, type>*>::iterator& it){ \
+  auto& theMap = val##name##s; \
+  it = theMap.find(branchname); \
+  return (it!=theMap.end()); \
+} \
+template<> bool BaseTree::getBranchCIterator<std::pair<type*, type>*>(TString const& branchname, std::unordered_map<TString, std::pair<type*, type>*>::const_iterator& it) const{ \
+  auto const& theMap = val##name##s; \
+  it = theMap.find(branchname); \
+  return (it!=theMap.cend()); \
+} \
+template<> void BaseTree::resetBranch<BaseTree::BranchType_##name##_t>(){ for (auto& it:val##name##s){ if (it.second){ *(it.second->first)=it.second->second; } } } \
+template<> void BaseTree::removeBranch<BaseTree::BranchType_##name##_t>(TString const& branchname){ for (auto& it:val##name##s){ if (it.first==branchname){ delete it.second->first; delete it.second; it.second=0; } } val##name##s.erase(branchname); } \
+template<> bool BaseTree::bookBranch<type>(TString const& branchname, type valdef){ \
+  if (val##name##s.find(branchname)==val##name##s.end()) val##name##s[branchname] = new std::pair<type*, type>(nullptr, valdef); \
+  else{ if (val##name##s[branchname]->first){ *(val##name##s[branchname]->first)=valdef; } val##name##s[branchname]->second=valdef; } \
+  for (auto& tt:treelist) SampleHelpers::bookBranch(tt, branchname, &(val##name##s[branchname]->first)); \
+  return true; \
+} \
+template<> bool BaseTree::bookBranch<BaseTree::BranchType_##name##_t>(TString const& branchname){ return this->bookBranch<type>(branchname, default_value); } \
+template<> bool BaseTree::putBranch<type>(TString const& branchname, type valdef){ \
+  if (val##name##s.find(branchname)==val##name##s.end()) val##name##s[branchname] = new std::pair<type*, type>(new type(valdef), valdef); \
+  else{ *(val##name##s[branchname]->first)=valdef; val##name##s[branchname]->second=valdef; } \
+  for (auto& tt:treelist) SampleHelpers::putBranch(tt, branchname, *(val##name##s[branchname]->first)); \
+  return true; \
+} \
+template<> bool BaseTree::putBranch<BaseTree::BranchType_##name##_t>(TString const& branchname){ return this->putBranch<type>(branchname, default_value); } \
+template<> void BaseTree::getVal<type>(TString const& branchname, type& val) const{ \
+  typedef type itType; \
+  std::unordered_map<TString, std::pair<itType*, itType>*>::const_iterator it; \
+  if (this->getBranchCIterator<std::pair<itType*, itType>*>(branchname, it)){ auto& tmp = it->second; if (tmp) val=*(tmp->first); } \
+} \
+template<> void BaseTree::setVal<type>(TString const& branchname, type const& val){ \
+  typedef type itType; \
+  std::unordered_map<TString, std::pair<itType*, itType>*>::iterator it; \
+  if (this->getBranchCIterator<std::pair<itType*, itType>*>(branchname, it)){ auto& tmp = it->second; if (tmp) *(tmp->first)=val; } \
+} \
+template<> void BaseTree::getValRef<type>(TString const& branchname, type*& val) const{ \
+  typedef type itType; \
+  std::unordered_map<TString, std::pair<itType*, itType>*>::const_iterator it; \
+  if (this->getBranchCIterator<std::pair<itType*, itType>*>(branchname, it)){ auto& tmp = it->second; if (tmp) val=tmp->first; } \
+} \
+template<> void BaseTree::getValRef<type>(TString const& branchname, type*& val){ \
+  typedef type itType; \
+  std::unordered_map<TString, std::pair<itType*, itType>*>::iterator it; \
+  if (this->getBranchCIterator<std::pair<itType*, itType>*>(branchname, it)){ auto& tmp = it->second; if (tmp) val=tmp->first; } \
+} \
+
+CLASS_DATA_INPUT_DIRECTIVES
+
+#undef SIMPLE_DATA_INPUT_DIRECTIVE
+
 
 #define VECTOR_DATA_INPUT_DIRECTIVE(name, type) \
 template<> bool BaseTree::getBranchCIterator<type*>(TString const& branchname, std::unordered_map<TString, type*>::iterator& it){ \
@@ -121,6 +178,10 @@ template<> void BaseTree::getValRef<type* const>(TString const& branchname, type
   std::unordered_map<TString, itType*>::const_iterator it; \
   if (this->getBranchCIterator<itType*>(branchname, it)) val = &(it->second); \
 } \
+
+VECTOR_DATA_INPUT_DIRECTIVES
+
+#undef VECTOR_DATA_INPUT_DIRECTIVE
 
 
 #define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) \
@@ -191,14 +252,8 @@ template<> void BaseTree::getValRef<type* const>(TString const& branchname, type
   if (this->getBranchCIterator<itType*>(branchname, it)) val = &(it->second); \
 } \
 
-
-SIMPLE_DATA_INPUT_DIRECTIVES
-VECTOR_DATA_INPUT_DIRECTIVES
 DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
 
-
-#undef SIMPLE_DATA_INPUT_DIRECTIVE
-#undef VECTOR_DATA_INPUT_DIRECTIVE
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
 
 

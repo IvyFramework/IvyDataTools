@@ -5,7 +5,7 @@
 
 
 // First argument is name, second argument is type, third argument in simple types is default value
-#define SIMPLE_DATA_INPUT_DIRECTIVES \
+#define FUNDAMENTAL_DATA_INPUT_DIRECTIVES \
 SIMPLE_DATA_INPUT_DIRECTIVE(bool, bool, false) \
 SIMPLE_DATA_INPUT_DIRECTIVE(uchar, unsigned char, 0) \
 SIMPLE_DATA_INPUT_DIRECTIVE(char, char, 0) \
@@ -18,11 +18,17 @@ SIMPLE_DATA_INPUT_DIRECTIVE(int, int, 0) \
 SIMPLE_DATA_INPUT_DIRECTIVE(ulonglong, unsigned long long, 0) \
 SIMPLE_DATA_INPUT_DIRECTIVE(longlong, long long, 0) \
 SIMPLE_DATA_INPUT_DIRECTIVE(float, float, 0) \
-SIMPLE_DATA_INPUT_DIRECTIVE(double, double, 0) \
+SIMPLE_DATA_INPUT_DIRECTIVE(double, double, 0)
+
+#define CLASS_DATA_INPUT_DIRECTIVES \
 SIMPLE_DATA_INPUT_DIRECTIVE(TBits, TBits, TBits()) \
 SIMPLE_DATA_INPUT_DIRECTIVE(string, std::string, "") \
 SIMPLE_DATA_INPUT_DIRECTIVE(TString, TString, "") \
 SIMPLE_DATA_INPUT_DIRECTIVE(CMSLorentzVector, CMSLorentzVector, CMSLorentzVector(0, 0, 0, 0))
+
+#define SIMPLE_DATA_INPUT_DIRECTIVES \
+FUNDAMENTAL_DATA_INPUT_DIRECTIVES \
+CLASS_DATA_INPUT_DIRECTIVES
 
 #define VECTOR_DATA_INPUT_DIRECTIVES \
 VECTOR_DATA_INPUT_DIRECTIVE(bool, std::vector<bool>) \

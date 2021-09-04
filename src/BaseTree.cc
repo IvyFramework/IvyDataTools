@@ -290,6 +290,13 @@ BaseTree::BaseTree(TFile* finput_, std::vector<TTree*> const& treelist_, TH1F* h
 }
 
 BaseTree::~BaseTree(){
+  // Clean up simple class value pairs first
+#define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) for (auto& it:val##name##s) delete it.second->first;
+  if (!receiver){
+    CLASS_DATA_INPUT_DIRECTIVES
+  }
+#undef SIMPLE_DATA_INPUT_DIRECTIVE
+
 #define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) HelperFunctions::cleanUnorderedMap(val##name##s);
 #define VECTOR_DATA_INPUT_DIRECTIVE(name, type) HelperFunctions::cleanUnorderedMap(valV##name##s);
 #define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) HelperFunctions::cleanUnorderedMap(valVV##name##s);
@@ -450,13 +457,16 @@ bool BaseTree::branchExists(TString const& branchname, BranchType* type){
 
 void BaseTree::print() const{
 #define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) for (auto const& it:val##name##s){ if (it.second){ IVYout << "\t- " << it.first << " value: " << it.second->first << " (address: " << &(it.second->first) << ")" << endl; } }
-#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:valV##name##s){ IVYout << "\t- " << it.first << " value: "; if (it.second) IVYout << *(it.second); else IVYout << "null"; IVYout << " (address: " << it.second << ")" << endl; }
-#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:valVV##name##s){ IVYout << "\t- " << it.first << " value: "; if (it.second){ for (auto const& v:*(it.second)){ IVYout << "{ " << v << " }"; } } else IVYout << "null"; IVYout << " (address: " << it.second << ")" << endl; }
-  SIMPLE_DATA_INPUT_DIRECTIVES
-  VECTOR_DATA_INPUT_DIRECTIVES
-  DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
+  FUNDAMENTAL_DATA_INPUT_DIRECTIVES
 #undef SIMPLE_DATA_INPUT_DIRECTIVE
+#define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) for (auto const& it:val##name##s){ if (it.second){ IVYout << "\t- " << it.first << " value: "; if (it.second->first) IVYout << *(it.second->first); else IVYout << "null"; IVYout << " (address: " << it.second->first << ")" << endl; } }
+    CLASS_DATA_INPUT_DIRECTIVES
+#undef SIMPLE_DATA_INPUT_DIRECTIVE
+#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:valV##name##s){ IVYout << "\t- " << it.first << " value: "; if (it.second) IVYout << *(it.second); else IVYout << "null"; IVYout << " (address: " << it.second << ")" << endl; }
+    VECTOR_DATA_INPUT_DIRECTIVES
 #undef VECTOR_DATA_INPUT_DIRECTIVE
+#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:valVV##name##s){ IVYout << "\t- " << it.first << " value: "; if (it.second){ for (auto const& v:*(it.second)){ IVYout << "{ " << v << " }"; } } else IVYout << "null"; IVYout << " (address: " << it.second << ")" << endl; }
+  DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
 }
 

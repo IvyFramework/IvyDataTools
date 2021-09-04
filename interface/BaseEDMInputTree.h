@@ -57,13 +57,16 @@ template<typename T, typename U> void CMSEDMWrapperLinker<T, U>::reset(){ var = 
 class BaseEDMInputTree : public BaseTree{
 protected:
 #define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) std::unordered_map<TString, CMSEDMWrapperLinker<type>*> bridge##name##s;
-#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) std::unordered_map<TString, CMSEDMWrapperLinker<type, type*>*> bridgeV##name##s;
-#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) std::unordered_map<TString, CMSEDMWrapperLinker<type, type*>*> bridgeVV##name##s;
-  SIMPLE_DATA_INPUT_DIRECTIVES
-  VECTOR_DATA_INPUT_DIRECTIVES
-  DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
+  FUNDAMENTAL_DATA_INPUT_DIRECTIVES
 #undef SIMPLE_DATA_INPUT_DIRECTIVE
+#define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) std::unordered_map<TString, CMSEDMWrapperLinker<type, type*>*> bridge##name##s;
+    CLASS_DATA_INPUT_DIRECTIVES
+#undef SIMPLE_DATA_INPUT_DIRECTIVE
+#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) std::unordered_map<TString, CMSEDMWrapperLinker<type, type*>*> bridgeV##name##s;
+    VECTOR_DATA_INPUT_DIRECTIVES
 #undef VECTOR_DATA_INPUT_DIRECTIVE
+#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) std::unordered_map<TString, CMSEDMWrapperLinker<type, type*>*> bridgeVV##name##s;
+  DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
 
   template<BranchType T> void resetEDMBranch();
