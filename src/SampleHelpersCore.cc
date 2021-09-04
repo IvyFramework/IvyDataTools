@@ -80,7 +80,7 @@ std::vector<TString> SampleHelpers::lsdir(TString const& indir){
 }
 
 
-float SampleHelpers::findPoleMass(const TString samplename){
+float SampleHelpers::findPoleMass(TString const& samplename){
   float mass = -1;
   if (samplename=="") return mass;
 
@@ -111,7 +111,7 @@ TTree* SampleHelpers::findTree(std::vector<TTree*> const& treeList, int evid){
   }
   return 0;
 }
-bool SampleHelpers::branchExists(TTree* tree, TString strname){
+bool SampleHelpers::branchExists(TTree* tree, TString const& strname){
   if (!tree) return false;
   bool found=false;
   const TList* blist = nullptr;
@@ -135,7 +135,7 @@ bool SampleHelpers::branchExists(TTree* tree, TString strname){
   }
   return found;
 }
-bool SampleHelpers::aliasExists(TTree* tree, TString strname){
+bool SampleHelpers::aliasExists(TTree* tree, TString const& strname){
   if (!tree) return false;
   bool found=false;
   const TList* blist = (const TList*) tree->GetListOfAliases();

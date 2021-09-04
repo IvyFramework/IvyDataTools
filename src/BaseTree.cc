@@ -14,6 +14,8 @@ using namespace HelperFunctions;
 
 bool BaseTree::robustSaveWrite = false;
 bool BaseTree::doRobustInputCheck = true;
+std::unordered_map< BaseTree::BranchType, std::pair<TString, EDataType> > BaseTree::global_branchtype_class_map;
+
 
 BaseTree::BaseTree() :
   sampleIdentifier(""),
@@ -771,4 +773,133 @@ void BaseTree::writeSimpleEntries(std::vector<SimpleEntry>::const_iterator const
   if (robustSaveWrite){
     tree_->doAutoSave("FlushBaskets");
   }
+}
+
+void BaseTree::set_global_branchtype_class_map(){
+  if (!BaseTree::global_branchtype_class_map.empty()) return;
+
+  // Change to the root directory because we are going to create a temporary new tree.
+  TDirectory* curdir = gDirectory;
+  SampleHelpers::rootTDirectory->cd();
+
+  BaseTree tmptree("__tmptree__set_global_branchtype_class_map__");
+
+  bool exptype_success = false;
+  TClass* tmp_class_type = nullptr;
+  TString str_class_type;
+  EDataType tmp_data_type = kNoType_t;
+
+#define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) \
+  IVYout << "BaseTree::set_global_branchtype_class_map: Acquiring the type information for BranchType_" << #name << "_t..." << endl; \
+  tmp_bname = Form("tmpbr_%s", #name); \
+  tmptree.putBranch<BaseTree::BranchType_##name##_t>(tmp_bname); \
+  exptype_success = tmptree.getSelectedTree()->GetBranch(tmp_bname) && tmptree.getSelectedTree()->GetBranch(tmp_bname)->GetExpectedType(tmp_class_type, tmp_data_type)==0; \
+  if (exptype_success){ \
+    if (tmp_class_type) str_class_type = tmp_class_type->GetName(); \
+    BaseTree::global_branchtype_class_map[BaseTree::BranchType_##name##_t] = std::pair<TString, EDataType>(str_class_type, tmp_data_type); \
+  } \
+  else{ IVYerr << "BaseTree::set_global_branchtype_class_map: Cannot identify the scalar branch type of BranchType_" << #name << "_t[" << #type << "]." << endl; } \
+  delete tmp_class_type; tmp_class_type = nullptr; exptype_success = false; tmp_data_type = kNoType_t; str_class_type = ""; \
+  IVYout << "\t- Done." <<  endl;
+#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) \
+  IVYout << "BaseTree::set_global_branchtype_class_map: Acquiring the type information for BranchType_v" << #name << "_t..." << endl; \
+  tmp_bname = Form("tmpbr_v%s", #name); \
+  tmptree.putBranch<BaseTree::BranchType_v##name##_t>(tmp_bname); \
+  exptype_success = tmptree.getSelectedTree()->GetBranch(tmp_bname) && tmptree.getSelectedTree()->GetBranch(tmp_bname)->GetExpectedType(tmp_class_type, tmp_data_type)==0; \
+  if (exptype_success){ \
+    if (tmp_class_type) str_class_type = tmp_class_type->GetName(); \
+    BaseTree::global_branchtype_class_map[BaseTree::BranchType_v##name##_t] = std::pair<TString, EDataType>(str_class_type, tmp_data_type); \
+  } \
+  else{ IVYerr << "BaseTree::set_global_branchtype_class_map: Cannot identify the vector branch type of BranchType_" << #name << "_t[" << #type << "]." << endl; } \
+  delete tmp_class_type; tmp_class_type = nullptr; exptype_success = false; tmp_data_type = kNoType_t; str_class_type = ""; \
+  IVYout << "\t- Done." <<  endl;
+#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) \
+  IVYout << "BaseTree::set_global_branchtype_class_map: Acquiring the type information for BranchType_vv" << #name << "_t..." << endl; \
+  tmp_bname = Form("tmpbr_vv%s", #name); \
+  tmptree.putBranch<BaseTree::BranchType_vv##name##_t>(tmp_bname); \
+  exptype_success = tmptree.getSelectedTree()->GetBranch(tmp_bname) && tmptree.getSelectedTree()->GetBranch(tmp_bname)->GetExpectedType(tmp_class_type, tmp_data_type)==0; \
+  if (exptype_success){ \
+    if (tmp_class_type) str_class_type = tmp_class_type->GetName(); \
+    BaseTree::global_branchtype_class_map[BaseTree::BranchType_vv##name##_t] = std::pair<TString, EDataType>(str_class_type, tmp_data_type); \
+  } \
+  else{ IVYerr << "BaseTree::set_global_branchtype_class_map: Cannot identify the double vector branch type of BranchType_" << #name << "_t[" << #type << "]." << endl; } \
+  delete tmp_class_type; tmp_class_type = nullptr; exptype_success = false; tmp_data_type = kNoType_t; str_class_type = ""; \
+  IVYout << "\t- Done." <<  endl;
+
+  {
+    TString tmp_bname;
+    SIMPLE_DATA_INPUT_DIRECTIVES;
+    VECTOR_DATA_INPUT_DIRECTIVES;
+    DOUBLEVECTOR_DATA_INPUT_DIRECTIVES;
+  }
+
+#undef SIMPLE_DATA_INPUT_DIRECTIVE
+#undef VECTOR_DATA_INPUT_DIRECTIVE
+#undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
+
+  curdir->cd();
+}
+
+// With the help of BaseTree::global_branchtype_class_map, we can now acquire branches without typecasting them first.
+template<> bool BaseTree::bookBranch<BaseTree::BranchType_unknown_t>(TString branchname){
+  BaseTree::set_global_branchtype_class_map();
+
+  TBranch* pt_br = nullptr;
+  BranchType type_eff = BranchType_unknown_t;
+  for (auto& tt:treelist){
+    const char* brname_aliased = tt->GetAlias(branchname.Data());
+    if (brname_aliased) pt_br = tt->GetBranch(brname_aliased);
+    else pt_br = tt->GetBranch(branchname);
+    if (pt_br) break;
+  }
+  if (!pt_br){
+    IVYerr << "BaseTree::bookBranch: Cannot book " << branchname << " because the TBranch object is not found." << endl;
+    return false;
+  }
+
+  bool exptype_success = false;
+  TClass* tmp_class_type = nullptr;
+  TString str_class_type;
+  EDataType tmp_data_type = kNoType_t;
+  exptype_success = pt_br->GetExpectedType(tmp_class_type, tmp_data_type)==0;
+  if (exptype_success){
+    if (tmp_class_type) str_class_type = tmp_class_type->GetName();
+    for (auto const& pp:BaseTree::global_branchtype_class_map){
+      if (pp.second.first == str_class_type && pp.second.second == tmp_data_type){
+        type_eff = pp.first;
+        break;
+      }
+    }
+  }
+  else{ IVYerr << "BaseTree::bookBranch: Cannot identify the branch type of " << branchname << '.' << endl; }
+  delete tmp_class_type;
+
+
+#define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) \
+  case BranchType_##name##_t: \
+  return this->bookBranch<BranchType_##name##_t>(branchname); \
+  break;
+#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) \
+  case BranchType_v##name##_t: \
+  return this->bookBranch<BranchType_v##name##_t>(branchname); \
+  break;
+#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) \
+  case BranchType_vv##name##_t: \
+  return this->bookBranch<BranchType_vv##name##_t>(branchname); \
+  break;
+
+  switch (type_eff){
+    SIMPLE_DATA_INPUT_DIRECTIVES
+    VECTOR_DATA_INPUT_DIRECTIVES
+    DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
+
+  default:
+    break;
+  }
+
+#undef SIMPLE_DATA_INPUT_DIRECTIVE
+#undef VECTOR_DATA_INPUT_DIRECTIVE
+#undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
+
+  return false;
 }

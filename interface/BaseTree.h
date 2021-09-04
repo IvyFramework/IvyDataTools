@@ -76,6 +76,11 @@ protected:
   // [tree][file] is the order of output vector indices
   bool getValidFilesForTreeList(TString cinput, std::vector<TString> const& treenames, std::vector< std::vector<TString> >& res) const;
 
+  // The class map is needed to deduce the branch type from an arbitrary branch name.
+  // The map is filled only if it is necessary to do so.
+  static std::unordered_map< BaseTree::BranchType, std::pair<TString, EDataType> > global_branchtype_class_map;
+  static void set_global_branchtype_class_map();
+
 public:
   BaseTree();
   BaseTree(const TString cinput, const TString treename, const TString failedtreename, const TString countersname);

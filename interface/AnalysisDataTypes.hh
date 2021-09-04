@@ -1,6 +1,8 @@
 #ifndef ANALYSISDATATYPES_HH
 #define ANALYSISDATATYPES_HH
 
+#include "CMSLorentzVector.h"
+
 
 // First argument is name, second argument is type, third argument in simple types is default value
 #define SIMPLE_DATA_INPUT_DIRECTIVES \
@@ -11,8 +13,8 @@ SIMPLE_DATA_INPUT_DIRECTIVE(ushort, unsigned short, 0) \
 SIMPLE_DATA_INPUT_DIRECTIVE(short, short, 0) \
 SIMPLE_DATA_INPUT_DIRECTIVE(uint, unsigned int, 0) \
 SIMPLE_DATA_INPUT_DIRECTIVE(int, int, 0) \
-SIMPLE_DATA_INPUT_DIRECTIVE(ulong, unsigned long, 0) \
-SIMPLE_DATA_INPUT_DIRECTIVE(long, long, 0) \
+/*SIMPLE_DATA_INPUT_DIRECTIVE(ulong, unsigned long, 0)*/ \
+/*SIMPLE_DATA_INPUT_DIRECTIVE(long, long, 0)*/ \
 SIMPLE_DATA_INPUT_DIRECTIVE(ulonglong, unsigned long long, 0) \
 SIMPLE_DATA_INPUT_DIRECTIVE(longlong, long long, 0) \
 SIMPLE_DATA_INPUT_DIRECTIVE(float, float, 0) \
@@ -69,8 +71,8 @@ SIMPLE_DATA_OUTPUT_DIRECTIVE(ushort, unsigned short) \
 SIMPLE_DATA_OUTPUT_DIRECTIVE(short, short) \
 SIMPLE_DATA_OUTPUT_DIRECTIVE(uint, unsigned int) \
 SIMPLE_DATA_OUTPUT_DIRECTIVE(int, int) \
-SIMPLE_DATA_OUTPUT_DIRECTIVE(ulong, unsigned long) \
-SIMPLE_DATA_OUTPUT_DIRECTIVE(long, long) \
+/*SIMPLE_DATA_OUTPUT_DIRECTIVE(ulong, unsigned long)*/ \
+/*SIMPLE_DATA_OUTPUT_DIRECTIVE(long, long)*/ \
 SIMPLE_DATA_OUTPUT_DIRECTIVE(ulonglong, unsigned long long) \
 SIMPLE_DATA_OUTPUT_DIRECTIVE(longlong, long long) \
 SIMPLE_DATA_OUTPUT_DIRECTIVE(float, float) \

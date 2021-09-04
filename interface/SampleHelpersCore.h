@@ -34,19 +34,19 @@ namespace SampleHelpers{
 
   std::vector<TString> lsdir(TString const& indir);
 
-  float findPoleMass(const TString samplename);
+  float findPoleMass(TString const& samplename);
   TTree* findTree(std::vector<TTree*> const& treeList, int evid);
-  bool branchExists(TTree* tree, TString strname);
-  bool aliasExists(TTree* tree, TString strname);
+  bool branchExists(TTree* tree, TString const& strname);
+  bool aliasExists(TTree* tree, TString const& strname);
   void getEntry(std::vector<TTree*>& treeList, int evid);
   float getEntry(std::vector<std::pair<TTree*, TH1F*>>& treeList, int evid);
 
-  template<typename T> void bookBranch(TTree* tree, TString strname, T* var);
-  template<typename T> void bookEDMBranch(TTree* tree, TString strname, T* var);
-  template<typename T> void putBranch(TTree* tree, TString strname, T& var, bool forceRelink=false);
+  template<typename T> void bookBranch(TTree* tree, TString const& strname, T* var);
+  template<typename T> void bookEDMBranch(TTree* tree, TString const& strname, T* var);
+  template<typename T> void putBranch(TTree* tree, TString const& strname, T& var, bool forceRelink=false);
 }
 
-template<typename T> void SampleHelpers::bookBranch(TTree* tree, TString strname, T* var){
+template<typename T> void SampleHelpers::bookBranch(TTree* tree, TString const& strname, T* var){
   if (tree){
     TString strbname = strname;
     // First search in aliases and replace strbname
@@ -79,7 +79,7 @@ template<typename T> void SampleHelpers::bookBranch(TTree* tree, TString strname
     else IvyStreamHelpers::IVYout << "SampleHelpers::bookBranch: Branch " << strbname << " does not exist in tree " << tree->GetName() << "!" << std::endl;
   }
 }
-template<typename T> void SampleHelpers::bookEDMBranch(TTree* tree, TString strname, T* var){
+template<typename T> void SampleHelpers::bookEDMBranch(TTree* tree, TString const& strname, T* var){
   if (tree){
     TString strbname = strname;
     // First search in aliases and replace strbname
@@ -104,7 +104,7 @@ template<typename T> void SampleHelpers::bookEDMBranch(TTree* tree, TString strn
     SampleHelpers::bookBranch(tree, strbname, var);
   }
 }
-template<typename T> void SampleHelpers::putBranch(TTree* tree, TString strname, T& var, bool forceRelink){
+template<typename T> void SampleHelpers::putBranch(TTree* tree, TString const& strname, T& var, bool forceRelink){
   if (tree){
     // Do not check for branch alias
     if (!SampleHelpers::branchExists(tree, strname)){
