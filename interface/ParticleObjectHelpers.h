@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <utility>
 #include <algorithm>
-#include "ParticleObject.h"
 #include "HelperFunctionsCore.h"
 #include "TLorentzVector.h"
 
@@ -27,6 +26,9 @@ namespace ParticleObjectHelpers{
   template<typename T> bool objHasGreaterScalarSumPt_ImmediateDaughters(T const& earlier, T const& later);
   template<typename T> bool ptrHasGreaterScalarSumPt_ImmediateDaughters(T const* earlier, T const* later);
 
+  template<typename T> bool objHasGreaterPz(T const& earlier, T const& later);
+  template<typename T> bool ptrHasGreaterPz(T const* earlier, T const* later);
+
   template<typename T> void sortByGreaterPt(std::vector<T>& vec);
   template<typename T> void sortByGreaterPt(std::vector<T*>& vec);
 
@@ -35,6 +37,9 @@ namespace ParticleObjectHelpers{
 
   template<typename T> void sortByGreaterScalarSumPt_ImmediateDaughters(std::vector<T>& vec);
   template<typename T> void sortByGreaterScalarSumPt_ImmediateDaughters(std::vector<T*>& vec);
+
+  template<typename T> void sortByGreaterPz(std::vector<T>& vec);
+  template<typename T> void sortByGreaterPz(std::vector<T*>& vec);
 
   template<typename T> TLorentzVector convertCMSLorentzVectorToTLorentzVector(T const& p4);
 
@@ -102,6 +107,9 @@ template<typename T> bool ParticleObjectHelpers::ptrHasGreaterScalarSumPt_Immedi
   return (earlier && ((later && ParticleObjectHelpers::objHasGreaterScalarSumPt_ImmediateDaughters(*earlier, *later)) || !later));
 }
 
+template<typename T> bool ParticleObjectHelpers::objHasGreaterPz(T const& earlier, T const& later){ return (earlier.pz() > later.pz()); }
+template<typename T> bool ParticleObjectHelpers::ptrHasGreaterPz(T const* earlier, T const* later){ return (earlier && (!later || (earlier->pz() > later->pz()))); }
+
 template<typename T> void ParticleObjectHelpers::sortByGreaterPt(std::vector<T>& vec){ std::sort(vec.begin(), vec.end(), ParticleObjectHelpers::objHasGreaterPt<T>); }
 template<typename T> void ParticleObjectHelpers::sortByGreaterPt(std::vector<T*>& vec){ std::sort(vec.begin(), vec.end(), ParticleObjectHelpers::ptrHasGreaterPt<T>); }
 
@@ -110,6 +118,9 @@ template<typename T> void ParticleObjectHelpers::sortByGreaterScalarSumPt(std::v
 
 template<typename T> void ParticleObjectHelpers::sortByGreaterScalarSumPt_ImmediateDaughters(std::vector<T>& vec){ std::sort(vec.begin(), vec.end(), ParticleObjectHelpers::objHasGreaterScalarSumPt_ImmediateDaughters<T>); }
 template<typename T> void ParticleObjectHelpers::sortByGreaterScalarSumPt_ImmediateDaughters(std::vector<T*>& vec){ std::sort(vec.begin(), vec.end(), ParticleObjectHelpers::ptrHasGreaterScalarSumPt_ImmediateDaughters<T>); }
+
+template<typename T> void ParticleObjectHelpers::sortByGreaterPz(std::vector<T>& vec){ std::sort(vec.begin(), vec.end(), ParticleObjectHelpers::objHasGreaterPz<T>); }
+template<typename T> void ParticleObjectHelpers::sortByGreaterPz(std::vector<T*>& vec){ std::sort(vec.begin(), vec.end(), ParticleObjectHelpers::ptrHasGreaterPz<T>); }
 
 template<typename T> TLorentzVector ParticleObjectHelpers::convertCMSLorentzVectorToTLorentzVector(T const& p4){ return TLorentzVector(p4.X(), p4.Y(), p4.Z(), p4.T()); }
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from CMSDataTools.AnalysisTree.eostools import listFiles
+from IvyFramework.IvyDataTools.cmseostools import listFiles
 import os
 import sys
 from optparse import OptionParser
