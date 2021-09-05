@@ -1,6 +1,5 @@
 <flags ADD_SUBDIR="1" />
 
-#<flags CPPFLAGS="-Wall -Wextra -Wpedantic -I$(CMSSW_BASE)/src/IvyFramework/IvyDataTools/interface/ -I$(CMSSW_BASE)/src/JHUGenMELA/MELA/interface/" />
 <flags CPPFLAGS="-Wall -Wextra -Wpedantic -I$(CMSSW_BASE)/src/IvyFramework/IvyDataTools/interface/" />
 
 <use name="root"/>
@@ -10,7 +9,6 @@
 <use name="roofitcore"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/Common"/>
-#<use name="JHUGenMELA/MELA"/>
 
 <export>
    <lib name="1"/>
