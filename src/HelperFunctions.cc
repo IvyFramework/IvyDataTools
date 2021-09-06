@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cstring>
+#include <cctype>
 #include "HelperFunctions.h"
 #include "StatisticsHelpers.h"
 #include "RooNCSplineFactory_1D.h"
