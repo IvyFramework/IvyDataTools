@@ -14,6 +14,11 @@ using namespace IvyStreamHelpers;
 
 namespace PlottingHelpers{
 
+  double PlotCanvas::magic_pixelSize_CMSLogo = 0.8;
+  double PlotCanvas::magic_pixelSize_CMSLogoExtras = 0.72;
+  double PlotCanvas::magic_pixelSize_XYTitle = 0.91;
+  double PlotCanvas::magic_pixelSize_XYLabel = 0.72;
+
   PlotCanvas::PlotCanvas(
     TString canvasname_,
     int npixels_per_pad_x, int npixels_per_pad_y,
@@ -244,16 +249,16 @@ namespace PlottingHelpers{
   }
 
   double PlotCanvas::getStdPixelSize_CMSLogo() const{
-    return canvas_size_y*tMargin*0.8;
+    return canvas_size_y*tMargin*magic_pixelSize_CMSLogo;
   }
   double PlotCanvas::getStdPixelSize_CMSLogoExtras() const{
-    return getStdPixelSize_CMSLogo()*0.72;
+    return getStdPixelSize_CMSLogo()*magic_pixelSize_CMSLogoExtras;
   }
   double PlotCanvas::getStdPixelSize_XYTitle() const{
-    return getStdPixelSize_CMSLogo()*0.91;
+    return getStdPixelSize_CMSLogo()*magic_pixelSize_XYTitle;
   }
   double PlotCanvas::getStdPixelSize_XYLabel() const{
-    return getStdPixelSize_CMSLogo()*0.72;
+    return getStdPixelSize_CMSLogo()*magic_pixelSize_XYLabel;
   }
 
   int PlotCanvas::getStdFont_XYTitle(){ return 43; }
@@ -319,7 +324,7 @@ namespace PlottingHelpers{
     return -1;
   }
 
-  void PlotCanvas::addCMSLogo(CMSLogoStep type, double sqrts, double lumi, unsigned char ndecimals_lumi){
+  void PlotCanvas::addCMSLogo(CMSLogoStep type, double sqrts, double lumi, unsigned char ndecimals_lumi, TString custom_lumi_label){
     TDirectory* curdir = gDirectory;
 
     borderpanels.at(2)->cd();
@@ -328,10 +333,10 @@ namespace PlottingHelpers{
     double cms_pixel_ysize = getStdPixelSize_CMSLogo();
     double cms_pixel_xsize = cms_pixel_ysize*2.2;
     TLatex* cmstxt = new TLatex(); addText(cmstxt);
-    cmstxt->SetTextAlign(22);
+    cmstxt->SetTextAlign(12);
     cmstxt->SetTextFont(63);
     cmstxt->SetTextSize(cms_pixel_ysize);
-    addText(cmstxt->DrawLatexNDC(0. + cms_pixel_xsize*0.5/((1.-rMargin-lMargin)*canvas_size_x), 0.55, "CMS"));
+    addText(cmstxt->DrawLatexNDC(0.001, 0.55, "CMS"));
     //IVYout << "CMS label relative position: " << 0. + cms_pixel_xsize*0.5/((1.-rMargin-lMargin)*canvas_size_x) << ", " << 0.55 << endl;
     //IVYout << "CMS label size: " << cms_pixel_xsize << ", " << cms_pixel_ysize << endl;
 
@@ -340,41 +345,43 @@ namespace PlottingHelpers{
     double cmsprelim_relloffset_x = 0, cmsprelim_relloffset_y = 0;
     TString strprelim;
     if (type == kSimulation){
-      double cmsprelim_pixel_xsize = cmsprelim_pixel_ysize*4.75;
       cmsprelim_relloffset_y = 0.55;
-      cmsprelim_relloffset_x = (cms_pixel_xsize+cmsprelim_pixel_xsize/2.)/((1.-rMargin-lMargin)*canvas_size_x);
+      cmsprelim_relloffset_x = (cms_pixel_xsize)/((1.-rMargin-lMargin)*canvas_size_x);
       strprelim = "Simulation";
     }
     else if (type == kPreliminary){
-      double cmsprelim_pixel_xsize = cmsprelim_pixel_ysize*5.2;
       cmsprelim_relloffset_y = 0.5;
-      cmsprelim_relloffset_x = (cms_pixel_xsize+cmsprelim_pixel_xsize/2.)/((1.-rMargin-lMargin)*canvas_size_x);
+      cmsprelim_relloffset_x = (cms_pixel_xsize)/((1.-rMargin-lMargin)*canvas_size_x);
       strprelim = "Preliminary";
     }
-    else if (type == kWIP){
-      double cmsprelim_pixel_xsize = cmsprelim_pixel_ysize*7.5;
+    else if (type == kSupplementary){
       cmsprelim_relloffset_y = 0.5;
-      cmsprelim_relloffset_x = (cms_pixel_xsize+cmsprelim_pixel_xsize/2.)/((1.-rMargin-lMargin)*canvas_size_x);
+      cmsprelim_relloffset_x = (cms_pixel_xsize)/((1.-rMargin-lMargin)*canvas_size_x);
+      strprelim = "Supplementary";
+    }
+    else if (type == kWIP){
+      cmsprelim_relloffset_y = 0.5;
+      cmsprelim_relloffset_x = (cms_pixel_xsize)/((1.-rMargin-lMargin)*canvas_size_x);
       strprelim = "Work in progress";
     }
     if (cmsprelim_relloffset_x!=0. && cmsprelim_relloffset_y!=0.){
       TLatex* cmstxtmore = new TLatex(); addText(cmstxtmore);
-      cmstxtmore->SetTextAlign(22);
+      cmstxtmore->SetTextAlign(12);
       cmstxtmore->SetTextFont(53);
       cmstxtmore->SetTextSize(cmsprelim_pixel_ysize);
       addText(cmstxtmore->DrawLatexNDC(cmsprelim_relloffset_x, cmsprelim_relloffset_y, strprelim));
     }
 
     // Draw the sqrts indicator
-    if (lumi>0. && sqrts>0.){
-      TString strSqrts = Form("%s fb^{-1} %s TeV", HelperFunctions::castValueToString(lumi, ndecimals_lumi).data(), HelperFunctions::castValueToString(sqrts, 1).data());
-      double cmssqrts_pixel_ysize = cmsprelim_pixel_ysize;
-      double cmssqrts_pixel_xsize = cmssqrts_pixel_ysize*0.38*strSqrts.Length();
+    if (custom_lumi_label!="" || (lumi>0. && sqrts>0.)){
+      TString strSqrts;
+      if (custom_lumi_label!="") strSqrts = custom_lumi_label;
+      else strSqrts = Form("%s fb^{-1} (%s TeV)", HelperFunctions::castValueToString(lumi, ndecimals_lumi).data(), HelperFunctions::castValueToString(sqrts, 1).data());
       TLatex* cmssqrts = new TLatex(); addText(cmssqrts);
-      cmssqrts->SetTextAlign(22);
+      cmssqrts->SetTextAlign(23);
       cmssqrts->SetTextFont(PlotCanvas::getStdFont_XYTitle());
       cmssqrts->SetTextSize(cmsprelim_pixel_ysize);
-      addText(cmssqrts->DrawLatexNDC((1.-rMargin-lMargin-cmssqrts_pixel_xsize*0.5/canvas_size_x)/(1.-rMargin-lMargin), 0.55, strSqrts));
+      addText(cmssqrts->DrawLatexNDC(0.999, 0.55, strSqrts));
     }
 
     curdir->cd();

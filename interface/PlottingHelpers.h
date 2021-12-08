@@ -14,11 +14,17 @@ namespace PlottingHelpers{
     kPaper,
     kSimulation,
     kPreliminary,
+    kSupplementary,
     kWIP
   };
 
   class PlotCanvas{
   protected:
+    static double magic_pixelSize_CMSLogo;
+    static double magic_pixelSize_CMSLogoExtras;
+    static double magic_pixelSize_XYTitle;
+    static double magic_pixelSize_XYLabel;
+
     TString canvasname;
     int Nx;
     int Ny;
@@ -75,7 +81,7 @@ namespace PlottingHelpers{
     double translateNDCX_InsidePanels(unsigned int icol, double ndc_pos);
     double translateNDCY_InsidePanels(unsigned int irow, double ndc_pos);
 
-    void addCMSLogo(CMSLogoStep type, double sqrts, double lumi, unsigned char ndecimals_lumi=1); // sqrts or lumi = -1 disables their addition
+    void addCMSLogo(CMSLogoStep type, double sqrts, double lumi, unsigned char ndecimals_lumi=1, TString custom_lumi_label=""); // sqrts or lumi = -1 disables their addition
 
     void addLegend(TLegend* const& legend);
     void addText(TLatex* const& text);
@@ -83,6 +89,11 @@ namespace PlottingHelpers{
     void update();
 
     void save(TString outdir, TString strformat, TString newname="");
+
+    static void setMagic_StdPixelSize_CMSLogo(double const& val){ magic_pixelSize_CMSLogo = val; }
+    static void setMagic_StdPixelSize_CMSLogoExtras(double const& val){ magic_pixelSize_CMSLogoExtras = val; }
+    static void setMagic_StdPixelSize_XYTitle(double const& val){ magic_pixelSize_XYTitle = val; }
+    static void setMagic_StdPixelSize_XYLabel(double const& val){ magic_pixelSize_XYLabel = val; }
   };
 
   void get1DPlotYRange(std::vector<TH1F*> const& hlist, double const& factorYHigh, bool adjustYLow, double& ymin, double& ymax);
