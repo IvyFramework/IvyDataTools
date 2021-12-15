@@ -1922,6 +1922,83 @@ template<> void HelperFunctions::wipeOverUnderFlows<TH1D>(TH1D* hwipe, bool resc
 template<> void HelperFunctions::wipeOverUnderFlows<TH2D>(TH2D* hwipe, bool rescale, bool addToLastBin){ HelperFunctions::wipeOverUnderFlows<TH2>(hwipe, rescale, addToLastBin); }
 template<> void HelperFunctions::wipeOverUnderFlows<TH3D>(TH3D* hwipe, bool rescale, bool addToLastBin){ HelperFunctions::wipeOverUnderFlows<TH3>(hwipe, rescale, addToLastBin); }
 
+template<> TH1F* HelperFunctions::flattenHistogram<TH1>(TH1 const* histo, bool useWidth, TString newname){
+  TString strnewname = newname;
+  if (newname=="") strnewname = Form("%s_flat", histo->GetName());
+  TAxis const* xaxis = histo->GetXaxis();
+  int const nbins = histo->GetNbinsX();
+  TH1F* res = new TH1F(strnewname, histo->GetTitle(), nbins, 0, nbins);
+  for (int ix=1; ix<=nbins; ix++){
+    double bw = 1;
+    if (useWidth) bw = xaxis->GetBinWidth(ix);
+    res->SetBinContent(ix, histo->GetBinContent(ix)*bw);
+    res->SetBinError(ix, histo->GetBinError(ix)*bw);
+  }
+  return res;
+}
+template<> TH1F* HelperFunctions::flattenHistogram<TH2>(TH2 const* histo, bool useWidth, TString newname){
+  TString strnewname = newname;
+  if (newname=="") strnewname = Form("%s_flat", histo->GetName());
+  TAxis const* xaxis = histo->GetXaxis();
+  TAxis const* yaxis = histo->GetYaxis();
+  int const nbins_x = histo->GetNbinsX();
+  int const nbins_y = histo->GetNbinsY();
+  int const nbins = nbins_x*nbins_y;
+  TH1F* res = new TH1F(strnewname, histo->GetTitle(), nbins, 0, nbins);
+  for (int ix=1; ix<=nbins_x; ix++){
+    int jx = (ix-1);
+    double bwx = 1;
+    if (useWidth) bwx = xaxis->GetBinWidth(ix);
+    for (int iy=1; iy<=nbins_y; iy++){
+      int jy = (iy-1);
+      double bwy = 1;
+      if (useWidth) bwy = yaxis->GetBinWidth(iy);
+
+      int ibin = jy + nbins_y*jx + 1;
+      res->SetBinContent(ibin, histo->GetBinContent(ix, iy)*bwx*bwy);
+      res->SetBinError(ibin, histo->GetBinError(ix, iy)*bwx*bwy);
+    }
+  }
+  return res;
+}
+template<> TH1F* HelperFunctions::flattenHistogram<TH3>(TH3 const* histo, bool useWidth, TString newname){
+  TString strnewname = newname;
+  if (newname=="") strnewname = Form("%s_flat", histo->GetName());
+  TAxis const* xaxis = histo->GetXaxis();
+  TAxis const* yaxis = histo->GetYaxis();
+  TAxis const* zaxis = histo->GetZaxis();
+  int const nbins_x = histo->GetNbinsX();
+  int const nbins_y = histo->GetNbinsY();
+  int const nbins_z = histo->GetNbinsZ();
+  int const nbins = nbins_x*nbins_y*nbins_z;
+  TH1F* res = new TH1F(strnewname, histo->GetTitle(), nbins, 0, nbins);
+  for (int ix=1; ix<=nbins_x; ix++){
+    int jx = (ix-1);
+    double bwx = 1;
+    if (useWidth) bwx = xaxis->GetBinWidth(ix);
+    for (int iy=1; iy<=nbins_y; iy++){
+      int jy = (iy-1);
+      double bwy = 1;
+      if (useWidth) bwy = yaxis->GetBinWidth(iy);
+      for (int iz=1; iz<=nbins_z; iz++){
+        int jz = (iz-1);
+        double bwz = 1;
+        if (useWidth) bwz = zaxis->GetBinWidth(iz);
+
+        int ibin = jz + nbins_z*(jy + nbins_y*jx) + 1;
+        res->SetBinContent(ibin, histo->GetBinContent(ix, iy, iz)*bwx*bwy*bwz);
+        res->SetBinError(ibin, histo->GetBinError(ix, iy, iz)*bwx*bwy*bwz);
+      }
+    }
+  }
+  return res;
+}
+template<> TH1F* HelperFunctions::flattenHistogram<TH1F>(TH1F const* histo, bool useWidth, TString newname){ return HelperFunctions::flattenHistogram<TH1>(histo, useWidth, newname); }
+template<> TH1F* HelperFunctions::flattenHistogram<TH2F>(TH2F const* histo, bool useWidth, TString newname){ return HelperFunctions::flattenHistogram<TH2>(histo, useWidth, newname); }
+template<> TH1F* HelperFunctions::flattenHistogram<TH3F>(TH3F const* histo, bool useWidth, TString newname){ return HelperFunctions::flattenHistogram<TH3>(histo, useWidth, newname); }
+template<> TH1F* HelperFunctions::flattenHistogram<TH1D>(TH1D const* histo, bool useWidth, TString newname){ return HelperFunctions::flattenHistogram<TH1>(histo, useWidth, newname); }
+template<> TH1F* HelperFunctions::flattenHistogram<TH2D>(TH2D const* histo, bool useWidth, TString newname){ return HelperFunctions::flattenHistogram<TH2>(histo, useWidth, newname); }
+template<> TH1F* HelperFunctions::flattenHistogram<TH3D>(TH3D const* histo, bool useWidth, TString newname){ return HelperFunctions::flattenHistogram<TH3>(histo, useWidth, newname); }
 
 template<> void HelperFunctions::divideBinWidth<TH1F>(TH1F* histo){
   TAxis const* xaxis = histo->GetXaxis();
@@ -3806,6 +3883,11 @@ void HelperFunctions::rebinHistogram_NoCumulant(TH3F*& histo, const ExtendedBinn
   delete prof_final_z;
 }
 
+TH1F* HelperFunctions::getHistogramSlice(TH1F const* histo, TString newname){
+  TH1F* res = nullptr;
+  getGenericHistogramSlice(res, histo, newname);
+  return res;
+}
 TH1F* HelperFunctions::getHistogramSlice(TH2F const* histo, unsigned char XDirection, int iy, int jy, TString newname){
   TH1F* res = nullptr;
   getGenericHistogramSlice(res, histo, XDirection, iy, jy, newname);

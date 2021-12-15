@@ -119,6 +119,17 @@ namespace HelperFunctions{
   template<> double computeChiSq<TH2F>(TH2F const* h1, TH2F const* h2);
   template<> double computeChiSq<TH3F>(TH3F const* h1, TH3F const* h2);
 
+  template <typename T> TH1F* flattenHistogram(T const* histo, bool useWidth, TString newname="");
+  template<> TH1F* flattenHistogram<TH1>(TH1 const* histo, bool useWidth, TString newname);
+  template<> TH1F* flattenHistogram<TH2>(TH2 const* histo, bool useWidth, TString newname);
+  template<> TH1F* flattenHistogram<TH3>(TH3 const* histo, bool useWidth, TString newname);
+  template<> TH1F* flattenHistogram<TH1F>(TH1F const* histo, bool useWidth, TString newname);
+  template<> TH1F* flattenHistogram<TH2F>(TH2F const* histo, bool useWidth, TString newname);
+  template<> TH1F* flattenHistogram<TH3F>(TH3F const* histo, bool useWidth, TString newname);
+  template<> TH1F* flattenHistogram<TH1D>(TH1D const* histo, bool useWidth, TString newname);
+  template<> TH1F* flattenHistogram<TH2D>(TH2D const* histo, bool useWidth, TString newname);
+  template<> TH1F* flattenHistogram<TH3D>(TH3D const* histo, bool useWidth, TString newname);
+
   template <typename T> void divideHistograms(T const* hnum, T const* hden, T*& hAssign, bool useEffErr, T** hAssign_dn=nullptr, T** hAssign_up=nullptr);
   template<> void divideHistograms<TH1F>(TH1F const* hnum, TH1F const* hden, TH1F*& hAssign, bool useEffErr, TH1F** hAssign_dn, TH1F** hAssign_up);
   template<> void divideHistograms<TH2F>(TH2F const* hnum, TH2F const* hden, TH2F*& hAssign, bool useEffErr, TH2F** hAssign_dn, TH2F** hAssign_up);
@@ -252,10 +263,12 @@ namespace HelperFunctions{
   void rebinHistogram_NoCumulant(TH2F*& histo, const ExtendedBinning& binningX, const TProfile* prof_x, const ExtendedBinning& binningY, const TProfile* prof_y);
   void rebinHistogram_NoCumulant(TH3F*& histo, const ExtendedBinning& binningX, const TProfile* prof_x, const ExtendedBinning& binningY, const TProfile* prof_y, const ExtendedBinning& binningZ, const TProfile* prof_z);
 
+  template <typename T, typename U> void getGenericHistogramSlice(T*& res, U const* histo, TString newname=""); // 1D->1D, just a copy
   template <typename T, typename U> void getGenericHistogramSlice(T*& res, U const* histo, unsigned char XDirection, int iy, int jy, TString newname="");
   template <typename T, typename U> void getGenericHistogramSlice(T*& res, U const* histo, unsigned char XDirection, int iy, int jy, int iz, int jz, TString newname=""); // "y" and "z" are cylical, so if Xdirection==1 (Y), "y"=Z and "z"=X
   template <typename T, typename U> void getGenericHistogramSlice(T*& res, U const* histo, unsigned char XDirection, unsigned char YDirection, int iz, int jz, TString newname="");
 
+  TH1F* getHistogramSlice(TH1F const* histo, TString newname=""); // 1D->1D, just a copy
   TH1F* getHistogramSlice(TH2F const* histo, unsigned char XDirection, int iy, int jy, TString newname="");
   TH1F* getHistogramSlice(TH3F const* histo, unsigned char XDirection, int iy, int jy, int iz, int jz, TString newname=""); // "y" and "z" are cylical, so if Xdirection==1 (Y), "y"=Z and "z"=X
   TH2F* getHistogramSlice(TH3F const* histo, unsigned char XDirection, unsigned char YDirection, int iz, int jz, TString newname="");
@@ -527,6 +540,22 @@ template void HelperFunctions::extractObjectsFromDirectory<TSpline3>(TDirectory*
 // Overloads for TCanvas that can be used just like histograms
 template void HelperFunctions::extractObjectsFromDirectory<TCanvas>(TDirectory* source, std::vector<TCanvas*>& objlist, MiscUtils::VerbosityLevel verbosity);
 
+template <typename T, typename U> void HelperFunctions::getGenericHistogramSlice(T*& res, U const* histo, TString newname){
+  if (!histo) return;
+  if (newname=="") newname=Form("Slice_%s", histo->GetName());
+
+  const TAxis* xaxis=histo->GetXaxis();
+  std::vector<float> bins;
+  for (int i=1; i<=xaxis->GetNbins()+1; i++) bins.push_back(xaxis->GetBinLowEdge(i));
+  res = new T(newname, "", bins.size()-1, bins.data());
+
+  for (int ii=0; ii<=xaxis->GetNbins()+1; ii++){
+    double integral=0, integralerror=0;
+    integral = getHistogramIntegralAndError(histo, ii, ii, false, &integralerror);
+    res->SetBinContent(ii, integral);
+    res->SetBinError(ii, integralerror);
+  }
+}
 template <typename T, typename U> void HelperFunctions::getGenericHistogramSlice(T*& res, U const* histo, unsigned char XDirection, int iy, int jy, TString newname){
   using namespace IvyStreamHelpers;
 
