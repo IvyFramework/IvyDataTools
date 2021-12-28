@@ -1,4 +1,4 @@
-#include "RooNCSplineCore.h" 
+#include "IvyNCSplineCore.h" 
 #include <cmath>
 #include "TMath.h"
 #include "TIterator.h"
@@ -10,30 +10,30 @@ using namespace std;
 using namespace NumericUtils;
 
 
-ClassImp(RooNCSplineCore)
+ClassImp(IvyNCSplineCore)
 
-RooNCSplineCore::RooNCSplineCore() :
+IvyNCSplineCore::IvyNCSplineCore() :
 RooAbsReal(),
-verbosity(RooNCSplineCore::kSilent),
+verbosity(IvyNCSplineCore::kSilent),
 useFloor(true), floorEval(0), floorInt(0),
 rangeXmin(1), rangeXmax(-1),
 theXVar("theXVar", "theXVar", this),
 leafDepsList("leafDepsList", "leafDepsList", this)
 {}
 
-RooNCSplineCore::RooNCSplineCore(
+IvyNCSplineCore::IvyNCSplineCore(
   const char* name,
   const char* title
   ) :
   RooAbsReal(name, title),
-  verbosity(RooNCSplineCore::kSilent),
+  verbosity(IvyNCSplineCore::kSilent),
   useFloor(true), floorEval(0), floorInt(0),
   rangeXmin(1), rangeXmax(-1),
   theXVar("theXVar", "theXVar", this),
   leafDepsList("leafDepsList", "leafDepsList", this)
 {}
 
-RooNCSplineCore::RooNCSplineCore(
+IvyNCSplineCore::IvyNCSplineCore(
   const char* name,
   const char* title,
   RooAbsReal& inXVar,
@@ -43,7 +43,7 @@ RooNCSplineCore::RooNCSplineCore(
   T inFloorInt
   ) :
   RooAbsReal(name, title),
-  verbosity(RooNCSplineCore::kSilent),
+  verbosity(IvyNCSplineCore::kSilent),
   useFloor(inUseFloor), floorEval(inFloorEval), floorInt(inFloorInt),
   rangeXmin(1), rangeXmax(-1),
   theXVar("theXVar", "theXVar", this, inXVar),
@@ -51,8 +51,8 @@ RooNCSplineCore::RooNCSplineCore(
   XList(inXList)
 {}
 
-RooNCSplineCore::RooNCSplineCore(
-  const RooNCSplineCore& other,
+IvyNCSplineCore::IvyNCSplineCore(
+  const IvyNCSplineCore& other,
   const char* name
   ) :
   RooAbsReal(other, name),
@@ -64,16 +64,16 @@ RooNCSplineCore::RooNCSplineCore(
   XList(other.XList)
 {}
 
-void RooNCSplineCore::setVerbosity(VerbosityLevel flag){ verbosity = flag; }
-void RooNCSplineCore::setEvalFloor(RooNCSplineCore::T val){ floorEval = val; }
-void RooNCSplineCore::setIntFloor(RooNCSplineCore::T val){ floorInt = val; }
-void RooNCSplineCore::doFloor(Bool_t flag){ useFloor = flag; }
+void IvyNCSplineCore::setVerbosity(VerbosityLevel flag){ verbosity = flag; }
+void IvyNCSplineCore::setEvalFloor(IvyNCSplineCore::T val){ floorEval = val; }
+void IvyNCSplineCore::setIntFloor(IvyNCSplineCore::T val){ floorInt = val; }
+void IvyNCSplineCore::doFloor(Bool_t flag){ useFloor = flag; }
 
-void RooNCSplineCore::getBArray(const std::vector<RooNCSplineCore::T>& kappas, const vector<RooNCSplineCore::T>& fcnList, std::vector<RooNCSplineCore::T>& BArray, BoundaryCondition const& bcBegin, BoundaryCondition const& bcEnd) const{
+void IvyNCSplineCore::getBArray(const std::vector<IvyNCSplineCore::T>& kappas, const vector<IvyNCSplineCore::T>& fcnList, std::vector<IvyNCSplineCore::T>& BArray, BoundaryCondition const& bcBegin, BoundaryCondition const& bcEnd) const{
   BArray.clear();
   int npoints=kappas.size();
   if (npoints!=(int)fcnList.size()){
-    coutE(InputArguments) << "RooNCSplineCore::getBArray: Dim(kappas)=" << npoints << " != Dim(fcnList)=" << fcnList.size() << endl;
+    coutE(InputArguments) << "IvyNCSplineCore::getBArray: Dim(kappas)=" << npoints << " != Dim(fcnList)=" << fcnList.size() << endl;
     assert(0);
   }
   if (
@@ -88,7 +88,7 @@ void RooNCSplineCore::getBArray(const std::vector<RooNCSplineCore::T>& kappas, c
     }
   }
   if (npoints>1){
-    RooNCSplineCore::T bcval=0, ecval=0;
+    IvyNCSplineCore::T bcval=0, ecval=0;
     // First point constraint
     switch (bcBegin){
     case bcApproximatedSecondDerivative:
@@ -113,20 +113,20 @@ void RooNCSplineCore::getBArray(const std::vector<RooNCSplineCore::T>& kappas, c
       BArray.push_back(bcval*kappas.at(0)/kappas.at(1));
       break;
     default:
-      cerr << "RooNCSplineCore::getBArray: bcBegin " << bcBegin << " is not implemented!" << endl;
+      cerr << "IvyNCSplineCore::getBArray: bcBegin " << bcBegin << " is not implemented!" << endl;
       assert(0);
     }
     // Intermediate point constraint is always D0, D1 and D2 continuous
     for (int j=1; j<npoints-1; j++){
       if (j==1 && bcBegin==bcQuadraticWithNullSlope) continue;
       if (j==npoints-2 && bcEnd==bcQuadraticWithNullSlope) continue;
-      RooNCSplineCore::T val_j = fcnList.at(j);
-      RooNCSplineCore::T val_jpo = fcnList.at(j+1);
-      RooNCSplineCore::T val_jmo = fcnList.at(j-1);
-      RooNCSplineCore::T kappa_j = kappas.at(j);
-      RooNCSplineCore::T kappa_jmo = kappas.at(j-1);
-      RooNCSplineCore::T rsq = pow(kappa_j/kappa_jmo, 2);
-      RooNCSplineCore::T Bval = val_jpo*rsq + val_j*(1.-rsq) - val_jmo;
+      IvyNCSplineCore::T val_j = fcnList.at(j);
+      IvyNCSplineCore::T val_jpo = fcnList.at(j+1);
+      IvyNCSplineCore::T val_jmo = fcnList.at(j-1);
+      IvyNCSplineCore::T kappa_j = kappas.at(j);
+      IvyNCSplineCore::T kappa_jmo = kappas.at(j-1);
+      IvyNCSplineCore::T rsq = pow(kappa_j/kappa_jmo, 2);
+      IvyNCSplineCore::T Bval = val_jpo*rsq + val_j*(1.-rsq) - val_jmo;
       Bval *= 3.;
       BArray.push_back(Bval);
     }
@@ -154,17 +154,17 @@ void RooNCSplineCore::getBArray(const std::vector<RooNCSplineCore::T>& kappas, c
       BArray.push_back(0);
       break;
     default:
-      cerr << "RooNCSplineCore::getAArray: bcEnd " << bcEnd << " is not implemented!" << endl;
+      cerr << "IvyNCSplineCore::getAArray: bcEnd " << bcEnd << " is not implemented!" << endl;
       assert(0);
     }
   }
   else if (npoints==1) BArray.push_back(0);
 }
-void RooNCSplineCore::getAArray(const vector<RooNCSplineCore::T>& kappas, vector<vector<RooNCSplineCore::T>>& AArray, BoundaryCondition const& bcBegin, BoundaryCondition const& bcEnd) const{
+void IvyNCSplineCore::getAArray(const vector<IvyNCSplineCore::T>& kappas, vector<vector<IvyNCSplineCore::T>>& AArray, BoundaryCondition const& bcBegin, BoundaryCondition const& bcEnd) const{
   AArray.clear();
   Int_t npoints = kappas.size();
   for (int i=0; i<npoints; i++){
-    vector<RooNCSplineCore::T> Ai(npoints, 0.);
+    vector<IvyNCSplineCore::T> Ai(npoints, 0.);
     if (npoints==1) Ai[0]=1;
     else if (i==0){
       switch(bcBegin){
@@ -181,7 +181,7 @@ void RooNCSplineCore::getAArray(const vector<RooNCSplineCore::T>& kappas, vector
         Ai[0]=1; Ai[1]=kappas.at(1)/kappas.at(0);
         break;
       default:
-        cerr << "RooNCSplineCore::getAArray: bcBegin " << bcBegin << " is not implemented!" << endl;
+        cerr << "IvyNCSplineCore::getAArray: bcBegin " << bcBegin << " is not implemented!" << endl;
         assert(0);
       }
     }
@@ -200,16 +200,16 @@ void RooNCSplineCore::getAArray(const vector<RooNCSplineCore::T>& kappas, vector
         Ai[npoints-2]=1; Ai[npoints-1]=kappas.at(npoints-1)/kappas.at(npoints-2);
         break;
       default:
-        cerr << "RooNCSplineCore::getAArray: bcEnd " << bcEnd << " is not implemented!" << endl;
+        cerr << "IvyNCSplineCore::getAArray: bcEnd " << bcEnd << " is not implemented!" << endl;
         assert(0);
       }
     }
     else{
       if ((i==1 && bcBegin==bcQuadraticWithNullSlope) || (i==npoints-2 && bcEnd==bcQuadraticWithNullSlope)) Ai[i]=1;
       else{
-        RooNCSplineCore::T kappa_j = kappas.at(i);
-        RooNCSplineCore::T kappa_jmo = kappas.at(i-1);
-        RooNCSplineCore::T kappa_jpo = kappas.at(i+1);
+        IvyNCSplineCore::T kappa_j = kappas.at(i);
+        IvyNCSplineCore::T kappa_jmo = kappas.at(i-1);
+        IvyNCSplineCore::T kappa_jpo = kappas.at(i+1);
 
         Ai[i-1]=1;
         Ai[i]=2.*kappa_j/kappa_jmo*(1.+kappa_j/kappa_jmo);
@@ -220,23 +220,23 @@ void RooNCSplineCore::getAArray(const vector<RooNCSplineCore::T>& kappas, vector
   }
 }
 
-vector<RooNCSplineCore::T> RooNCSplineCore::getCoefficients(const TVector_t& S, const vector<RooNCSplineCore::T>& kappas, const vector<RooNCSplineCore::T>& fcnList, const Int_t& bin) const{
-  DefaultAccumulator<RooNCSplineCore::T> A, B, C, D;
-  vector<RooNCSplineCore::T> res;
+vector<IvyNCSplineCore::T> IvyNCSplineCore::getCoefficients(const TVector_t& S, const vector<IvyNCSplineCore::T>& kappas, const vector<IvyNCSplineCore::T>& fcnList, const Int_t& bin) const{
+  DefaultAccumulator<IvyNCSplineCore::T> A, B, C, D;
+  vector<IvyNCSplineCore::T> res;
 
   const int fcnsize = fcnList.size();
   if (fcnsize>bin){
     A=fcnList.at(bin);
     B=S[bin];
     if (fcnsize>(bin+1)){
-      DefaultAccumulator<RooNCSplineCore::T> dFcn = fcnList.at(bin+1);
+      DefaultAccumulator<IvyNCSplineCore::T> dFcn = fcnList.at(bin+1);
       dFcn -= A;
 
-      C += RooNCSplineCore::T(3.)*dFcn;
+      C += IvyNCSplineCore::T(3.)*dFcn;
       C -= 2.*B;
       C -= S[bin+1]*kappas.at(bin+1)/kappas.at(bin);
 
-      D += RooNCSplineCore::T(-2.)*dFcn;
+      D += IvyNCSplineCore::T(-2.)*dFcn;
       D += B;
       D += S[bin+1]*kappas.at(bin+1)/kappas.at(bin);
     }
@@ -248,8 +248,8 @@ vector<RooNCSplineCore::T> RooNCSplineCore::getCoefficients(const TVector_t& S, 
   res.push_back(D);
   return res;
 }
-vector<vector<RooNCSplineCore::T>> RooNCSplineCore::getCoefficientsAlongDirection(const std::vector<RooNCSplineCore::T>& kappas, const TMatrix_t& Ainv, const vector<RooNCSplineCore::T>& fcnList, BoundaryCondition const& bcBegin, BoundaryCondition const& bcEnd, const Int_t pickBin) const{
-  vector<RooNCSplineCore::T> BArray;
+vector<vector<IvyNCSplineCore::T>> IvyNCSplineCore::getCoefficientsAlongDirection(const std::vector<IvyNCSplineCore::T>& kappas, const TMatrix_t& Ainv, const vector<IvyNCSplineCore::T>& fcnList, BoundaryCondition const& bcBegin, BoundaryCondition const& bcEnd, const Int_t pickBin) const{
+  vector<IvyNCSplineCore::T> BArray;
   getBArray(kappas, fcnList, BArray, bcBegin, bcEnd);
 
   Int_t npoints = BArray.size();
@@ -257,31 +257,31 @@ vector<vector<RooNCSplineCore::T>> RooNCSplineCore::getCoefficientsAlongDirectio
   for (int i=0; i<npoints; i++) Btrans[i]=BArray.at(i);
   TVector_t Strans = Ainv*Btrans;
 
-  vector<vector<RooNCSplineCore::T>> coefs;
+  vector<vector<IvyNCSplineCore::T>> coefs;
   for (Int_t bin=0; bin<(npoints>1 ? npoints-1 : 1); bin++){
     if (pickBin>=0 && bin!=pickBin) continue;
-    vector<RooNCSplineCore::T> coef = getCoefficients(Strans, kappas, fcnList, bin);
+    vector<IvyNCSplineCore::T> coef = getCoefficients(Strans, kappas, fcnList, bin);
     coefs.push_back(coef);
   }
   return coefs;
 }
 
-RooNCSplineCore::T RooNCSplineCore::evalSplineSegment(const std::vector<RooNCSplineCore::T>& coefs, const RooNCSplineCore::T& kappa, const RooNCSplineCore::T& tup, const RooNCSplineCore::T& tdn, Bool_t doIntegrate) const{
-  DefaultAccumulator<RooNCSplineCore::T> res;
+IvyNCSplineCore::T IvyNCSplineCore::evalSplineSegment(const std::vector<IvyNCSplineCore::T>& coefs, const IvyNCSplineCore::T& kappa, const IvyNCSplineCore::T& tup, const IvyNCSplineCore::T& tdn, Bool_t doIntegrate) const{
+  DefaultAccumulator<IvyNCSplineCore::T> res;
   for (unsigned int ic=0; ic<coefs.size(); ic++){
-    if (doIntegrate) res += coefs.at(ic)*(pow(tup, (int)(ic+1))-pow(tdn, (int)(ic+1)))/((RooNCSplineCore::T)(ic+1));
+    if (doIntegrate) res += coefs.at(ic)*(pow(tup, (int)(ic+1))-pow(tdn, (int)(ic+1)))/((IvyNCSplineCore::T)(ic+1));
     else res += coefs.at(ic)*pow(tup, (int)ic);
   }
   if (doIntegrate) res /= kappa;
   return res;
 }
 
-void RooNCSplineCore::getLeafDependents(RooRealProxy& proxy, RooArgSet& set){
+void IvyNCSplineCore::getLeafDependents(RooRealProxy& proxy, RooArgSet& set){
   RooArgSet deps;
   proxy.absArg()->leafNodeServerList(&deps, 0, true);
   set.add(deps);
 }
-void RooNCSplineCore::addLeafDependents(RooArgSet& set){
+void IvyNCSplineCore::addLeafDependents(RooArgSet& set){
   TIterator* iter = set.createIterator();
   RooAbsArg* absarg;
   while ((absarg = (RooAbsArg*)iter->Next())){ if (dynamic_cast<RooRealVar*>(absarg)) leafDepsList.add(*absarg); }

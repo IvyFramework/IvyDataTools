@@ -12,7 +12,7 @@
 #include "RooArgList.h"
 #include "RooMsgService.h"
 
-class RooNCSplineCore : public RooAbsReal{
+class IvyNCSplineCore : public RooAbsReal{
 public:
   typedef Float_t T;
   typedef TMatrixT<T> TMatrix_t;
@@ -34,12 +34,12 @@ public:
     NBoundaryConditions
   };
 
-  RooNCSplineCore();
-  RooNCSplineCore(
+  IvyNCSplineCore();
+  IvyNCSplineCore(
     const char* name,
     const char* title
     );
-  RooNCSplineCore(
+  IvyNCSplineCore(
     const char* name,
     const char* title,
     RooAbsReal& inXVar,
@@ -48,9 +48,9 @@ public:
     T inFloorEval=1e-15,
     T inFloorInt=1e-10
     );
-  RooNCSplineCore(const RooNCSplineCore& other, const char* name=0);
+  IvyNCSplineCore(const IvyNCSplineCore& other, const char* name=0);
   virtual TObject* clone(const char* newname) const = 0;
-  inline virtual ~RooNCSplineCore(){}
+  inline virtual ~IvyNCSplineCore(){}
 
   virtual void setVerbosity(VerbosityLevel flag);
   void setEvalFloor(T val);
@@ -100,7 +100,7 @@ protected:
   virtual T evalSplineSegment(const std::vector<T>& coefs, const T& kappa, const T& tup, const T& tdn, Bool_t doIntegrate=false) const;
 
 
-  ClassDef(RooNCSplineCore, 0)
+  ClassDef(IvyNCSplineCore, 0)
 
 };
  

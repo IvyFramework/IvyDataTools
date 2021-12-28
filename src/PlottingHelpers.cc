@@ -378,7 +378,7 @@ namespace PlottingHelpers{
       if (custom_lumi_label!="") strSqrts = custom_lumi_label;
       else strSqrts = Form("%s fb^{-1} (%s TeV)", HelperFunctions::castValueToString(lumi, ndecimals_lumi).data(), HelperFunctions::castValueToString(sqrts, 1).data());
       TLatex* cmssqrts = new TLatex(); addText(cmssqrts);
-      cmssqrts->SetTextAlign(23);
+      cmssqrts->SetTextAlign(32);
       cmssqrts->SetTextFont(PlotCanvas::getStdFont_XYTitle());
       cmssqrts->SetTextSize(cmsprelim_pixel_ysize);
       addText(cmssqrts->DrawLatexNDC(0.999, 0.55, strSqrts));

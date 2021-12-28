@@ -6,10 +6,10 @@
 #include "RooRealProxy.h"
 #include "RooRealVar.h"
 #include "RooAbsReal.h"
-#include "RooNCSplineCore.h"
+#include "IvyNCSplineCore.h"
 
 
-class RooNCSpline_1D_fast : public RooNCSplineCore{
+class IvyNCSpline_1D_fast : public IvyNCSplineCore{
 protected:
   BoundaryCondition const bcBeginX;
   BoundaryCondition const bcEndX;
@@ -20,26 +20,26 @@ protected:
   std::vector<std::vector<T>> coefficients;
 
 public:
-  RooNCSpline_1D_fast();
-  RooNCSpline_1D_fast(
+  IvyNCSpline_1D_fast();
+  IvyNCSpline_1D_fast(
     const char* name,
     const char* title
     );
-  RooNCSpline_1D_fast(
+  IvyNCSpline_1D_fast(
     const char* name,
     const char* title,
     RooAbsReal& inXVar,
     const std::vector<T>& inXList,
     const std::vector<T>& inFcnList,
-    RooNCSplineCore::BoundaryCondition const bcBeginX_=RooNCSplineCore::bcNaturalSpline,
-    RooNCSplineCore::BoundaryCondition const bcEndX_=RooNCSplineCore::bcNaturalSpline,
+    IvyNCSplineCore::BoundaryCondition const bcBeginX_=IvyNCSplineCore::bcNaturalSpline,
+    IvyNCSplineCore::BoundaryCondition const bcEndX_=IvyNCSplineCore::bcNaturalSpline,
     Bool_t inUseFloor=true,
     T inFloorEval=0,
     T inFloorInt=0
     );
-  RooNCSpline_1D_fast(const RooNCSpline_1D_fast& other, const char* name=0);
-	virtual TObject* clone(const char* newname) const { return new RooNCSpline_1D_fast(*this, newname); }
-	inline virtual ~RooNCSpline_1D_fast(){}
+  IvyNCSpline_1D_fast(const IvyNCSpline_1D_fast& other, const char* name=0);
+	virtual TObject* clone(const char* newname) const { return new IvyNCSpline_1D_fast(*this, newname); }
+	inline virtual ~IvyNCSpline_1D_fast(){}
 
   void setRangeValidity(const T valmin, const T valmax, const Int_t whichDirection=0);
 
@@ -61,7 +61,7 @@ protected:
   virtual Double_t evaluate() const;
 
 
-  ClassDef(RooNCSpline_1D_fast, 3)
+  ClassDef(IvyNCSpline_1D_fast, 3)
 
 };
  

@@ -6,10 +6,10 @@
 #include "RooRealProxy.h"
 #include "RooRealVar.h"
 #include "RooAbsReal.h"
-#include "RooNCSplineCore.h"
+#include "IvyNCSplineCore.h"
 
 
-class RooNCSpline_2D_fast : public RooNCSplineCore{
+class IvyNCSpline_2D_fast : public IvyNCSplineCore{
 protected:
   T rangeYmin;
   T rangeYmax;
@@ -29,12 +29,12 @@ protected:
   std::vector<std::vector<std::vector<std::vector<T>>>> coefficients; // [ix][A_x,B_x,C_x,D_x][iy][A_x_y,B_x_y,C_x_y,D_x_y]
 
 public:
-  RooNCSpline_2D_fast();
-  RooNCSpline_2D_fast(
+  IvyNCSpline_2D_fast();
+  IvyNCSpline_2D_fast(
     const char* name,
     const char* title
     );
-  RooNCSpline_2D_fast(
+  IvyNCSpline_2D_fast(
     const char* name,
     const char* title,
     RooAbsReal& inXVar,
@@ -42,17 +42,17 @@ public:
     const std::vector<T>& inXList,
     const std::vector<T>& inYList,
     const std::vector<std::vector<T>>& inFcnList,
-    RooNCSplineCore::BoundaryCondition const bcBeginX_=RooNCSplineCore::bcNaturalSpline,
-    RooNCSplineCore::BoundaryCondition const bcEndX_=RooNCSplineCore::bcNaturalSpline,
-    RooNCSplineCore::BoundaryCondition const bcBeginY_=RooNCSplineCore::bcNaturalSpline,
-    RooNCSplineCore::BoundaryCondition const bcEndY_=RooNCSplineCore::bcNaturalSpline,
+    IvyNCSplineCore::BoundaryCondition const bcBeginX_=IvyNCSplineCore::bcNaturalSpline,
+    IvyNCSplineCore::BoundaryCondition const bcEndX_=IvyNCSplineCore::bcNaturalSpline,
+    IvyNCSplineCore::BoundaryCondition const bcBeginY_=IvyNCSplineCore::bcNaturalSpline,
+    IvyNCSplineCore::BoundaryCondition const bcEndY_=IvyNCSplineCore::bcNaturalSpline,
     Bool_t inUseFloor=true,
     T inFloorEval=0,
     T inFloorInt=0
     );
-  RooNCSpline_2D_fast(const RooNCSpline_2D_fast& other, const char* name=0);
-	virtual TObject* clone(const char* newname) const { return new RooNCSpline_2D_fast(*this, newname); }
-	inline virtual ~RooNCSpline_2D_fast(){}
+  IvyNCSpline_2D_fast(const IvyNCSpline_2D_fast& other, const char* name=0);
+	virtual TObject* clone(const char* newname) const { return new IvyNCSpline_2D_fast(*this, newname); }
+	inline virtual ~IvyNCSpline_2D_fast(){}
 
   void setRangeValidity(const T valmin, const T valmax, const Int_t whichDirection);
 
@@ -71,14 +71,14 @@ protected:
   Bool_t testRangeValidity(const T& val, const Int_t whichDirection) const;
   void cropValueForRange(T& val, const Int_t whichDirection) const;
 
-  virtual std::vector<std::vector<T>> getCoefficientsPerY(const std::vector<T>& kappaX, const TMatrix_t& xAinv, const Int_t& ybin, RooNCSplineCore::BoundaryCondition const& bcBegin, RooNCSplineCore::BoundaryCondition const& bcEnd, const Int_t xbin) const; // xbin can be -1, which means push all of them
+  virtual std::vector<std::vector<T>> getCoefficientsPerY(const std::vector<T>& kappaX, const TMatrix_t& xAinv, const Int_t& ybin, IvyNCSplineCore::BoundaryCondition const& bcBegin, IvyNCSplineCore::BoundaryCondition const& bcEnd, const Int_t xbin) const; // xbin can be -1, which means push all of them
 
   virtual T interpolateFcn(Int_t code, const char* rangeName=0) const;
 
   virtual Double_t evaluate() const;
 
 
-  ClassDef(RooNCSpline_2D_fast, 3)
+  ClassDef(IvyNCSpline_2D_fast, 3)
 
 };
  

@@ -1,16 +1,16 @@
-#include "RooNCSplineFactory_3D.h"
+#include "IvyNCSplineFactory_3D.h"
 
 using namespace std;
 
 
-RooNCSplineFactory_3D::RooNCSplineFactory_3D(
+IvyNCSplineFactory_3D::IvyNCSplineFactory_3D(
   RooAbsReal& XVar_, RooAbsReal& YVar_, RooAbsReal& ZVar_, TString appendName_,
-  RooNCSplineCore::BoundaryCondition const bcBeginX_,
-  RooNCSplineCore::BoundaryCondition const bcEndX_,
-  RooNCSplineCore::BoundaryCondition const bcBeginY_,
-  RooNCSplineCore::BoundaryCondition const bcEndY_,
-  RooNCSplineCore::BoundaryCondition const bcBeginZ_,
-  RooNCSplineCore::BoundaryCondition const bcEndZ_
+  IvyNCSplineCore::BoundaryCondition const bcBeginX_,
+  IvyNCSplineCore::BoundaryCondition const bcEndX_,
+  IvyNCSplineCore::BoundaryCondition const bcBeginY_,
+  IvyNCSplineCore::BoundaryCondition const bcEndY_,
+  IvyNCSplineCore::BoundaryCondition const bcBeginZ_,
+  IvyNCSplineCore::BoundaryCondition const bcEndZ_
 ) :
   appendName(appendName_),
   bcBeginX(bcBeginX_), bcEndX(bcEndX_),
@@ -20,36 +20,36 @@ RooNCSplineFactory_3D::RooNCSplineFactory_3D(
   fcn(0),
   PDF(0)
 {}
-RooNCSplineFactory_3D::~RooNCSplineFactory_3D(){
+IvyNCSplineFactory_3D::~IvyNCSplineFactory_3D(){
   destroyPDF();
 }
 
-void RooNCSplineFactory_3D::addUnique(std::vector<RooNCSplineCore::T>& list, RooNCSplineCore::T val){
+void IvyNCSplineFactory_3D::addUnique(std::vector<IvyNCSplineCore::T>& list, IvyNCSplineCore::T val){
   for (unsigned int ip=0; ip<list.size(); ip++){ if (list.at(ip)==val) return; }
   list.push_back(val);
 }
-const std::vector<splineQuadruplet_t> RooNCSplineFactory_3D::getPoints(
-  const std::vector<RooNCSplineCore::T>& XList,
-  const std::vector<RooNCSplineCore::T>& YList,
-  const std::vector<RooNCSplineCore::T>& ZList,
-  const std::vector<RooNCSplineCore::T>& FcnList
+const std::vector<splineQuadruplet_t> IvyNCSplineFactory_3D::getPoints(
+  const std::vector<IvyNCSplineCore::T>& XList,
+  const std::vector<IvyNCSplineCore::T>& YList,
+  const std::vector<IvyNCSplineCore::T>& ZList,
+  const std::vector<IvyNCSplineCore::T>& FcnList
   ){
   const unsigned int nX = XList.size();
   const unsigned int nY = YList.size();
   const unsigned int nZ = ZList.size();
   const unsigned int n = FcnList.size();
   if (nX*nY*nZ!=n){
-    cerr << "RooNCSplineFactory_3D::getPoints: nX=" << nX << " x nY=" << nY << " x nZ=" << nZ << " != nFcn=" << n << endl;
+    cerr << "IvyNCSplineFactory_3D::getPoints: nX=" << nX << " x nY=" << nY << " x nZ=" << nZ << " != nFcn=" << n << endl;
     assert(0);
   }
 
   std::vector<splineQuadruplet_t> pList; pList.reserve(n);
   for (unsigned int ix=0; ix<nX; ix++){
-    RooNCSplineCore::T xval = XList.at(ix);
+    IvyNCSplineCore::T xval = XList.at(ix);
     for (unsigned int iy=0; iy<nY; iy++){
-      RooNCSplineCore::T yval = YList.at(iy);
+      IvyNCSplineCore::T yval = YList.at(iy);
       for (unsigned int iz=0; iz<nZ; iz++){
-        RooNCSplineCore::T zval = ZList.at(iz);
+        IvyNCSplineCore::T zval = ZList.at(iz);
         unsigned int ip = nZ*(nY*ix + iy) + iz;
         pList.push_back(splineQuadruplet_t(xval, yval, zval, FcnList.at(ip)));
       }
@@ -58,15 +58,15 @@ const std::vector<splineQuadruplet_t> RooNCSplineFactory_3D::getPoints(
   return pList;
 }
 
-void RooNCSplineFactory_3D::destroyPDF(){ delete PDF; PDF=0; delete fcn; fcn=0; }
-void RooNCSplineFactory_3D::initPDF(const std::vector<splineQuadruplet_t>& pList){
+void IvyNCSplineFactory_3D::destroyPDF(){ delete PDF; PDF=0; delete fcn; fcn=0; }
+void IvyNCSplineFactory_3D::initPDF(const std::vector<splineQuadruplet_t>& pList){
   destroyPDF();
 
   const unsigned int n = pList.size();
-  vector<RooNCSplineCore::T> XList;
-  vector<RooNCSplineCore::T> YList;
-  vector<RooNCSplineCore::T> ZList;
-  vector<vector<vector<RooNCSplineCore::T>>> FcnList;
+  vector<IvyNCSplineCore::T> XList;
+  vector<IvyNCSplineCore::T> YList;
+  vector<IvyNCSplineCore::T> ZList;
+  vector<vector<vector<IvyNCSplineCore::T>>> FcnList;
   for (unsigned int ip=0; ip<n; ip++){
     addUnique(XList, (pList.at(ip))[0]);
     addUnique(YList, (pList.at(ip))[1]);
@@ -74,10 +74,10 @@ void RooNCSplineFactory_3D::initPDF(const std::vector<splineQuadruplet_t>& pList
   }
   FcnList.reserve(ZList.size());
   for (unsigned int iz=0; iz<ZList.size(); iz++){
-    vector<vector<RooNCSplineCore::T>> dumz;
+    vector<vector<IvyNCSplineCore::T>> dumz;
     dumz.reserve(YList.size());
     for (unsigned int iy=0; iy<YList.size(); iy++){
-      vector<RooNCSplineCore::T> dumy;
+      vector<IvyNCSplineCore::T> dumy;
       dumy.reserve(XList.size());
       for (unsigned int ix=0; ix<XList.size(); ix++){
         unsigned int ip = ZList.size()*(YList.size()*ix + iy) + iz;
@@ -91,7 +91,7 @@ void RooNCSplineFactory_3D::initPDF(const std::vector<splineQuadruplet_t>& pList
   TString name = "Func";
   if (appendName!="") name = Form("%s_%s", name.Data(), appendName.Data());
   TString title=name;
-  fcn = new RooNCSpline_3D_fast(
+  fcn = new IvyNCSpline_3D_fast(
     name.Data(),
     title.Data(),
     *XVar, *YVar, *ZVar,
@@ -109,9 +109,9 @@ void RooNCSplineFactory_3D::initPDF(const std::vector<splineQuadruplet_t>& pList
     );
 }
 
-void RooNCSplineFactory_3D::setPoints(TTree* tree){
+void IvyNCSplineFactory_3D::setPoints(TTree* tree){
   vector<splineQuadruplet_t> pList;
-  RooNCSplineCore::T x, y, z, fcn;
+  IvyNCSplineCore::T x, y, z, fcn;
   tree->SetBranchAddress("X", &x);
   tree->SetBranchAddress("Y", &y);
   tree->SetBranchAddress("Z", &z);
@@ -121,9 +121,9 @@ void RooNCSplineFactory_3D::setPoints(TTree* tree){
   setPoints(pList);
 }
 
-void RooNCSplineFactory_3D::setEndConditions(
-  RooNCSplineCore::BoundaryCondition const bcBegin,
-  RooNCSplineCore::BoundaryCondition const bcEnd,
+void IvyNCSplineFactory_3D::setEndConditions(
+  IvyNCSplineCore::BoundaryCondition const bcBegin,
+  IvyNCSplineCore::BoundaryCondition const bcEnd,
   const unsigned int direction
 ){
   switch (direction){

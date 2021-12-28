@@ -3,9 +3,9 @@
 #include <cctype>
 #include "HelperFunctions.h"
 #include "StatisticsHelpers.h"
-#include "RooNCSplineFactory_1D.h"
-#include "RooNCSplineFactory_2D.h"
-#include "RooNCSplineFactory_3D.h"
+#include "IvyNCSplineFactory_1D.h"
+#include "IvyNCSplineFactory_2D.h"
+#include "IvyNCSplineFactory_3D.h"
 
 
 using namespace std;
@@ -3295,9 +3295,9 @@ void HelperFunctions::rebinProfile(TProfile*& prof, const ExtendedBinning& binni
   double err_under_over[2]={ prof->GetBinError(0), prof->GetBinError(prof->GetNbinsX()+1) };
   RooRealVar xvar("xvar", "", boundaries[0], boundaries[1]);
 
-  RooNCSplineFactory_1D spFac(xvar, "tmpSpline");
-  RooNCSplineFactory_1D spErrFac(xvar, "tmpSplineErr");
-  vector<pair<RooNCSplineCore::T, RooNCSplineCore::T>> pList, pErrList;
+  IvyNCSplineFactory_1D spFac(xvar, "tmpSpline");
+  IvyNCSplineFactory_1D spErrFac(xvar, "tmpSplineErr");
+  vector<pair<IvyNCSplineCore::T, IvyNCSplineCore::T>> pList, pErrList;
   for (int ix=1; ix<=prof->GetNbinsX(); ix++){
     if (prof->GetBinError(ix)==0.){ IVYout << "HelperFunctions::rebinProfile: Omitting bin " << ix << endl; continue; }
     pList.emplace_back(prof->GetXaxis()->GetBinCenter(ix), prof->GetBinContent(ix));
@@ -3305,8 +3305,8 @@ void HelperFunctions::rebinProfile(TProfile*& prof, const ExtendedBinning& binni
   }
   spFac.setPoints(pList);
   spErrFac.setPoints(pErrList);
-  const RooNCSpline_1D_fast* sp = spFac.getFunc();
-  const RooNCSpline_1D_fast* spErr = spErrFac.getFunc();
+  const IvyNCSpline_1D_fast* sp = spFac.getFunc();
+  const IvyNCSpline_1D_fast* spErr = spErrFac.getFunc();
 
   delete prof;
   prof = new TProfile(hname, htitle, binningX.getNbins(), binningX.getBinning());
@@ -3341,21 +3341,21 @@ void HelperFunctions::rebinCumulant(TH1F*& histo, const ExtendedBinning& binning
     std::max(binningX.getBinLowEdge(binningX.getNbins()), histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1))
   );
   int nx=0;
-  RooNCSplineCore::BoundaryCondition bcBeginX = RooNCSplineCore::bcQuadraticWithNullSlope;
-  RooNCSplineCore::BoundaryCondition bcEndX = RooNCSplineCore::bcQuadraticWithNullSlope;
-  vector<pair<RooNCSplineCore::T, RooNCSplineCore::T>> pList, pErrList;
+  IvyNCSplineCore::BoundaryCondition bcBeginX = IvyNCSplineCore::bcQuadraticWithNullSlope;
+  IvyNCSplineCore::BoundaryCondition bcEndX = IvyNCSplineCore::bcQuadraticWithNullSlope;
+  vector<pair<IvyNCSplineCore::T, IvyNCSplineCore::T>> pList, pErrList;
   for (int ix=0; ix<=histo->GetNbinsX(); ix++){
     pList.emplace_back(histo->GetXaxis()->GetBinUpEdge(ix), histo->GetBinContent(ix));
     pErrList.emplace_back(histo->GetXaxis()->GetBinUpEdge(ix), pow(histo->GetBinError(ix), 2));
     nx++;
   }
-  if (nx<=3){ bcBeginX = RooNCSplineCore::bcNaturalSpline; bcEndX = RooNCSplineCore::bcNaturalSpline; }
-  RooNCSplineFactory_1D spFac(xvar, "tmpSpline", bcBeginX, bcEndX);
-  RooNCSplineFactory_1D spErrFac(xvar, "tmpSplineErr", bcBeginX, bcEndX);
+  if (nx<=3){ bcBeginX = IvyNCSplineCore::bcNaturalSpline; bcEndX = IvyNCSplineCore::bcNaturalSpline; }
+  IvyNCSplineFactory_1D spFac(xvar, "tmpSpline", bcBeginX, bcEndX);
+  IvyNCSplineFactory_1D spErrFac(xvar, "tmpSplineErr", bcBeginX, bcEndX);
   spFac.setPoints(pList);
   spErrFac.setPoints(pErrList);
-  const RooNCSpline_1D_fast* sp = spFac.getFunc();
-  const RooNCSpline_1D_fast* spErr = spErrFac.getFunc();
+  const IvyNCSpline_1D_fast* sp = spFac.getFunc();
+  const IvyNCSpline_1D_fast* spErr = spErrFac.getFunc();
 
   delete histo;
   histo = new TH1F(hname, htitle, binningX.getNbins(), binningX.getBinning());
@@ -3409,10 +3409,10 @@ void HelperFunctions::rebinCumulant(TH2F*& histo, const ExtendedBinning& binning
   }
 
   int nx=0, ny=0;
-  RooNCSplineCore::BoundaryCondition bcBeginX = RooNCSplineCore::bcQuadraticWithNullSlope;
-  RooNCSplineCore::BoundaryCondition bcEndX = RooNCSplineCore::bcQuadraticWithNullSlope;
-  RooNCSplineCore::BoundaryCondition bcBeginY = RooNCSplineCore::bcQuadraticWithNullSlope;
-  RooNCSplineCore::BoundaryCondition bcEndY = RooNCSplineCore::bcQuadraticWithNullSlope;
+  IvyNCSplineCore::BoundaryCondition bcBeginX = IvyNCSplineCore::bcQuadraticWithNullSlope;
+  IvyNCSplineCore::BoundaryCondition bcEndX = IvyNCSplineCore::bcQuadraticWithNullSlope;
+  IvyNCSplineCore::BoundaryCondition bcBeginY = IvyNCSplineCore::bcQuadraticWithNullSlope;
+  IvyNCSplineCore::BoundaryCondition bcEndY = IvyNCSplineCore::bcQuadraticWithNullSlope;
   vector<splineTriplet_t> pList, pErrList;
   for (unsigned int ix=0; ix<=nbinsXoriginal+1; ix++){
     double xval;
@@ -3444,14 +3444,14 @@ void HelperFunctions::rebinCumulant(TH2F*& histo, const ExtendedBinning& binning
     }
     nx++;
   }
-  if (nx<=3){ bcBeginX = RooNCSplineCore::bcNaturalSpline; bcEndX = RooNCSplineCore::bcNaturalSpline; }
-  if (ny<=3){ bcBeginY = RooNCSplineCore::bcNaturalSpline; bcEndY = RooNCSplineCore::bcNaturalSpline; }
-  RooNCSplineFactory_2D spFac(xvar, yvar, "tmpSpline", bcBeginX, bcEndX, bcBeginY, bcEndY);
-  RooNCSplineFactory_2D spErrFac(xvar, yvar, "tmpSplineErr", bcBeginX, bcEndX, bcBeginY, bcEndY);
+  if (nx<=3){ bcBeginX = IvyNCSplineCore::bcNaturalSpline; bcEndX = IvyNCSplineCore::bcNaturalSpline; }
+  if (ny<=3){ bcBeginY = IvyNCSplineCore::bcNaturalSpline; bcEndY = IvyNCSplineCore::bcNaturalSpline; }
+  IvyNCSplineFactory_2D spFac(xvar, yvar, "tmpSpline", bcBeginX, bcEndX, bcBeginY, bcEndY);
+  IvyNCSplineFactory_2D spErrFac(xvar, yvar, "tmpSplineErr", bcBeginX, bcEndX, bcBeginY, bcEndY);
   spFac.setPoints(pList);
   spErrFac.setPoints(pErrList);
-  const RooNCSpline_2D_fast* sp = spFac.getFunc();
-  const RooNCSpline_2D_fast* spErr = spErrFac.getFunc();
+  const IvyNCSpline_2D_fast* sp = spFac.getFunc();
+  const IvyNCSpline_2D_fast* spErr = spErrFac.getFunc();
 
   delete histo;
   histo = new TH2F(hname, htitle, binningX.getNbins(), binningX.getBinning(), binningY.getNbins(), binningY.getBinning());
@@ -3539,12 +3539,12 @@ void HelperFunctions::rebinCumulant(TH3F*& histo, const ExtendedBinning& binning
   }
 
   int nx=0, ny=0, nz=0;
-  RooNCSplineCore::BoundaryCondition bcBeginX = RooNCSplineCore::bcQuadraticWithNullSlope;
-  RooNCSplineCore::BoundaryCondition bcEndX = RooNCSplineCore::bcQuadraticWithNullSlope;
-  RooNCSplineCore::BoundaryCondition bcBeginY = RooNCSplineCore::bcQuadraticWithNullSlope;
-  RooNCSplineCore::BoundaryCondition bcEndY = RooNCSplineCore::bcQuadraticWithNullSlope;
-  RooNCSplineCore::BoundaryCondition bcBeginZ = RooNCSplineCore::bcQuadraticWithNullSlope;
-  RooNCSplineCore::BoundaryCondition bcEndZ = RooNCSplineCore::bcQuadraticWithNullSlope;
+  IvyNCSplineCore::BoundaryCondition bcBeginX = IvyNCSplineCore::bcQuadraticWithNullSlope;
+  IvyNCSplineCore::BoundaryCondition bcEndX = IvyNCSplineCore::bcQuadraticWithNullSlope;
+  IvyNCSplineCore::BoundaryCondition bcBeginY = IvyNCSplineCore::bcQuadraticWithNullSlope;
+  IvyNCSplineCore::BoundaryCondition bcEndY = IvyNCSplineCore::bcQuadraticWithNullSlope;
+  IvyNCSplineCore::BoundaryCondition bcBeginZ = IvyNCSplineCore::bcQuadraticWithNullSlope;
+  IvyNCSplineCore::BoundaryCondition bcEndZ = IvyNCSplineCore::bcQuadraticWithNullSlope;
   vector<splineQuadruplet_t> pList, pErrList;
   for (unsigned int ix=0; ix<=nbinsXoriginal+1; ix++){
     double xval;
@@ -3587,15 +3587,15 @@ void HelperFunctions::rebinCumulant(TH3F*& histo, const ExtendedBinning& binning
     }
     nx++;
   }
-  if (nx<=3){ bcBeginX = RooNCSplineCore::bcNaturalSpline; bcEndX = RooNCSplineCore::bcNaturalSpline; }
-  if (ny<=3){ bcBeginY = RooNCSplineCore::bcNaturalSpline; bcEndY = RooNCSplineCore::bcNaturalSpline; }
-  if (nz<=3){ bcBeginZ = RooNCSplineCore::bcNaturalSpline; bcEndZ = RooNCSplineCore::bcNaturalSpline; }
-  RooNCSplineFactory_3D spFac(xvar, yvar, zvar, "tmpSpline", bcBeginX, bcEndX, bcBeginY, bcEndY, bcBeginZ, bcEndZ);
-  RooNCSplineFactory_3D spErrFac(xvar, yvar, zvar, "tmpSplineErr", bcBeginX, bcEndX, bcBeginY, bcEndY, bcBeginZ, bcEndZ);
+  if (nx<=3){ bcBeginX = IvyNCSplineCore::bcNaturalSpline; bcEndX = IvyNCSplineCore::bcNaturalSpline; }
+  if (ny<=3){ bcBeginY = IvyNCSplineCore::bcNaturalSpline; bcEndY = IvyNCSplineCore::bcNaturalSpline; }
+  if (nz<=3){ bcBeginZ = IvyNCSplineCore::bcNaturalSpline; bcEndZ = IvyNCSplineCore::bcNaturalSpline; }
+  IvyNCSplineFactory_3D spFac(xvar, yvar, zvar, "tmpSpline", bcBeginX, bcEndX, bcBeginY, bcEndY, bcBeginZ, bcEndZ);
+  IvyNCSplineFactory_3D spErrFac(xvar, yvar, zvar, "tmpSplineErr", bcBeginX, bcEndX, bcBeginY, bcEndY, bcBeginZ, bcEndZ);
   spFac.setPoints(pList);
   spErrFac.setPoints(pErrList);
-  const RooNCSpline_3D_fast* sp = spFac.getFunc();
-  const RooNCSpline_3D_fast* spErr = spErrFac.getFunc();
+  const IvyNCSpline_3D_fast* sp = spFac.getFunc();
+  const IvyNCSpline_3D_fast* spErr = spErrFac.getFunc();
 
   delete histo;
   histo = new TH3F(hname, htitle, binningX.getNbins(), binningX.getBinning(), binningY.getNbins(), binningY.getBinning(), binningZ.getNbins(), binningZ.getBinning());
@@ -3716,9 +3716,9 @@ void HelperFunctions::rebinHistogram_NoCumulant(TH1F*& histo, const ExtendedBinn
     std::max(binningX.getBinLowEdge(binningX.getNbins()), histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1))
   );
 
-  RooNCSplineFactory_1D spFac(xvar, "tmpSpline");
-  RooNCSplineFactory_1D spErrFac(xvar, "tmpSplineErr");
-  vector<pair<RooNCSplineCore::T, RooNCSplineCore::T>> pList, pErrList;
+  IvyNCSplineFactory_1D spFac(xvar, "tmpSpline");
+  IvyNCSplineFactory_1D spErrFac(xvar, "tmpSplineErr");
+  vector<pair<IvyNCSplineCore::T, IvyNCSplineCore::T>> pList, pErrList;
   for (int ix=0; ix<=histo->GetNbinsX()+1; ix++){
     if (prof_x->GetBinError(ix)!=0.){
       pList.emplace_back(prof_x->GetBinContent(ix), histo->GetBinContent(ix));
@@ -3727,8 +3727,8 @@ void HelperFunctions::rebinHistogram_NoCumulant(TH1F*& histo, const ExtendedBinn
   }
   spFac.setPoints(pList);
   spErrFac.setPoints(pErrList);
-  const RooNCSpline_1D_fast* sp = spFac.getFunc();
-  const RooNCSpline_1D_fast* spErr = spErrFac.getFunc();
+  const IvyNCSpline_1D_fast* sp = spFac.getFunc();
+  const IvyNCSpline_1D_fast* spErr = spErrFac.getFunc();
 
   // Once cumulant is rebinned, errors are lost
   delete histo;
@@ -3768,8 +3768,8 @@ void HelperFunctions::rebinHistogram_NoCumulant(TH2F*& histo, const ExtendedBinn
     std::max(binningY.getBinLowEdge(binningY.getNbins()), histo->GetYaxis()->GetBinLowEdge(histo->GetNbinsY()+1))
   );
 
-  RooNCSplineFactory_2D spFac(xvar, yvar, "tmpSpline");
-  RooNCSplineFactory_2D spErrFac(xvar, yvar, "tmpSplineErr");
+  IvyNCSplineFactory_2D spFac(xvar, yvar, "tmpSpline");
+  IvyNCSplineFactory_2D spErrFac(xvar, yvar, "tmpSplineErr");
   vector<splineTriplet_t> pList, pErrList;
   for (int ix=0; ix<=histo->GetNbinsX()+1; ix++){
     if (prof_x->GetBinError(ix)==0.) continue;
@@ -3782,8 +3782,8 @@ void HelperFunctions::rebinHistogram_NoCumulant(TH2F*& histo, const ExtendedBinn
   }
   spFac.setPoints(pList);
   spErrFac.setPoints(pErrList);
-  const RooNCSpline_2D_fast* sp = spFac.getFunc();
-  const RooNCSpline_2D_fast* spErr = spErrFac.getFunc();
+  const IvyNCSpline_2D_fast* sp = spFac.getFunc();
+  const IvyNCSpline_2D_fast* spErr = spErrFac.getFunc();
 
   // Once cumulant is rebinned, errors are lost
   delete histo;
@@ -3835,8 +3835,8 @@ void HelperFunctions::rebinHistogram_NoCumulant(TH3F*& histo, const ExtendedBinn
     std::max(binningZ.getBinLowEdge(binningZ.getNbins()), histo->GetZaxis()->GetBinLowEdge(histo->GetNbinsZ()+1))
   );
 
-  RooNCSplineFactory_3D spFac(xvar, yvar, zvar, "tmpSpline");
-  RooNCSplineFactory_3D spErrFac(xvar, yvar, zvar, "tmpSplineErr");
+  IvyNCSplineFactory_3D spFac(xvar, yvar, zvar, "tmpSpline");
+  IvyNCSplineFactory_3D spErrFac(xvar, yvar, zvar, "tmpSplineErr");
   vector<splineQuadruplet_t> pList, pErrList;
   for (int ix=0; ix<=histo->GetNbinsX()+1; ix++){
     if (prof_x->GetBinError(ix)==0.) continue;
@@ -3852,8 +3852,8 @@ void HelperFunctions::rebinHistogram_NoCumulant(TH3F*& histo, const ExtendedBinn
   }
   spFac.setPoints(pList);
   spErrFac.setPoints(pErrList);
-  const RooNCSpline_3D_fast* sp = spFac.getFunc();
-  const RooNCSpline_3D_fast* spErr = spErrFac.getFunc();
+  const IvyNCSpline_3D_fast* sp = spFac.getFunc();
+  const IvyNCSpline_3D_fast* spErr = spErrFac.getFunc();
 
   // Once cumulant is rebinned, errors are lost
   delete histo;
