@@ -47,13 +47,13 @@ if [[ ! -z ${FILENAME} ]];then
   COPY_DEST=""
   echo "OUTPUTFILE: ${OUTPUTDIR}/${RENAMEFILE}"
   if [[ "${OUTPUTSITE}" == *"t2.ucsd.edu"* ]]; then
-    if [[ ! -s ${INPUTDIR}/${FILENAME} ]]; then
+    if [[ -s ${INPUTDIR}/${FILENAME} ]]; then
+      echo "Running the xrootd endpoint..."
+      COPY_DEST="davs://redirector.t2.ucsd.edu:1095${OUTPUTDIR}/${RENAMEFILE}"
+      COPY_DEST=${COPY_DEST/'/ceph/cms'/''}
+    else
       echo "Running the gsiftp endpoint..."
       COPY_DEST="gsiftp://gftp.${OUTPUTSITE}${OUTPUTDIR}/${RENAMEFILE}"
-    else
-      echo "Running the xrootd endpoint..."
-      COPY_DEST="davs://redirector.t2.ucsd.edu:1094${OUTPUTDIR}/${RENAMEFILE}"
-      COPY_DEST=${COPY_DEST/'/hadoop/cms'/''}
     fi
   elif [[ "${OUTPUTSITE}" == *"eoscms.cern.ch"* ]]; then
     COPY_DEST="root://eoscms.cern.ch${OUTPUTDIR}/${RENAMEFILE}"
