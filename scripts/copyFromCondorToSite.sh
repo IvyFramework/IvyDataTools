@@ -49,7 +49,7 @@ if [[ ! -z ${FILENAME} ]];then
   if [[ "${OUTPUTSITE}" == *"t2.ucsd.edu"* ]]; then
     if [[ -s ${INPUTDIR}/${FILENAME} ]]; then
       echo "Running the xrootd endpoint..."
-      COPY_DEST="davs://redirector.t2.ucsd.edu:1095${OUTPUTDIR}/${RENAMEFILE}"
+      COPY_DEST="davs://redirector.t2.ucsd.edu:1094${OUTPUTDIR}/${RENAMEFILE}"
       COPY_DEST=${COPY_DEST/'/ceph/cms'/''}
     else
       echo "Running the gsiftp endpoint..."
