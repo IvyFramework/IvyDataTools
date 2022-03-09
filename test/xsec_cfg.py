@@ -29,7 +29,6 @@ options.register('datasetName',
 options.register('localdir', False, mytype=VarParsing.varType.bool)
 options.register('maxfiles', 50, mytype=VarParsing.varType.int)
 options.register('disableDuplicateCheck', False, mytype=VarParsing.varType.bool)
-options.register('LHEInputTag', "externalLHEProducer", mytype=VarParsing.varType.string) # Default is what CMS full sim. uses, but it can sometimes be 'generator'.
 
 options.parseArguments()
 
