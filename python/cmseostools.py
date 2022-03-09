@@ -143,7 +143,7 @@ def listFiles(sample, path, rec = False, full_info = False, other_options=None):
         if os.path.isdir(sample):
             if not rec:
                 # not recursive
-                result = [ '/'.join([path,file]) for file in os.listdir(sample)]
+                result = [ '/'.join([sample,file]) for file in os.listdir(sample)]
             else:
                 # recursive, directories are put in the list first,
                 # followed by the list of all files in the directory tree
@@ -152,6 +152,9 @@ def listFiles(sample, path, rec = False, full_info = False, other_options=None):
                     result.extend( [ '/'.join([root,dir]) for dir in dirs] )
                     allFiles.extend( [ '/'.join([root,file]) for file in files] )
                 result.extend(allFiles)
+        elif os.path.isfile(sample):
+           result = [ sample ]
+        result = [ "file://"+ff for ff in result if ff.endswith('.root') ]
 
     # -- listing from EOS (path = eos path prefix, normally "/eos/cms/")
     else:
