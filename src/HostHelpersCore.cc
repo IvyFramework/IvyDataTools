@@ -76,6 +76,27 @@ TString HostHelpers::GetStandardHostPathToStore(const char* name, Hosts const& h
   }
   return res;
 }
+TString HostHelpers::SearchPathToStore(const char* name){
+  std::vector<HostHelpers::Hosts> search_hosts;
+  HostHelpers::Hosts const current_host = HostHelpers::GetHostLocation();
+  if (current_host!=HostHelpers::kUNKNOWN) search_hosts.push_back(current_host);
+  for (int i=0; i<static_cast<int>(HostHelpers::kUNKNOWN); i++){
+    HostHelpers::Hosts const hh = static_cast<HostHelpers::Hosts>(i);
+    if (hh!=current_host) search_hosts.push_back(hh);
+  }
+  for (auto const& hh:search_hosts){
+    TString path = HostHelpers::GetStandardHostPathToStore(name, hh);
+    if (HostHelpers::DirectoryExists(path) || HostHelpers::FileExists(path)) return path;
+    else if (hh==HostHelpers::kUCSDT2 && (path.Contains("/ceph/") || path.Contains("/hadoop/") || path.Contains(":1095") || path.Contains(":1094"))){
+      if (path.Contains("/ceph/")) HelperFunctions::replaceString<TString, TString const>(path, "/ceph/", "/hadoop/");
+      else if (path.Contains("/hadoop/")) HelperFunctions::replaceString<TString, TString const>(path, "/hadoop/", "/ceph/");
+      if (path.Contains(":1095")) HelperFunctions::replaceString<TString, TString const>(path, ":1095", ":1094");
+      else if (path.Contains(":1094")) HelperFunctions::replaceString<TString, TString const>(path, ":1094", ":1095");
+      if (HostHelpers::DirectoryExists(path) || HostHelpers::FileExists(path)) return path;
+    }
+  }
+  return "";
+}
 
 TString HostHelpers::GetX509Proxy(){
   TString res;

@@ -27,6 +27,7 @@ namespace HostHelpers{
   TString GetHostLocalRedirector(Hosts const& host, bool isForFileOps);
   TString GetHostPathToStore(Hosts const& host);
   TString GetStandardHostPathToStore(const char* name, Hosts const& host);
+  TString SearchPathToStore(const char* name);
 
   TString GetX509Proxy();
 
