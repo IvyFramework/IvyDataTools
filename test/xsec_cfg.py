@@ -27,13 +27,18 @@ options.register('datasetName',
 		VarParsing.varType.string,
 		"DAS-style name of a primary dataset, e.g. /ZZTo4L_13TeV-sherpa/RunIISummer16MiniAODv2-PUMoriond17_v2_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM")
 options.register('localdir', False, mytype=VarParsing.varType.bool)
+options.register('useFileList', False, mytype=VarParsing.varType.bool)
 options.register('maxfiles', 50, mytype=VarParsing.varType.int)
 options.register('disableDuplicateCheck', False, mytype=VarParsing.varType.bool)
 
 options.parseArguments()
 
+input_is_already_flist = options.useFileList
+
 dbase="dbs"
-if options.localdir:
+if input_is_already_flist:
+   dbase="csflist"
+elif options.localdir:
    dbase="local"
 
 process = cms.Process('XSec')

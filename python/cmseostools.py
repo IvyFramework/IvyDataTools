@@ -119,6 +119,10 @@ def listFiles(sample, path, rec = False, full_info = False, other_options=None):
         with open(sample) as f:
             result = f.readlines()
 
+    # -- listing from a comma-separated string --
+    elif path=="csflist":
+        result = sample.split(',')
+
     # -- listing from dbs --
     elif path=="dbs" :
         files, _, _ =runDBS(sample)
@@ -173,6 +177,7 @@ def listFiles(sample, path, rec = False, full_info = False, other_options=None):
                     result.append( tokens)
                 else:
                     result.append( eosToLFN(tokens[4]) )
+
     result = [ s for s in result if s ]
     return result
 

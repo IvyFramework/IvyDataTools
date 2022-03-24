@@ -49,8 +49,9 @@ if [[ ! -z ${FILENAME} ]];then
   if [[ "${OUTPUTSITE}" == *"t2.ucsd.edu"* ]]; then
     if [[ -s ${INPUTDIR}/${FILENAME} ]]; then
       echo "Running the xrootd endpoint..."
-      COPY_DEST="davs://redirector.t2.ucsd.edu:1094${OUTPUTDIR}/${RENAMEFILE}"
-      COPY_DEST=${COPY_DEST/'/ceph/cms'/''}
+      COPY_DEST="davs://redirector.t2.ucsd.edu:${OUTPUTDIR}/${RENAMEFILE}"
+      COPY_DEST=${COPY_DEST/'/hadoop/cms'/'1094'} # Port for hadoop
+      COPY_DEST=${COPY_DEST/'/ceph/cms'/'1095'} # Port for ceph
     else
       echo "Running the gsiftp endpoint..."
       COPY_DEST="gsiftp://gftp.${OUTPUTSITE}${OUTPUTDIR}/${RENAMEFILE}"

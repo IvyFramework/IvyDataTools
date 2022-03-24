@@ -33,7 +33,7 @@ HostHelpers::Hosts HostHelpers::GetHostLocation(TString const& strhost){
 TString HostHelpers::GetHostLocalRedirector(Hosts const& host, bool isForFileOps){
   switch (host){
   case kUCSDT2:
-    return "davs://redirector.t2.ucsd.edu:1094/"; // "root://redirector.t2.ucsd.edu/" also works but is slower.
+    return "davs://redirector.t2.ucsd.edu:1095/"; // "root://redirector.t2.ucsd.edu/" also works but is slower.
   case kIIHET2:
     return "srm://maite.iihe.ac.be:8443"; // No extra '/' at the end in srm protocols!
   case kEOSCMS:
