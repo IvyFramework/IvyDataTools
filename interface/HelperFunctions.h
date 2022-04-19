@@ -209,6 +209,8 @@ namespace HelperFunctions{
 
   TGraph* addTGraphs(TGraph* tgfirst, TGraph* tgsecond);
 
+  TGraph* multiplyTGraph(TGraph* tgfirst, TSpline3* spsecond);
+
   TGraph* multiplyTGraphs(TGraph* tgfirst, TGraph* tgsecond);
 
   TGraph* divideTGraphs(TGraph* tgnum, TGraph* tgdenom, double powernum=1, double powerdenom=1);

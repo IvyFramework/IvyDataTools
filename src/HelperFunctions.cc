@@ -570,9 +570,29 @@ TGraph* HelperFunctions::addTGraphs(TGraph* tgfirst, TGraph* tgsecond){
     xynew.push_back(pair<double, double>(xval, yval));
   }
 
+  delete spfirst;
+  delete spsecond;
+
   return makeGraphFromPair(xynew, Form("%s_plus_%s", tgfirst->GetName(), tgsecond->GetName()));
 }
 void HelperFunctions::multiplyTGraph(TGraph* tg, const double scale){ for (int ip=0; ip<tg->GetN(); ip++) tg->GetY()[ip] *= scale; }
+TGraph* HelperFunctions::multiplyTGraph(TGraph* tgfirst, TSpline3* spsecond){
+  TSpline3* spfirst = convertGraphToSpline3(tgfirst);
+
+  vector<pair<double, double>> xy;
+  double* xx = tgfirst->GetX();
+  for (int ip=0; ip<tgfirst->GetN(); ip++) addByLowest<double, double>(xy, xx[ip], 0);
+
+  vector<pair<double, double>> xynew;
+  for (unsigned int ip=0; ip<xy.size(); ip++){
+    double xval = xy.at(ip).first;
+    double yval = spfirst->Eval(xval);
+    yval *= spsecond->Eval(xval);
+    xynew.push_back(pair<double, double>(xval, yval));
+  }
+
+  return makeGraphFromPair(xynew, Form("%s_x_%s", tgfirst->GetName(), spsecond->GetName()));
+}
 TGraph* HelperFunctions::multiplyTGraphs(TGraph* tgfirst, TGraph* tgsecond){
   TSpline3* spfirst = convertGraphToSpline3(tgfirst);
   TSpline3* spsecond = convertGraphToSpline3(tgsecond);
@@ -590,6 +610,9 @@ TGraph* HelperFunctions::multiplyTGraphs(TGraph* tgfirst, TGraph* tgsecond){
     yval *= spsecond->Eval(xval);
     xynew.push_back(pair<double, double>(xval, yval));
   }
+
+  delete spfirst;
+  delete spsecond;
 
   return makeGraphFromPair(xynew, Form("%s_x_%s", tgfirst->GetName(), tgsecond->GetName()));
 }
@@ -618,6 +641,10 @@ TGraph* HelperFunctions::divideTGraphs(TGraph* tgnum, TGraph* tgdenom, double po
       else xynew.push_back(pair<double, double>(xval, result));
     }
   }
+
+  delete spnum;
+  delete spdenom;
+
   return makeGraphFromPair(xynew, Form("%s_over_%s", tgnum->GetName(), tgdenom->GetName()));
 }
 
