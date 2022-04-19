@@ -1,6 +1,45 @@
 #!/bin/bash
 
 
+getFilePath(){
+  local indir=$1
+  local fname=$2
+  local site=$3
+  local res=""
+
+  if [[ "${indir}" != "/"* ]]; then # Directory must be an absolute path!
+    echo "getFilePath: Directory ${indir} must have been an absolute path!"
+    exit 1
+  fi
+
+  if [[ "${site}" == "local" ]]; then
+    res="file://${indir}/${fname}"
+  elif [[ "${site}" == *"t2.ucsd.edu"* ]]; then
+    res="davs://redirector.t2.ucsd.edu:${indir}/${fname}"
+    res=${res/'/hadoop/cms'/'1094'} # Port for hadoop
+    res=${res/'/ceph/cms'/'1095'} # Port for ceph
+  elif [[ "${site}" == *"eoscms.cern.ch"* ]]; then
+    res="root://eoscms.cern.ch${indir}/${fname}"
+    res=${res/'/eos/cms'/''}
+  elif [[ "${site}" == *"iihe.ac.be"* ]]; then
+    res="srm://maite.iihe.ac.be:8443${indir}/${fname}"
+    #res=${res/'/pnfs/iihe/cms'/''}
+  elif [[ "${site}" == *"ihep.ac.cn"* ]]; then
+    res="srm://srm.ihep.ac.cn:8443${indir}/${fname}"
+    #res=${res/'/data/cms'/''}
+  elif [[ "${site}" == *"m45.ihep.su"* ]]; then
+    res="srm://dp0015.m45.ihep.su:8443${indir}/${fname}"
+    #res=${res/'/pnfs/m45.ihep.su/data/cms'/''}
+  else
+    echo "getFilePath: Site ${site} is undefined."
+    exit 1
+  fi
+
+  echo ${res}
+  exit 0
+}
+
+
 INPUTDIR=$1
 FILENAME=$2
 OUTPUTSITE=$3 # e.g. 't2.ucsd.edu'
@@ -8,6 +47,10 @@ OUTPUTDIR=$4 # Must be absolute path
 RENAMEFILE=$FILENAME
 if [[ "$5" != "" ]];then
   RENAMEFILE=$5
+fi
+INPUTSITE=local
+if [[ "$6" != "" ]];then
+  INPUTSITE=$6
 fi
 
 
@@ -19,19 +62,19 @@ echo "OUTPUTDIR: ${OUTPUTDIR}"
 echo "RENAMEFILE: ${RENAMEFILE}"
 
 
-if [[ "$INPUTDIR" == "" ]];then #Input directory is empty, so assign pwd
+if [[ "$INPUTDIR" == "" ]]; then #Input directory is empty, so assign pwd
   INPUTDIR=$(pwd)
-elif [[ "$INPUTDIR" != "/"* ]];then # Input directory is a relative path
+elif [[ "$INPUTDIR" != "/"* ]]; then # Input directory is a relative path
   INPUTDIR=$(pwd)/${INPUTDIR}
 fi
 
-if [[ "$OUTPUTDIR" != "/"* ]];then # Output directory must be an absolute path!
+if [[ "$OUTPUTDIR" != "/"* ]]; then # Output directory must be an absolute path!
   echo "Output directory must be an absolute path! Cannot transfer the file..."
   exit 1
 fi
 
 
-if [[ ! -z ${FILENAME} ]];then
+if [[ ! -z ${FILENAME} ]]; then
   echo -e "\n--- begin copying output ---\n"
 
   echo "Sending output file ${FILENAME}"
@@ -43,31 +86,16 @@ if [[ ! -z ${FILENAME} ]];then
 
   echo "Time before copy: $(date +%s)"
 
-  COPY_SRC="file://${INPUTDIR}/${FILENAME}"
-  COPY_DEST=""
   echo "OUTPUTFILE: ${OUTPUTDIR}/${RENAMEFILE}"
-  if [[ "${OUTPUTSITE}" == *"t2.ucsd.edu"* ]]; then
-    if [[ -s ${INPUTDIR}/${FILENAME} ]]; then
-      echo "Running the xrootd endpoint..."
-      COPY_DEST="davs://redirector.t2.ucsd.edu:${OUTPUTDIR}/${RENAMEFILE}"
-      COPY_DEST=${COPY_DEST/'/hadoop/cms'/'1094'} # Port for hadoop
-      COPY_DEST=${COPY_DEST/'/ceph/cms'/'1095'} # Port for ceph
-    else
-      echo "Running the gsiftp endpoint..."
-      COPY_DEST="gsiftp://gftp.${OUTPUTSITE}${OUTPUTDIR}/${RENAMEFILE}"
-    fi
-  elif [[ "${OUTPUTSITE}" == *"eoscms.cern.ch"* ]]; then
-    COPY_DEST="root://eoscms.cern.ch${OUTPUTDIR}/${RENAMEFILE}"
-    COPY_DEST=${COPY_DEST/'/eos/cms'/''}
-  elif [[ "${OUTPUTSITE}" == *"iihe.ac.be"* ]]; then
-    COPY_DEST="srm://maite.iihe.ac.be:8443${OUTPUTDIR}/${RENAMEFILE}"
-    #COPY_DEST=${COPY_DEST/'/pnfs/iihe/cms'/''}
-  elif [[ "${OUTPUTSITE}" == *"ihep.ac.cn"* ]]; then
-    COPY_DEST="srm://srm.ihep.ac.cn:8443${OUTPUTDIR}/${RENAMEFILE}"
-    #COPY_DEST=${COPY_DEST/'/data/cms'/''}
-  elif [[ "${OUTPUTSITE}" == *"m45.ihep.su"* ]]; then
-    COPY_DEST="srm://dp0015.m45.ihep.su:8443${OUTPUTDIR}/${RENAMEFILE}"
-    #COPY_DEST=${COPY_DEST/'/pnfs/m45.ihep.su/data/cms'/''}
+
+  COPY_SRC="$( getFilePath ${INPUTDIR} ${FILENAME} ${INPUTSITE} )"
+  if [[ $? -ne 0 ]]; then
+    exit 1
+  fi
+
+  COPY_DEST="$( getFilePath ${OUTPUTDIR} ${RENAMEFILE} ${OUTPUTSITE} )"
+  if [[ $? -ne 0 ]]; then
+    exit 1
   fi
 
   runCmd="env -i X509_USER_PROXY=${X509_USER_PROXY} gfal-copy -p -f -t 14400 --verbose --checksum ADLER32 ${COPY_SRC} ${COPY_DEST}"
