@@ -324,14 +324,17 @@ BaseTree::BranchType BaseTree::searchBranchType(TString const& branchname) const
 #define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) else if (val##name##s.find(branchname)!=val##name##s.cend()) return BranchType_##name##_t;
 #define VECTOR_DATA_INPUT_DIRECTIVE(name, type) else if (valV##name##s.find(branchname)!=valV##name##s.cend()) return BranchType_v##name##_t;
 #define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) else if (valVV##name##s.find(branchname)!=valVV##name##s.cend()) return BranchType_vv##name##_t;
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) else if (val##name##s.find(branchname)!=val##name##s.cend()) return BranchType_##name##_t;
   if (false) return BranchType_unknown_t;
   SIMPLE_DATA_INPUT_DIRECTIVES
   VECTOR_DATA_INPUT_DIRECTIVES
   DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
+  ARRAY_DATA_INPUT_DIRECTIVES
   else return BranchType_unknown_t;
 #undef SIMPLE_DATA_INPUT_DIRECTIVE
 #undef VECTOR_DATA_INPUT_DIRECTIVE
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
+#undef ARRAY_DATA_INPUT_DIRECTIVE
 }
 
 TFile* BaseTree::getInputFile(){ return finput; }
@@ -460,14 +463,17 @@ void BaseTree::print() const{
   FUNDAMENTAL_DATA_INPUT_DIRECTIVES
 #undef SIMPLE_DATA_INPUT_DIRECTIVE
 #define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) for (auto const& it:val##name##s){ if (it.second){ IVYout << "\t- " << it.first << " value: "; if (it.second->first) IVYout << *(it.second->first); else IVYout << "null"; IVYout << " (address: " << it.second->first << ")" << endl; } }
-    CLASS_DATA_INPUT_DIRECTIVES
+  CLASS_DATA_INPUT_DIRECTIVES
 #undef SIMPLE_DATA_INPUT_DIRECTIVE
-#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:valV##name##s){ IVYout << "\t- " << it.first << " value: "; if (it.second) IVYout << *(it.second); else IVYout << "null"; IVYout << " (address: " << it.second << ")" << endl; }
-    VECTOR_DATA_INPUT_DIRECTIVES
+#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:valV##name##s){ IVYout << "\t- " << it.first << " values: "; if (it.second) IVYout << *(it.second); else IVYout << "null"; IVYout << " (address: " << it.second << ")" << endl; }
+  VECTOR_DATA_INPUT_DIRECTIVES
 #undef VECTOR_DATA_INPUT_DIRECTIVE
-#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:valVV##name##s){ IVYout << "\t- " << it.first << " value: "; if (it.second){ for (auto const& v:*(it.second)){ IVYout << "{ " << v << " }"; } } else IVYout << "null"; IVYout << " (address: " << it.second << ")" << endl; }
+#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) for (auto const& it:valVV##name##s){ IVYout << "\t- " << it.first << " values: "; if (it.second){ for (auto const& v:*(it.second)){ IVYout << "{ " << v << " }"; } } else IVYout << "null"; IVYout << " (address: " << it.second << ")" << endl; }
   DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) for (auto const& it:valA##name##s){ if (it.second){ IVYout << "\t- " << it.first << " values: "; it.second->print(); IVYout << " (address: " << it.second->get_values() << ")" << endl; } }
+  ARRAY_DATA_INPUT_DIRECTIVES
+#undef ARRAY_DATA_INPUT_DIRECTIVE
 }
 
 void BaseTree::resetBranches(){
@@ -477,7 +483,9 @@ void BaseTree::resetBranches(){
 #define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) this->resetBranch<BaseTree::BranchType_##name##_t>();
 #define VECTOR_DATA_INPUT_DIRECTIVE(name, type) this->resetBranch<BaseTree::BranchType_v##name##_t>();
 #define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) this->resetBranch<BaseTree::BranchType_vv##name##_t>();
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) this->resetBranch<BaseTree::BranchType_a##name##_t>();
   SIMPLE_DATA_INPUT_DIRECTIVES
+  ARRAY_DATA_INPUT_DIRECTIVES
   if (!receiver){
     VECTOR_DATA_INPUT_DIRECTIVES
     DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
@@ -485,6 +493,7 @@ void BaseTree::resetBranches(){
 #undef SIMPLE_DATA_INPUT_DIRECTIVE
 #undef VECTOR_DATA_INPUT_DIRECTIVE
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
+#undef ARRAY_DATA_INPUT_DIRECTIVE
 }
 
 void BaseTree::getValidBranchNamesWithoutAlias(TTree* t, std::vector<TString>& res, bool check_linked) const{
@@ -591,11 +600,16 @@ void BaseTree::releaseBranch(TString const& branchname){
   case BranchType_vv##name##_t: \
   this->removeBranch<BranchType_vv##name##_t>(branchname); \
   break;
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) \
+  case BranchType_a##name##_t: \
+  this->removeBranch<BranchType_a##name##_t>(branchname); \
+  break;
 
   switch (btype){
   SIMPLE_DATA_INPUT_DIRECTIVES
   VECTOR_DATA_INPUT_DIRECTIVES
   DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
+  ARRAY_DATA_INPUT_DIRECTIVES
 
   default:
     break;
@@ -604,6 +618,7 @@ void BaseTree::releaseBranch(TString const& branchname){
 #undef SIMPLE_DATA_INPUT_DIRECTIVE
 #undef VECTOR_DATA_INPUT_DIRECTIVE
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
+#undef ARRAY_DATA_INPUT_DIRECTIVE
 }
 void BaseTree::muteAllBranchesExcept(std::vector<TString> const& bnames_excepted){
   for (auto& tt:treelist){
@@ -840,6 +855,19 @@ void BaseTree::set_global_branchtype_class_map(){
   else{ IVYerr << "BaseTree::set_global_branchtype_class_map: Cannot identify the double vector branch type of BranchType_vv" << #name << "_t[" << #type << "]." << endl; } \
   tmp_class_type = nullptr; exptype_success = false; tmp_data_type = kNoType_t; str_class_type = ""; tmp_br = nullptr; \
   if (tmp_debug) IVYout << "\t- Done." <<  endl;
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) \
+  if (tmp_debug) IVYout << "BaseTree::set_global_branchtype_class_map: Acquiring the type information for BranchType_a" << #name << "_t..." << endl; \
+  tmp_bname = Form("tmpbr_a%s", #name); \
+  tmptree.putBranch<BaseTree::BranchType_##name##_t>(tmp_bname); /* This is not a typo. We do not put array-type branches, so use scalar type instead. */ \
+  tmp_br = tmptree.getSelectedTree()->GetBranch(tmp_bname); \
+  exptype_success = tmp_br && tmp_br->GetExpectedType(tmp_class_type, tmp_data_type)==0; \
+  if (exptype_success){ \
+    if (tmp_class_type) str_class_type = tmp_class_type->GetName(); \
+    BaseTree::global_branchtype_class_map[BaseTree::BranchType_a##name##_t] = std::pair<TString, EDataType>(str_class_type, tmp_data_type); \
+  } \
+  else{ IVYerr << "BaseTree::set_global_branchtype_class_map: Cannot identify the scalar branch type of BranchType_a" << #name << "_t[" << #type << "]." << endl; } \
+  tmp_class_type = nullptr; exptype_success = false; tmp_data_type = kNoType_t; str_class_type = ""; tmp_br = nullptr; \
+  if (tmp_debug) IVYout << "\t- Done." <<  endl;
 
   {
     TString tmp_bname;
@@ -847,11 +875,13 @@ void BaseTree::set_global_branchtype_class_map(){
     SIMPLE_DATA_INPUT_DIRECTIVES;
     VECTOR_DATA_INPUT_DIRECTIVES;
     DOUBLEVECTOR_DATA_INPUT_DIRECTIVES;
+    ARRAY_DATA_INPUT_DIRECTIVES;
   }
 
 #undef SIMPLE_DATA_INPUT_DIRECTIVE
 #undef VECTOR_DATA_INPUT_DIRECTIVE
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
+#undef ARRAY_DATA_INPUT_DIRECTIVE
 
   curdir->cd();
 }
@@ -882,9 +912,18 @@ template<> bool BaseTree::bookBranch<BaseTree::BranchType_unknown_t>(TString con
     if (exptype_success){
       if (tmp_class_type) str_class_type = tmp_class_type->GetName();
       for (auto const& pp:BaseTree::global_branchtype_class_map){
-        if (pp.second.first == str_class_type && pp.second.second == tmp_data_type){
-          type_eff = pp.first;
-          break;
+        switch (pp.first){
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) case BranchType_a##name##_t:
+        ARRAY_DATA_INPUT_DIRECTIVES
+#undef ARRAY_DATA_INPUT_DIRECTIVE
+          continue;
+        default:
+        {
+          if (pp.second.first == str_class_type && pp.second.second == tmp_data_type){
+            type_eff = pp.first;
+            break;
+          }
+        }
         }
       }
     }
@@ -905,9 +944,9 @@ template<> bool BaseTree::bookBranch<BaseTree::BranchType_unknown_t>(TString con
   break;
 
   switch (type_eff){
-    SIMPLE_DATA_INPUT_DIRECTIVES
-    VECTOR_DATA_INPUT_DIRECTIVES
-    DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
+  SIMPLE_DATA_INPUT_DIRECTIVES
+  VECTOR_DATA_INPUT_DIRECTIVES
+  DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
 
   default:
     break;

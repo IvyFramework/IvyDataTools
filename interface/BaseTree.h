@@ -12,6 +12,7 @@
 #include "TH1F.h"
 #include "CMSLorentzVector.h"
 #include "AnalysisDataTypes.hh"
+#include "ArrayWrapper.h"
 
 
 class BaseTree{
@@ -24,15 +25,18 @@ public:
 #define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) BranchType_##name##_t,
 #define VECTOR_DATA_INPUT_DIRECTIVE(name, type) BranchType_v##name##_t,
 #define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) BranchType_vv##name##_t,
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) BranchType_a##name##_t,
   enum BranchType{
     SIMPLE_DATA_INPUT_DIRECTIVES
     VECTOR_DATA_INPUT_DIRECTIVES
     DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
+    ARRAY_DATA_INPUT_DIRECTIVES
     BranchType_unknown_t
   };
 #undef SIMPLE_DATA_INPUT_DIRECTIVE
 #undef VECTOR_DATA_INPUT_DIRECTIVE
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
+#undef ARRAY_DATA_INPUT_DIRECTIVE
 
   TString sampleIdentifier;
 
@@ -62,6 +66,9 @@ protected:
 #define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) std::unordered_map<TString, type*> valVV##name##s;
   DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) std::unordered_map<TString, ArrayWrapper<type>*> valA##name##s;
+  ARRAY_DATA_INPUT_DIRECTIVES
+#undef ARRAY_DATA_INPUT_DIRECTIVE
 
   BranchType searchBranchType(TString const& branchname) const;
 
@@ -93,6 +100,9 @@ public:
 
   template<typename T> bool bookBranch(TString const& branchname, T valdef);
   template<BranchType T> bool bookBranch(TString const& branchname);
+
+  template<typename T> bool bookArrayBranch(TString const& branchname, T valdef, unsigned int nmax);
+  template<BranchType T> bool bookArrayBranch(TString const& branchname, unsigned int nmax);
 
   template<typename T> bool putBranch(TString const& branchname, T valdef);
   template<BranchType T> bool putBranch(TString const& branchname);

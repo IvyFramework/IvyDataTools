@@ -267,4 +267,47 @@ DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
 
 
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) \
+template<> bool BaseTree::getBranchCIterator<ArrayWrapper<type>*>(TString const& branchname, std::unordered_map<TString, ArrayWrapper<type>*>::iterator& it){ \
+  auto& theMap = valA##name##s; \
+  it = theMap.find(branchname); \
+  return (it!=theMap.end()); \
+} \
+template<> bool BaseTree::getBranchCIterator<ArrayWrapper<type>*>(TString const& branchname, std::unordered_map<TString, ArrayWrapper<type>*>::const_iterator& it) const{ \
+  auto const& theMap = valA##name##s; \
+  it = theMap.find(branchname); \
+  return (it!=theMap.cend()); \
+} \
+template<> void BaseTree::resetBranch<BaseTree::BranchType_a##name##_t>(){ for (auto& it:valA##name##s){ if (it.second){ it.second->reset(); } } } \
+template<> void BaseTree::removeBranch<BaseTree::BranchType_a##name##_t>(TString const& branchname){ for (auto& it:valA##name##s){ if (it.first==branchname){ delete it.second; it.second=0; } } valA##name##s.erase(branchname); } \
+template<> bool BaseTree::bookArrayBranch<type>(TString const& branchname, type valdef, unsigned int nmax){ \
+  if (valA##name##s.find(branchname)==valA##name##s.end()) valA##name##s[branchname] = new ArrayWrapper<type>(nmax, valdef); \
+  else{ valA##name##s[branchname]->setDefaultValue(valdef); valA##name##s[branchname]->reset(); } \
+  for (auto& tt:treelist) SampleHelpers::bookBranch(tt, branchname, &(valA##name##s[branchname]->get_values()[0])); \
+  return true; \
+} \
+template<> bool BaseTree::bookArrayBranch<BaseTree::BranchType_a##name##_t>(TString const& branchname, unsigned int nmax){ return this->bookArrayBranch<type>(branchname, default_value, nmax); } \
+/* There is no putBranch for array-type branches. */ \
+template<> void BaseTree::getVal<type*>(TString const& branchname, type*& val) const{ \
+  std::unordered_map<TString, ArrayWrapper<type>*>::const_iterator it; \
+  if (this->getBranchCIterator<ArrayWrapper<type>*>(branchname, it)){ auto& tmp = it->second; if (tmp) val=tmp->get_values(); } \
+} \
+template<> void BaseTree::setVal<type*>(TString const& branchname, type* const& val){ \
+  std::unordered_map<TString, ArrayWrapper<type>*>::iterator it; \
+  if (this->getBranchCIterator<ArrayWrapper<type>*>(branchname, it)){ auto& tmp = it->second; if (tmp) tmp->set_values(val); } \
+} \
+template<> void BaseTree::getValRef<type* const>(TString const& branchname, type* const*& val) const{ \
+  std::unordered_map<TString, ArrayWrapper<type>*>::const_iterator it; \
+  if (this->getBranchCIterator<ArrayWrapper<type>*>(branchname, it)){ auto& tmp = it->second; if (tmp) val=&(tmp->get_values()); } \
+} \
+template<> void BaseTree::getValRef<type* const>(TString const& branchname, type* const*& val){ \
+  std::unordered_map<TString, ArrayWrapper<type>*>::iterator it; \
+  if (this->getBranchCIterator<ArrayWrapper<type>*>(branchname, it)){ auto& tmp = it->second; if (tmp) val=&(tmp->get_values()); } \
+} \
+
+ARRAY_DATA_INPUT_DIRECTIVES
+
+#undef ARRAY_DATA_INPUT_DIRECTIVE
+
+
 #endif

@@ -68,6 +68,21 @@ DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(double, std::vector<std::vector<double>>) \
 /*DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(TString, std::vector<std::vector<TString>>)*/ \
 DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(CMSLorentzVector, std::vector<std::vector<CMSLorentzVector>>)
 
+#define ARRAY_DATA_INPUT_DIRECTIVES \
+ARRAY_DATA_INPUT_DIRECTIVE(bool, bool, false) \
+ARRAY_DATA_INPUT_DIRECTIVE(uchar, unsigned char, 0) \
+ARRAY_DATA_INPUT_DIRECTIVE(char, char, 0) \
+ARRAY_DATA_INPUT_DIRECTIVE(ushort, unsigned short, 0) \
+ARRAY_DATA_INPUT_DIRECTIVE(short, short, 0) \
+ARRAY_DATA_INPUT_DIRECTIVE(uint, unsigned int, 0) \
+ARRAY_DATA_INPUT_DIRECTIVE(int, int, 0) \
+/*ARRAY_DATA_INPUT_DIRECTIVE(ulong, unsigned long, 0)*/ \
+/*ARRAY_DATA_INPUT_DIRECTIVE(long, long, 0)*/ \
+ARRAY_DATA_INPUT_DIRECTIVE(ulonglong, unsigned long long, 0) \
+ARRAY_DATA_INPUT_DIRECTIVE(longlong, long long, 0) \
+ARRAY_DATA_INPUT_DIRECTIVE(float, float, 0) \
+ARRAY_DATA_INPUT_DIRECTIVE(double, double, 0)
+
 
 #define SIMPLE_DATA_OUTPUT_DIRECTIVES \
 SIMPLE_DATA_OUTPUT_DIRECTIVE(bool, bool) \
