@@ -45,11 +45,11 @@ FILENAME=$2
 OUTPUTSITE=$3 # e.g. 't2.ucsd.edu'
 OUTPUTDIR=$4 # Must be absolute path
 RENAMEFILE=$FILENAME
-if [[ "$5" != "" ]];then
+if [[ "$5" != "" ]]; then
   RENAMEFILE=$5
 fi
 INPUTSITE=local
-if [[ "$6" != "" ]];then
+if [[ "$6" != "" ]]; then
   INPUTSITE=$6
 fi
 
