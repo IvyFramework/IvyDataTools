@@ -51,8 +51,9 @@ protected:
   bool acquireTreePossession; // If true, deletes trees and histograms upon destruction.
   bool isTChain;
 
-  int currentEvent;
-  TTree* currentTree;
+  int currentEvent; // Index of event in the active tree
+  int currentGlobalEvent; // Global index of event over all trees
+  TTree* currentTree; // Active tree
 
 #define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) std::unordered_map<TString, std::pair<type, type>*> val##name##s;
   FUNDAMENTAL_DATA_INPUT_DIRECTIVES
@@ -83,6 +84,8 @@ protected:
 
   // [tree][file] is the order of output vector indices
   bool getValidFilesForTreeList(TString cinput, std::vector<TString> const& treenames, std::vector< std::vector<TString> >& res) const;
+
+  TBranch* getActiveBranch(int ev, TString const& bname, int* ptr_ev_tree = nullptr);
 
   // The class map is needed to deduce the branch type from an arbitrary branch name.
   // The map is filled only if it is necessary to do so.
@@ -128,6 +131,9 @@ public:
   // Update single branch for an event
   // Should work similar to getEvent, but for a single branch.
   bool updateBranch(int ev, TString const& bname, bool check_linked = true);
+
+  // GetNdata info from the leaves of a branch. Returns the number of entries in array types.
+  int getBranchNdata(TString const& bname, bool check_linked = true);
 
   // For caching purposes
   bool getCurrentEventInfo(TTree*& currentTree_, int& currentEvent_) const;

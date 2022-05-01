@@ -1,4 +1,5 @@
 #include "TDirectory.h"
+#include "TLeaf.h"
 #include "TRegexp.h"
 #include "HostHelpersCore.h"
 #include "BaseTree.h"
@@ -28,6 +29,7 @@ BaseTree::BaseTree() :
   acquireTreePossession(!receiver),
   isTChain(false),
   currentEvent(-1),
+  currentGlobalEvent(-1),
   currentTree(nullptr)
 {}
 BaseTree::BaseTree(const TString cinput, const TString treename, const TString failedtreename, const TString countersname) :
@@ -41,6 +43,7 @@ BaseTree::BaseTree(const TString cinput, const TString treename, const TString f
   acquireTreePossession(!receiver),
   isTChain(false),
   currentEvent(-1),
+  currentGlobalEvent(-1),
   currentTree(nullptr)
 {
   TDirectory* curdir = gDirectory; // Save current directory to return back to it later
@@ -126,6 +129,7 @@ BaseTree::BaseTree(const TString cinput, std::vector<TString> const& treenames, 
   acquireTreePossession(!receiver),
   isTChain(false),
   currentEvent(-1),
+  currentGlobalEvent(-1),
   currentTree(nullptr)
 {
   TDirectory* curdir = gDirectory; // Save current directory to return back to it later
@@ -207,6 +211,7 @@ BaseTree::BaseTree(const TString treename) :
   acquireTreePossession(!receiver),
   isTChain(false),
   currentEvent(-1),
+  currentGlobalEvent(-1),
   currentTree(nullptr)
 {
   treelist.reserve(1);
@@ -223,6 +228,7 @@ BaseTree::BaseTree(TFile* finput_, TTree* tree_, TTree* failedtree_, TH1F* hCoun
   acquireTreePossession(!receiver),
   isTChain(false),
   currentEvent(-1),
+  currentGlobalEvent(-1),
   currentTree(nullptr)
 {
   if (finput){
@@ -257,6 +263,7 @@ BaseTree::BaseTree(TFile* finput_, std::vector<TTree*> const& treelist_, TH1F* h
   acquireTreePossession(!receiver),
   isTChain(false),
   currentEvent(-1),
+  currentGlobalEvent(-1),
   currentTree(nullptr)
 {
   treelist.reserve(treelist_.size());
@@ -324,7 +331,7 @@ BaseTree::BranchType BaseTree::searchBranchType(TString const& branchname) const
 #define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) else if (val##name##s.find(branchname)!=val##name##s.cend()) return BranchType_##name##_t;
 #define VECTOR_DATA_INPUT_DIRECTIVE(name, type) else if (valV##name##s.find(branchname)!=valV##name##s.cend()) return BranchType_v##name##_t;
 #define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) else if (valVV##name##s.find(branchname)!=valVV##name##s.cend()) return BranchType_vv##name##_t;
-#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) else if (val##name##s.find(branchname)!=val##name##s.cend()) return BranchType_##name##_t;
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) else if (valA##name##s.find(branchname)!=valA##name##s.cend()) return BranchType_a##name##_t;
   if (false) return BranchType_unknown_t;
   SIMPLE_DATA_INPUT_DIRECTIVES
   VECTOR_DATA_INPUT_DIRECTIVES
@@ -353,7 +360,7 @@ bool BaseTree::getSelectedEvent(int ev){
   bool result=false;
   if (tree && ev<tree->GetEntries()) result = (tree->GetEntry(ev)>0);
   if (result){
-    currentEvent = ev;
+    currentGlobalEvent = currentEvent = ev;
     currentTree = tree;
   }
   return result;
@@ -364,6 +371,7 @@ bool BaseTree::getFailedEvent(int ev){
   if (failedtree && ev<failedtree->GetEntries()) result = (failedtree->GetEntry(ev)>0);
   if (result){
     currentEvent = ev;
+    currentGlobalEvent = ev + (tree ? tree->GetEntries() : 0);
     currentTree = failedtree;
   }
   return result;
@@ -377,6 +385,7 @@ bool BaseTree::getEvent(int ev){
       bool result = (tt->GetEntry(ev-n_acc)>0);
       if (result){
         currentEvent = ev-n_acc;
+        currentGlobalEvent = ev;
         currentTree = tt;
       }
       return result;
@@ -385,11 +394,7 @@ bool BaseTree::getEvent(int ev){
   }
   return false;
 }
-bool BaseTree::updateBranch(int ev, TString const& bname, bool check_linked){
-  if (check_linked){
-    if (searchBranchType(bname)==BranchType_unknown_t) IVYerr << "BaseTree::updateBranch: Branch " << bname << " is not linked." << endl;
-    return false;
-  }
+TBranch* BaseTree::getActiveBranch(int ev, TString const& bname, int* ptr_ev_tree){
   int n_acc=0;
   for (auto& tt:treelist){
     int nEntries = tt->GetEntries();
@@ -403,28 +408,71 @@ bool BaseTree::updateBranch(int ev, TString const& bname, bool check_linked){
         ev_tree = tc->LoadTree(ev_tree);
         TTree* tc_tree = tc->GetTree();
         nEntries = (tc_tree ? tc_tree->GetEntries() : -1);
+        const char* breal = (tc_tree ? tc_tree->GetAlias(bname) : nullptr);
+        TString rawbname = (breal ? TString(breal) : bname);
         // It is important to get the branch AFTER loading the tree
         // because one might get the branch of another tree accidentally.
-        tbr = (tc_tree ? tc_tree->GetBranch(bname) : nullptr);
+        tbr = (tc_tree ? tc_tree->GetBranch(rawbname) : nullptr);
       }
-      else tbr = tt->GetBranch(bname);
+      else{
+        const char* breal = tt->GetAlias(bname);
+        TString rawbname = (breal ? TString(breal) : bname);
+        tbr = tt->GetBranch(rawbname);
+      }
       if (tbr && tbr->GetEntries()!=nEntries){
-        IVYerr << "BaseTree::updateBranch: Branch " << bname << " has " << tbr->GetEntries() << " entries != " << nEntries << "." << endl;
+        IVYerr << "BaseTree::getActiveBranch: Branch " << bname << " has " << tbr->GetEntries() << " entries != " << nEntries << "." << endl;
         assert(0);
       }
-      return (tbr && tbr->GetEntries()==nEntries && ev_tree>=0 && tbr->GetEntry(ev_tree)>0);
+      if (tbr && tbr->GetEntries()==nEntries && ev_tree>=0){
+        if (ptr_ev_tree) *ptr_ev_tree = ev_tree;
+        return tbr;
+      }
     }
     n_acc += nEntries;
   }
-  return false;
+  return nullptr;
+}
+bool BaseTree::updateBranch(int ev, TString const& bname, bool check_linked){
+  if (check_linked){
+    if (searchBranchType(bname)==BranchType_unknown_t){
+      IVYerr << "BaseTree::updateBranch: Branch " << bname << " is not linked." << endl;
+      return false;
+    }
+  }
+  int ev_tree = -1;
+  TBranch* tbr = this->getActiveBranch(ev, bname, &ev_tree);
+  return (tbr && tbr->GetEntry(ev_tree)>0);
+}
+int BaseTree::getBranchNdata(TString const& bname, bool check_linked){
+  if (check_linked){
+    if (searchBranchType(bname)==BranchType_unknown_t){
+      IVYerr << "BaseTree::getBranchNdata: Branch " << bname << " is not linked." << endl;
+      return 0;
+    }
+  }
+  int res = 0;
+  TBranch* tbr = this->getActiveBranch(currentGlobalEvent, bname);
+  if (tbr){
+    const TList* llist = (const TList*) tbr->GetListOfLeaves();
+    if (llist){
+      for (int ib=0; ib<llist->GetSize(); ib++){
+        TLeaf* lf = dynamic_cast<TLeaf*>(llist->At(ib));
+        if (!lf) continue;
+        res += lf->GetNdata();
+      }
+    }
+  }
+  return res;
 }
 void BaseTree::refreshCurrentEvent(){
   TTree* tmpTree = currentTree;
   int tmpEv = currentEvent;
+  int tmpGEv = currentGlobalEvent;
   this->resetBranches();
   if (tmpTree){
     tmpTree->GetEntry(tmpEv);
     currentEvent = tmpEv;
+    currentGlobalEvent = tmpGEv;
     currentTree = tmpTree;
   }
 }
@@ -478,6 +526,7 @@ void BaseTree::print() const{
 
 void BaseTree::resetBranches(){
   currentEvent = -1;
+  currentGlobalEvent = -1;
   currentTree = nullptr;
 
 #define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) this->resetBranch<BaseTree::BranchType_##name##_t>();
@@ -918,36 +967,34 @@ template<> bool BaseTree::bookBranch<BaseTree::BranchType_unknown_t>(TString con
 #undef ARRAY_DATA_INPUT_DIRECTIVE
           continue;
         default:
-        {
-          if (pp.second.first == str_class_type && pp.second.second == tmp_data_type){
-            type_eff = pp.first;
+          {
+            if (pp.second.first == str_class_type && pp.second.second == tmp_data_type) type_eff = pp.first;
             break;
           }
         }
-        }
+        if (type_eff!=BranchType_unknown_t) break;
       }
     }
-    else{ IVYerr << "BaseTree::bookBranch: Cannot identify the branch type of " << branchname << ". No booking will be done." << endl; }
   }
+  if (type_eff==BranchType_unknown_t) IVYerr << "BaseTree::bookBranch: Cannot identify the branch type of " << branchname << ". No booking will be done." << endl;
 
 #define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) \
   case BranchType_##name##_t: \
-  return this->bookBranch<BranchType_##name##_t>(branchname); \
-  break;
+    return this->bookBranch<BranchType_##name##_t>(branchname); \
+    break;
 #define VECTOR_DATA_INPUT_DIRECTIVE(name, type) \
   case BranchType_v##name##_t: \
-  return this->bookBranch<BranchType_v##name##_t>(branchname); \
-  break;
+    return this->bookBranch<BranchType_v##name##_t>(branchname); \
+    break;
 #define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) \
   case BranchType_vv##name##_t: \
-  return this->bookBranch<BranchType_vv##name##_t>(branchname); \
-  break;
+    return this->bookBranch<BranchType_vv##name##_t>(branchname); \
+    break;
 
   switch (type_eff){
   SIMPLE_DATA_INPUT_DIRECTIVES
   VECTOR_DATA_INPUT_DIRECTIVES
   DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
-
   default:
     break;
   }
@@ -955,6 +1002,63 @@ template<> bool BaseTree::bookBranch<BaseTree::BranchType_unknown_t>(TString con
 #undef SIMPLE_DATA_INPUT_DIRECTIVE
 #undef VECTOR_DATA_INPUT_DIRECTIVE
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
+
+  return false;
+}
+template<> bool BaseTree::bookArrayBranch<BaseTree::BranchType_unknown_t>(TString const& branchname, unsigned int nmax){
+  BaseTree::set_global_branchtype_class_map();
+
+  TBranch* pt_br = nullptr;
+  BranchType type_eff = BranchType_unknown_t;
+  for (auto& tt:treelist){
+    const char* brname_aliased = tt->GetAlias(branchname.Data());
+    if (brname_aliased) pt_br = tt->GetBranch(brname_aliased);
+    else pt_br = tt->GetBranch(branchname);
+    if (pt_br) break;
+  }
+  if (!pt_br){
+    IVYerr << "BaseTree::bookArrayBranch: Cannot book " << branchname << " because the TBranch object is not found." << endl;
+    return false;
+  }
+
+  bool exptype_success = false;
+  TString str_class_type;
+  EDataType tmp_data_type = kNoType_t;
+  {
+    TClass* tmp_class_type = nullptr; // DO NOT DELETE!
+    exptype_success = pt_br->GetExpectedType(tmp_class_type, tmp_data_type)==0;
+    if (exptype_success){
+      if (tmp_class_type) str_class_type = tmp_class_type->GetName();
+      for (auto const& pp:BaseTree::global_branchtype_class_map){
+        switch (pp.first){
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) case BranchType_a##name##_t:
+        ARRAY_DATA_INPUT_DIRECTIVES
+#undef ARRAY_DATA_INPUT_DIRECTIVE
+          {
+            if (pp.second.first == str_class_type && pp.second.second == tmp_data_type) type_eff = pp.first;
+            break;
+          }
+        default:
+          continue;
+        }
+        if (type_eff!=BranchType_unknown_t) break;
+      }
+    }
+  }
+  if (type_eff==BranchType_unknown_t){ IVYerr << "BaseTree::bookArrayBranch: Cannot identify the branch type of " << branchname << ". No booking will be done." << endl; }
+
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) \
+  case BranchType_a##name##_t: \
+    return this->bookArrayBranch<BranchType_a##name##_t>(branchname, nmax); \
+    break;
+
+  switch (type_eff){
+    ARRAY_DATA_INPUT_DIRECTIVES
+  default:
+    break;
+  }
+
+#undef ARRAY_DATA_INPUT_DIRECTIVE
 
   return false;
 }
