@@ -97,7 +97,7 @@ def runDBS(dataset, instance = 'prod/global', query_type='file'):
 
 def findParent(sample):
     res, _, _ = runDBS(sample, query_type='parent')
-    return res
+    return res.strip()
 
 def listFiles(sample, path, rec = False, full_info = False, other_options=None):
     """Provides a list of files with different methods according to path. Valid paths: 'list', 'dbs', 'dbs-USER', a local filesystem path, an eos path
