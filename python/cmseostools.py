@@ -87,14 +87,17 @@ def lfnToPFN( path, tfcProt = 'rfio'):
             pfn.replace("eoscms","castorcms")
     return pfn
 
-def runDBS(dataset, instance = 'prod/global'):
-    cmd = '"file dataset='+dataset +' instance=%s"'%instance
+def runDBS(dataset, instance = 'prod/global', query_type='file'):
+    cmd = '"%s'%query_type+' dataset='+dataset +' instance=%s"'%instance
 
     command = ['/cvmfs/cms.cern.ch/common/dasgoclient' , '--limit=0', '--query', cmd]
     runner = cmsFileManip()
     run_command = ' '.join(command)
     return runner.runCommand(run_command)
 
+def findParent(sample):
+    res, _, _ = runDBS(sample,sample, query_type='parent')
+    return res
 
 def listFiles(sample, path, rec = False, full_info = False, other_options=None):
     """Provides a list of files with different methods according to path. Valid paths: 'list', 'dbs', 'dbs-USER', a local filesystem path, an eos path
@@ -137,7 +140,7 @@ def listFiles(sample, path, rec = False, full_info = False, other_options=None):
     # -- listing from user dbs --
     elif path=="dbs-USER" :
         print 'Querying USER db'
-        files, _, _ =runDBS(sample, 'prod/phys03')
+        files, _, _ =runDBS(sample, instance='prod/phys03')
         for line in files.split('\n'):
             result.append(line)
 
