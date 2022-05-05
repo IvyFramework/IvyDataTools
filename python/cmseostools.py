@@ -96,7 +96,7 @@ def runDBS(dataset, instance = 'prod/global', query_type='file'):
     return runner.runCommand(run_command)
 
 def findParent(sample):
-    res, _, _ = runDBS(sample,sample, query_type='parent')
+    res, _, _ = runDBS(sample, query_type='parent')
     return res
 
 def listFiles(sample, path, rec = False, full_info = False, other_options=None):
