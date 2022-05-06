@@ -68,6 +68,15 @@ printenv() {
   if [[ "${end}" != *"$pathappend"* ]]; then
     echo "export PATH=${pathappend}${end}"
   fi
+
+  pathappend="${PKGDIR}/scripts"
+  end=""
+  if [[ ! -z "${PATH+x}" ]]; then
+    end=":${PATH}"
+  fi
+  if [[ "${end}" != *"$pathappend"* ]]; then
+    echo "export PATH=${pathappend}${end}"
+  fi
 }
 doenv() {
   if [[ ${usingCMSSW} -eq 1 ]]; then
@@ -85,6 +94,16 @@ doenv() {
   fi
 
   pathappend="${PKGDIR}/executables"
+  end=""
+  if [[ ! -z "${PATH+x}" ]]; then
+    end=":${PATH}"
+  fi
+  if [[ "${end}" != *"$pathappend"* ]]; then
+    export PATH="${pathappend}${end}"
+    echo "Temporarily using PATH as ${PATH}"
+  fi
+
+  pathappend="${PKGDIR}/scripts"
   end=""
   if [[ ! -z "${PATH+x}" ]]; then
     end=":${PATH}"

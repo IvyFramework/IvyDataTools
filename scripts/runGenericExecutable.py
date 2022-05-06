@@ -11,7 +11,37 @@ import pprint
 import subprocess
 from datetime import date
 from optparse import OptionParser
-from IvyFramework.IvyDataTools.TranslateStringBetweenPythonAndShell import *
+
+
+def check_module_exists(module_name):
+   #print("Sys version: ",sys_version_info)
+   impexcpt = None
+   if sys.version_info < (3, 0):
+      # python 2
+      from pkgutil import find_loader as find_module_loader
+      impexcpt = ImportError
+   elif sys.version_info <= (3, 3):
+      # python 3.0 to 3.3
+      from importlib import find_loader as find_module_loader
+   elif sys.version_info >= (3, 4):
+      # python 3.4 and above
+      from importlib import util
+      find_module_loader = util.find_spec
+   res = None
+   if impexcpt is not None:
+      try:
+         res = find_module_loader(module_name)
+      except impexcpt:
+         res = None
+   else:
+      res = find_module_loader(module_name)
+   return res is not None
+
+
+if check_module_exists("IvyFramework.IvyDataTools.cmseostools"):
+   from IvyFramework.IvyDataTools.TranslateStringBetweenPythonAndShell import *
+else:
+   from TranslateStringBetweenPythonAndShell import *
 
 
 class GenericExecutor:
