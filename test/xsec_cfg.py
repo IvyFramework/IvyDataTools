@@ -5,6 +5,7 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
 from IvyFramework.IvyDataTools.cmseostools import listFiles
+from IvyFramework.IvyDataTools.cmseostools import findParent
 
 
 def get_max_files(DAS_name, max_files, dbase) :
@@ -33,6 +34,13 @@ options.register('disableDuplicateCheck', False, mytype=VarParsing.varType.bool)
 
 options.parseArguments()
 
+# Always operate over MINIAOD
+dsetname = str(options.datasetName)
+if "NANOAOD" in dsetname:
+   dsetname = findParent(dsetname)
+
+print("Running over data set {}".format(dsetname))
+
 input_is_already_flist = options.useFileList
 
 dbase="dbs"
@@ -52,7 +60,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.source = cms.Source ("PoolSource",
-   fileNames = cms.untracked.vstring(*get_max_files(options.datasetName, options.maxfiles, dbase)),
+   fileNames = cms.untracked.vstring(*get_max_files(dsetname, options.maxfiles, dbase)),
 )
 if options.disableDuplicateCheck:
    process.source.duplicateCheckMode = cms.untracked.string("noDuplicateCheck")

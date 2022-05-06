@@ -95,6 +95,10 @@ def runDBS(dataset, instance = 'prod/global', query_type='file'):
     run_command = ' '.join(command)
     return runner.runCommand(run_command)
 
+def findChildren(sample):
+    res, _, _ = runDBS(sample, query_type='child')
+    return res.strip().split('\n')
+
 def findParent(sample):
     res, _, _ = runDBS(sample, query_type='parent')
     return res.strip()
