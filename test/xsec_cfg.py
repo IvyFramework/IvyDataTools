@@ -1,11 +1,39 @@
 # run like
 # cmsRun xsec_cfg.py datasetName=/WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM maxEvents=100000
 
-import FWCore.ParameterSet.Config as cms
-from FWCore.ParameterSet.VarParsing import VarParsing
+from sys import version_info as sys_version_info
 
-from IvyFramework.IvyDataTools.cmseostools import listFiles
-from IvyFramework.IvyDataTools.cmseostools import findParent
+def check_module_exists(module_name):
+   #print("Sys version: ",sys_version_info)
+   impexcpt = None
+   if sys_version_info < (3, 0):
+      # python 2
+      from pkgutil import find_loader as find_module_loader
+      impexcpt = ImportError
+   elif sys_version_info <= (3, 3):
+      # python 3.0 to 3.3
+      from importlib import find_loader as find_module_loader
+   elif sys_version_info >= (3, 4):
+      # python 3.4 and above
+      from importlib import util
+      find_module_loader = util.find_spec
+   res = None
+   if impexcpt is not None:
+      try:
+         res = find_module_loader(module_name)
+      except impexcpt:
+         res = None
+   else:
+      res = find_module_loader(module_name)
+   return res is not None
+
+
+if check_module_exists("IvyFramework.IvyDataTools.cmseostools"):
+   from IvyFramework.IvyDataTools.cmseostools import listFiles
+   from IvyFramework.IvyDataTools.cmseostools import findParent
+else:
+   from cmseostools import listFiles
+   from cmseostools import findParent
 
 
 def get_max_files(DAS_name, max_files, dbase) :
@@ -20,7 +48,10 @@ def get_max_files(DAS_name, max_files, dbase) :
    return result
 
 
-options = VarParsing ('analysis')
+import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
+
+options = VarParsing('analysis')
 
 options.register('datasetName',
 		'',
