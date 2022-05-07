@@ -66,13 +66,11 @@ printenv() {
     end=":${PATH}"
   fi
   if [[ "${end}" != *"$pathappend"* ]]; then
-    echo "export PATH=${pathappend}${end}"
+    end="${pathappend}${end}"
   fi
-
   pathappend="${PKGDIR}/scripts"
-  end=""
-  if [[ ! -z "${PATH+x}" ]]; then
-    end=":${PATH}"
+  if [[ ! -z "${end}" ]]; then
+    end=":${end}"
   fi
   if [[ "${end}" != *"$pathappend"* ]]; then
     echo "export PATH=${pathappend}${end}"
