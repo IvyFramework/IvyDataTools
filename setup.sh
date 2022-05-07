@@ -49,6 +49,7 @@ printenv() {
   fi
   if [[ "${end}" != *"$pythonappend"* ]]; then
     echo "export PYTHONPATH=${pythonappend}${end}"
+    export PYTHONPATH=${pythonappend}${end}
   fi
 
   libappend="${PKGDIR}/lib"
@@ -58,6 +59,7 @@ printenv() {
   fi
   if [[ "${end}" != *"$libappend"* ]]; then
     echo "export LD_LIBRARY_PATH=${libappend}${end}"
+    export LD_LIBRARY_PATH=${libappend}${end}
   fi
 
   pathappend="${PKGDIR}/executables"
@@ -66,14 +68,18 @@ printenv() {
     end=":${PATH}"
   fi
   if [[ "${end}" != *"$pathappend"* ]]; then
-    end="${pathappend}${end}"
+    echo "export PATH=${pathappend}${end}"
+    export PATH=${pathappend}${end}
   fi
+
   pathappend="${PKGDIR}/scripts"
-  if [[ ! -z "${end}" ]]; then
-    end=":${end}"
+  end=""
+  if [[ ! -z "${PATH+x}" ]]; then
+    end=":${PATH}"
   fi
   if [[ "${end}" != *"$pathappend"* ]]; then
     echo "export PATH=${pathappend}${end}"
+    export PATH=${pathappend}${end}
   fi
 }
 doenv() {
