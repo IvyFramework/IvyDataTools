@@ -87,10 +87,10 @@ def lfnToPFN( path, tfcProt = 'rfio'):
             pfn.replace("eoscms","castorcms")
     return pfn
 
-def runDBS(dataset, instance = 'prod/global', query_type='file'):
+def runDBS(dataset, instance = 'prod/global', query_type='file', extra_args=''):
     cmd = '"%s'%query_type+' dataset='+dataset +' instance=%s"'%instance
 
-    command = ['/cvmfs/cms.cern.ch/common/dasgoclient' , '--limit=0', '--query', cmd]
+    command = ['/cvmfs/cms.cern.ch/common/dasgoclient' , '--limit=0', '--query', cmd, extra_args]
     runner = cmsFileManip()
     run_command = ' '.join(command)
     return runner.runCommand(run_command)
@@ -121,6 +121,11 @@ def listFiles(sample, path, rec = False, full_info = False, other_options=None):
        if not isinstance(other_options, basestring):
           raise RuntimeError("listFiles: other_options has to be a string.")
 
+    rundbs_extra_args = ''
+    if other_options is not None:
+       if 'output_json' in other_options.lower():
+          rundbs_extra_args = '--json'
+
     # -- list from a local file --
     if path=="list" :
         with open(sample) as f:
@@ -132,7 +137,7 @@ def listFiles(sample, path, rec = False, full_info = False, other_options=None):
 
     # -- listing from dbs --
     elif path=="dbs" :
-        files, _, _ =runDBS(sample)
+        files, _, _ =runDBS(sample, extra_args=rundbs_extra_args)
         for line in files.split('\n'):
             if not line: continue
             if other_options is not None:
@@ -144,10 +149,9 @@ def listFiles(sample, path, rec = False, full_info = False, other_options=None):
     # -- listing from user dbs --
     elif path=="dbs-USER" :
         print 'Querying USER db'
-        files, _, _ =runDBS(sample, instance='prod/phys03')
+        files, _, _ =runDBS(sample, instance='prod/phys03', extra_args=rundbs_extra_args)
         for line in files.split('\n'):
             result.append(line)
-
 
     # -- listing from path=local dir -- untested!
     elif path=="local" :
