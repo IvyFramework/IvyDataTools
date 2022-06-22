@@ -26,6 +26,7 @@ protected:
   std::vector<std::vector<TString>> strReweightingWeightsList;
   std::vector<ReweightingFunctions::ReweightingFunction_t> rule_reweightingweights_list;
   std::vector< std::pair<double, double> > reweightingweights_frac_tolerance_pair_list;
+  std::vector<bool> reweightingweights_excludeFromNormRewgt_list;
   std::unordered_map< BaseTree*, std::vector<std::vector<float*> > > componentRefsList_reweightingweights;
 
   std::unordered_map<BaseTree*, double> normWeights;
@@ -55,7 +56,8 @@ public:
   void addReweightingWeights(
     std::vector<TString> const& strReweightingWeights_,
     ReweightingFunctions::ReweightingFunction_t rule_reweightingweights_,
-    double thr_wgt=0.9995, double tolerance=5.
+    double thr_wgt=0.9995, double tolerance=5.,
+    bool excludeFromNormRewgt=false
   );
   void registerTree(BaseTree* tree, double extNorm=1);
 

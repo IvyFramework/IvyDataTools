@@ -1,6 +1,7 @@
 #ifndef HELPERFUNCTIONSCORE_H
 #define HELPERFUNCTIONSCORE_H
 
+#include <cassert>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -32,6 +33,7 @@ namespace HelperFunctions{
 
   // Functions for vectors and maps
   template<typename T> void appendVector(std::vector<T>& a, std::vector<T> const& b);
+  template<typename T, typename U> void zipVectors(std::vector<T> const& a, std::vector<U> const& b, std::vector<std::pair<T, U>>& res);
 
   template<typename T> void addByLowest(std::vector<T>& valArray, T const& val, bool unique);
   template<typename T, typename U> void addByLowest(std::vector<std::pair<T, U>>& valArray, T const& val, U const& index);
@@ -114,6 +116,19 @@ namespace HelperFunctions{
 }
 
 template<typename T> void HelperFunctions::appendVector(std::vector<T>& a, std::vector<T> const& b){ a.insert(a.end(), b.cbegin(), b.cend()); }
+
+template<typename T, typename U> void HelperFunctions::zipVectors(std::vector<T> const& a, std::vector<U> const& b, std::vector<std::pair<T, U>>& res){
+  if (a.size()!=b.size()) assert(0);
+  res.clear();
+  res.reserve(a.size());
+  typename std::vector<T>::const_iterator it_a = a.cbegin();
+  typename std::vector<U>::const_iterator it_b = b.cbegin();
+  while (it_a!=a.cend() && it_b!=b.cend()){
+    res.emplace_back(*it_a, *it_b);
+    it_a++;
+    it_b++;
+  }
+}
 
 template<typename T> void HelperFunctions::addByLowest(std::vector<T>& valArray, T const& val, bool unique){
   bool inserted = false;

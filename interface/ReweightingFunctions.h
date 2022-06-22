@@ -9,6 +9,10 @@
 
 
 namespace ReweightingFunctions{
+  constexpr float invalid_weight_threshold = -99.f;
+  constexpr float nonexistent_weight_threshold = -1.f;
+  constexpr float zero_weight = 0.f;
+
   std::vector<float*> getWeightRefs(BaseTree* tree, std::vector<TString> const& strWeights);
   float* getWeightRef(BaseTree* tree, TString const& strWeight);
 

@@ -35,11 +35,13 @@ BulkReweightingBuilder::BulkReweightingBuilder(
 void BulkReweightingBuilder::addReweightingWeights(
   std::vector<TString> const& strReweightingWeights_,
   ReweightingFunctions::ReweightingFunction_t rule_reweightingweights_,
-  double thr_wgt, double tolerance
+  double thr_wgt, double tolerance,
+  bool excludeFromNormRewgt
 ){
   strReweightingWeightsList.push_back(strReweightingWeights_);
   rule_reweightingweights_list.push_back(rule_reweightingweights_);
   reweightingweights_frac_tolerance_pair_list.emplace_back(thr_wgt, tolerance);
+  reweightingweights_excludeFromNormRewgt_list.push_back(excludeFromNormRewgt);
 }
 
 void BulkReweightingBuilder::registerTree(BaseTree* tree, double extNorm){
@@ -100,6 +102,14 @@ void BulkReweightingBuilder::setup(
       binning, binningVarRefs[tree], rule_binningVar
     );
 
+    // Adjust excludeFromNormRewgt in case we discover a nonconforming hypothesis
+    for (unsigned int ihypo=0; ihypo<nhypos; ihypo++){
+      bool const& excludeFromNormRewgt = reweightingweights_excludeFromNormRewgt_list.at(ihypo);
+      if (excludeFromNormRewgt){
+        for (float& wgt_thr:absWeightThresholdsPerBinList[tree].at(ihypo)) wgt_thr=ReweightingFunctions::invalid_weight_threshold;
+      }
+    }
+
     // Initialize normalization variables
     sampleNormalization[tree] = std::vector<double>(nbins, 1);
     samplePairwiseNormalization[tree] = 1;
@@ -126,20 +136,30 @@ void BulkReweightingBuilder::setup(
       double wgt_nominal_xsec = wgt_nominal*wgt_xsec;
       sum_normwgts_all_tree.at(ibin) += wgt_nominal_xsec;
 
-      bool allHyposFine = true;
       std::vector<double> wgt_rewgt_list; wgt_rewgt_list.reserve(nhypos);
+      unsigned int nValidFailThr = 0;
+      unsigned int nZeroHypoWgt = 0;
+      unsigned int nValidHypos = 0;
       for (unsigned int ihypo=0; ihypo<nhypos; ihypo++){
         float const& wgt_thr = absWeightThresholdsPerBinList[tree].at(ihypo).at(ibin);
         float wgt_rewgt = rule_reweightingweights_list.at(ihypo)(tree, componentRefsList_reweightingweights[tree].at(ihypo));
-        if (wgt_thr>0.f && std::abs(wgt_rewgt)>wgt_thr) wgt_rewgt = 0.f;
-        if (wgt_rewgt==0.f && wgt_thr!=-99.f){
-          //IVYout << "Hypothesis " << ihypo << " has wgt_rewgt=" << wgt_rewgt << " and wgt_thr=" << wgt_thr << endl;
-          allHyposFine = false;
-          break; // We can break because the following statement only proceeds if allHyposFine==true
+        bool const fail_thr_req = (wgt_thr>ReweightingFunctions::zero_weight && std::abs(wgt_rewgt)>wgt_thr); // Check if weight fails threshold.
+        bool const excludeFromNormRewgt = (wgt_thr==ReweightingFunctions::invalid_weight_threshold); // Check if we should exclude this hypothesis from norm. weight adjustment
+        bool const wgt_rewgt_is_null = (wgt_rewgt==ReweightingFunctions::zero_weight); // Check if unadjusted weight is null
+        if (!excludeFromNormRewgt){
+          if (fail_thr_req){
+            nValidFailThr++;
+            //IVYout << "Hypothesis " << ihypo << " has wgt_rewgt=" << wgt_rewgt << " and wgt_thr=" << wgt_thr << endl;
+          }
+          if (wgt_rewgt_is_null){
+            nZeroHypoWgt++;
+          }
+          nValidHypos++;
         }
+        if (fail_thr_req || excludeFromNormRewgt) wgt_rewgt = ReweightingFunctions::zero_weight;
         wgt_rewgt_list.push_back(wgt_rewgt);
       }
-      if (allHyposFine){
+      if (nValidFailThr==0 && (nZeroHypoWgt<nValidHypos || nValidHypos==0)){
         sum_normwgts_nonzerorewgt_tree.at(ibin) += wgt_nominal_xsec;
 
         for (unsigned int ihypo=0; ihypo<nhypos; ihypo++){
@@ -438,7 +458,7 @@ bool BulkReweightingBuilder::checkWeightsBelowThreshold(BaseTree* tree) const{
   for (unsigned int ihypo=0; ihypo<nhypos; ihypo++){
     float const& wgt_thr = absWeightThresholdsPerBin.at(ihypo).at(ibin);
     float wgt_rewgt = rule_reweightingweights_list.at(ihypo)(tree, componentRefs_reweightingweights.at(ihypo));
-    if (wgt_thr>0.f && std::abs(wgt_rewgt)>wgt_thr){
+    if (wgt_thr>ReweightingFunctions::zero_weight && std::abs(wgt_rewgt)>wgt_thr){
       res = false;
       break;
     }
@@ -690,7 +710,7 @@ HIST_1D_COMMAND(sampleZeroMECompensation)
 #undef HIST_1D_COMMAND
 #undef HIST_1D_COMMANDS
 
-    absWeightThresholdsPerBinList[tree] = std::vector< std::vector<float> >(nhypos, std::vector<float>(nbins, -1));
+    absWeightThresholdsPerBinList[tree] = std::vector< std::vector<float> >(nhypos, std::vector<float>(nbins, ReweightingFunctions::nonexistent_weight_threshold));
     TH2D* h_absWeightThresholdsPerBinList = (TH2D*) dir_tree->Get("absWeightThresholdsPerBinList");
     for (unsigned int ihypo=0; ihypo<nhypos; ihypo++){
       unsigned int const& jhypo = hypo_order.at(ihypo);

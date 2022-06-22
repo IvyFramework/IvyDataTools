@@ -79,7 +79,7 @@ float ReweightingFunctions::getA1OverB1Weight(BaseTree* tree, std::vector<float*
 }
 
 float ReweightingFunctions::getAbsWeightThresholdByNeff(BaseTree* tree, std::vector<float*> const& vals, ReweightingFunction_t rule, double thr_Neff, MiscUtils::VerbosityLevel verbosity){
-  float res = -1;
+  float res = ReweightingFunctions::nonexistent_weight_threshold;
 
   int nEntries = tree->getNEvents();
   thr_Neff = (thr_Neff>0. ? std::min(thr_Neff, double(nEntries)/3.*2.) : static_cast<double>(nEntries));
@@ -180,7 +180,7 @@ std::vector<float> ReweightingFunctions::getAbsWeightThresholdsPerBinByNeff(
   if (tolerance>1.) tolerance = 1.;
   unsigned int const nbins = (!binning.isValid() ? static_cast<unsigned int>(1) : binning.getNbins());
 
-  std::vector<float> res(nbins, -1);
+  std::vector<float> res(nbins, ReweightingFunctions::nonexistent_weight_threshold);
 
   int nEntries = tree->getNEvents();
   if (verbosity>=MiscUtils::ERROR) IVYout << "ReweightingFunctions::getAbsWeightThresholdsPerBinByNeff: Determining the weight thresholds (number of events = " << nEntries << ")..." << endl;
@@ -348,7 +348,7 @@ std::vector<std::vector<float>> ReweightingFunctions::getAbsWeightThresholdsPerB
 
       if (nevts_bin<nevts_bin_skipThr){
         if (verbosity>=MiscUtils::ERROR) IVYout << "\t\t- Nevts = " << nevts_bin << "<3, skipping..." << endl;
-        if (!isValidHypothesis) res.at(ihypo).at(ibin) = -99;
+        if (!isValidHypothesis) res.at(ihypo).at(ibin) = ReweightingFunctions::invalid_weight_threshold;
         continue;
       }
 
@@ -360,7 +360,7 @@ std::vector<std::vector<float>> ReweightingFunctions::getAbsWeightThresholdsPerB
       float threshold = (weights_hypo_bin.at(index_entry_prev) + weights_hypo_bin.at(index_entry))*0.5;
 
       if (verbosity>=MiscUtils::ERROR) IVYout << "\t\t- Raw threshold before checking tolerance: " << threshold << " / largest weight: " << weights_hypo_bin.front() << endl;
-      if (weights_hypo_bin.front()<threshold*tolerance) threshold = -1; // Prevent false-positives
+      if (weights_hypo_bin.front()<threshold*tolerance) threshold = ReweightingFunctions::nonexistent_weight_threshold; // Prevent false-positives
       res.at(ihypo).at(ibin) = threshold;
       IVYout << "\t\t- Final threshold: " << threshold << endl;
       IVYout << "\t\t- Number of events rejected: " << (threshold>0.f ? index_entry : (unsigned int) 0) << " / " << nevts_bin << endl;
