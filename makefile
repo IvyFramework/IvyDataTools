@@ -57,6 +57,7 @@ SOURCESCC = $(wildcard $(SRCDIR)*.cc)
 SOURCESCXX = $(wildcard $(SRCDIR)*.cxx)
 OBJECTSPRIM = $(SOURCESCC:.cc=.o) $(SOURCESCXX:.cxx=.o)
 OBJECTS = $(subst $(SRCDIR),$(OBJDIR),$(OBJECTSPRIM))
+DEPS = $(OBJECTS:.o=.d)
 
 BINSCC = $(wildcard $(BINDIR)*.cc)
 BINSCXX = $(wildcard $(BINDIR)*.cxx)
@@ -65,7 +66,7 @@ EXES = $(subst $(BINDIR),$(EXEDIR),$(EXESPRIM))
 
 
 .PHONY: all help compile clean
-.SILENT: alldirs scripts clean $(OBJECTS) $(OBJDIR)LinkDef_out.o $(LIBRULE) $(EXES)
+.SILENT: alldirs scripts clean $(OBJECTS) $(DEPS) $(OBJDIR)LinkDef_out.o $(LIBRULE) $(EXES)
 
 all: $(OBJECTS) $(LIBRULE) python $(EXES) scripts
 
@@ -90,7 +91,7 @@ $(OBJDIR)%.d:	$(SRCDIR)%.c* | alldirs
 	$(CXX) -MM -MT $@ -MT ${@:.d=.o} $(CXXFLAGS) $< > $@; \
                      [ -s $@ ] || rm -f $@
 
-$(OBJDIR)%.o: 	$(SRCDIR)%.c* | alldirs
+$(OBJDIR)%.o: 	$(SRCDIR)%.c* $(OBJDIR)%.d | alldirs
 	echo "Compiling $<"; \
 	$(CXX) $(CXXFLAGS) $< -c -o $@ $(LIBS)
 
@@ -146,6 +147,7 @@ clean:
 	rm -f $(TESTDIR)*.pyc
 
 
+include $(DEPS)
 
 endif
 endif
