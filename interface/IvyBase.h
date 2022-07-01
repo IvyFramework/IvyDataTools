@@ -30,6 +30,9 @@ protected:
 #define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) std::unordered_map<TString, type**> valVV##name##s;
   DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) std::unordered_map<TString, type* const*> valA##name##s;
+  ARRAY_DATA_INPUT_DIRECTIVES
+#undef ARRAY_DATA_INPUT_DIRECTIVE
 
   template<typename T> bool linkConsumed(BaseTree* tree);
   bool linkConsumes(BaseTree* tree);

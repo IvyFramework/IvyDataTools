@@ -1187,7 +1187,7 @@ template<> void HelperFunctions::lstrip<std::string>(std::string& str, const cha
         if (!chars) return !std::isspace(ch);
         else{
           bool found = false;
-          for (size_t ic=0; ic<strlen(chars); ic++) found |= (ch == static_cast<const int>(chars[ic]));
+          for (size_t ic=0; ic<strlen(chars); ic++) found |= (ch == static_cast<int>(chars[ic]));
           return !found;
         }
       }
@@ -1202,7 +1202,7 @@ template<> void HelperFunctions::rstrip<std::string>(std::string& str, const cha
         if (!chars) return !std::isspace(ch);
         else{
           bool found = false;
-          for (size_t ic=0; ic<strlen(chars); ic++) found |= (ch == static_cast<const int>(chars[ic]));
+          for (size_t ic=0; ic<strlen(chars); ic++) found |= (ch == static_cast<int>(chars[ic]));
           return !found;
         }
       }

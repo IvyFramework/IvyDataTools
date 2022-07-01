@@ -128,4 +128,16 @@ DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
 
 
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) \
+template<> void IvyBase::getConsumedMap<type* const>(std::unordered_map<TString, type* const*>*& theMap){ theMap = &valA##name##s; } \
+template<> void IvyBase::getConsumedMap<type* const>(std::unordered_map<TString, type* const*> const*& theMap) const{ theMap = &valA##name##s; } \
+template void IvyBase::addConsumed<type* const>(TString); \
+template bool IvyBase::linkConsumed<type* const>(BaseTree* tree); \
+template bool IvyBase::getConsumed<type* const>(TString, type* const*& val) const; \
+
+ARRAY_DATA_INPUT_DIRECTIVES
+
+#undef ARRAY_DATA_INPUT_DIRECTIVE
+
+
 #endif

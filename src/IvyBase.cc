@@ -41,6 +41,9 @@ bool IvyBase::linkConsumes(BaseTree* tree){
 #define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) process &= this->linkConsumed<type*>(tree);
     DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
 #undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) process &= this->linkConsumed<type* const>(tree);
+    ARRAY_DATA_INPUT_DIRECTIVES
+#undef ARRAY_DATA_INPUT_DIRECTIVE
     // Silence unused branches
     tree->silenceUnused();
   }

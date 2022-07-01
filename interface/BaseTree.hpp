@@ -292,9 +292,9 @@ template<> void BaseTree::getVal<type*>(TString const& branchname, type*& val) c
   std::unordered_map<TString, ArrayWrapper<type>*>::const_iterator it; \
   if (this->getBranchCIterator<ArrayWrapper<type>*>(branchname, it)){ auto& tmp = it->second; if (tmp) val=tmp->get_values(); } \
 } \
-template<> void BaseTree::setVal<type*>(TString const& branchname, type* const& val){ \
+template<> void BaseTree::setVal<type*>(TString const& branchname, unsigned long n_vals, type* const& val){ \
   std::unordered_map<TString, ArrayWrapper<type>*>::iterator it; \
-  if (this->getBranchCIterator<ArrayWrapper<type>*>(branchname, it)){ auto& tmp = it->second; if (tmp) tmp->set_values(val); } \
+  if (this->getBranchCIterator<ArrayWrapper<type>*>(branchname, it)){ auto& tmp = it->second; if (tmp) tmp->set_values(n_vals, val); } \
 } \
 template<> void BaseTree::getValRef<type* const>(TString const& branchname, type* const*& val) const{ \
   std::unordered_map<TString, ArrayWrapper<type>*>::const_iterator it; \

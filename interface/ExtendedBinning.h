@@ -23,7 +23,6 @@ protected:
 public:
   ExtendedBinning(const TString name_="", const TString label_="");
   ExtendedBinning(const unsigned int nbins, const double min, const double max, const TString name="", const TString label_=""); // Uniform constructor
-  ExtendedBinning(const double* abinlow, const TString name="", const TString label_="");
   ExtendedBinning(const std::vector<double>& vbinlow_, const TString name="", const TString label_="");
   ExtendedBinning(ExtendedBinning const& other);
 

@@ -19,22 +19,9 @@ ExtendedBinning::ExtendedBinning(const unsigned int nbins, const double min, con
   adjustNameLabel();
 
   if (max>min && nbins>0){
-    const double inc = (max-min)/((const double) nbins);
+    const double inc = (max-min)/(static_cast<double>(nbins));
     vbinlow.reserve(nbins+1);
-    for (unsigned int i=0; i<=nbins; i++) vbinlow.push_back(min+inc*(double(i)));
-  }
-}
-ExtendedBinning::ExtendedBinning(const double* abinlow, const TString name_, const TString label_) :
-  name(name_),
-  label(label_),
-  hasAbsoluteLowerBound(false),
-  hasAbsoluteUpperBound(false)
-{
-  adjustNameLabel();
-
-  if (abinlow!=nullptr){
-    const int np = sizeof(abinlow)/sizeof(abinlow[0]);
-    vbinlow = std::vector<double>(abinlow, abinlow+np);
+    for (unsigned int i=0; i<=nbins; i++) vbinlow.push_back(min+inc*static_cast<double>(i));
   }
 }
 ExtendedBinning::ExtendedBinning(const std::vector<double>& vbinlow_, const TString name_, const TString label_) :

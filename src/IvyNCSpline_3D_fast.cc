@@ -254,7 +254,7 @@ IvyNCSplineCore::T IvyNCSpline_3D_fast::interpolateFcn(Int_t code, const char* r
 
   // Get bins
   vector<Int_t> varprime; varprime.push_back(2); varprime.push_back(3); varprime.push_back(5);
-  const Int_t ndims=(const Int_t)varprime.size();
+  const Int_t ndims=varprime.size();
   vector<Int_t> varbin;
   vector<Int_t> varbinmin;
   vector<Int_t> varbinmax;

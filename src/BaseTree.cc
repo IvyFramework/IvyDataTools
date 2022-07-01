@@ -200,6 +200,95 @@ BaseTree::BaseTree(const TString cinput, std::vector<TString> const& treenames, 
 
   curdir->cd(); // Return back to the directory before opening the input file
 }
+BaseTree::BaseTree(std::vector<TString> const& strinputfnames, std::vector<TString> const& treenames, const TString countersname) :
+  sampleIdentifier(""), // Sample identifier is supposed to be overwritten by the daughter class
+  finput(nullptr),
+  tree(nullptr),
+  failedtree(nullptr),
+  hCounters(nullptr),
+  valid(false),
+  receiver(true),
+  acquireTreePossession(!receiver),
+  isTChain(false),
+  currentEvent(-1),
+  currentGlobalEvent(-1),
+  currentTree(nullptr)
+{
+  if (strinputfnames.empty()) return;
+  TDirectory* curdir = gDirectory; // Save current directory to return back to it later
+  TString const& cinput = strinputfnames.front();
+  if (cinput.Contains("*") || strinputfnames.size()>1){ // Use a TChain
+    isTChain = true;
+    valid = true;
+    treelist.reserve(treenames.size());
+    std::vector< std::vector<TString> > valid_files;
+    for (auto const& strfname:strinputfnames){
+      std::vector< std::vector<TString> > valid_files_tmp;
+      valid &= getValidFilesForTreeList(strfname, treenames, valid_files_tmp);
+      if (valid_files.empty()) valid_files.assign(valid_files_tmp.size(), std::vector<TString>());
+      for (unsigned int itree=0; itree<valid_files_tmp.size(); itree++) HelperFunctions::appendVector(valid_files.at(itree), valid_files_tmp.at(itree));
+    }
+    if (valid){
+      unsigned int itree=0;
+      for (auto const& treename:treenames){
+        if (treename!=""){
+          TChain* tc = new TChain(treename);
+          for (auto const& fname:valid_files.at(itree)) tc->Add(fname);
+          treelist.push_back(tc);
+        }
+        itree++;
+      }
+    }
+    if (!valid){
+      for (auto& tt:treelist) delete tt;
+      treelist.clear();
+    }
+    if (countersname!=""){
+      IVYerr << "BaseTree::BaseTree: Cannot add histograms in chain mode." << endl;
+      assert(0);
+    }
+  }
+  else if (HostHelpers::FileReadable(cinput.Data())){
+    finput = TFile::Open(cinput, "read");
+    if (finput){
+      if (finput->IsOpen() && !finput->IsZombie()){
+        valid = true;
+        finput->cd();
+        treelist.reserve(treenames.size());
+        for (auto const& treename:treenames){
+          if (treename!=""){
+            TTree* tt = (TTree*) finput->Get(treename);
+            if (!tt) cout << "BaseTree::BaseTree(" << cinput << ") does not contain " << treename << endl;
+            else treelist.push_back(tt);
+            valid &= (tt!=nullptr);
+          }
+        }
+        if (countersname!=""){
+          hCounters = (TH1F*) finput->Get(countersname);
+          if (!hCounters) cout << "BaseTree::BaseTree(" << cinput << ") does not contain " << countersname << endl;
+          valid &= (hCounters!=nullptr);
+        }
+        if (!valid){
+          for (auto& tt:treelist) delete tt;
+          treelist.clear();
+          hCounters = nullptr;
+          finput->Close();
+          finput = nullptr;
+        }
+      }
+      else{
+        if (finput->IsOpen()) finput->Close();
+        else delete finput;
+        finput=nullptr;
+      }
+    }
+  }
+
+  if (!treelist.empty()) tree = treelist.front();
+  if (treelist.size()>1) failedtree = treelist.back();
+
+  curdir->cd(); // Return back to the directory before opening the input file
+}
 BaseTree::BaseTree(const TString treename) :
   sampleIdentifier(""),
   finput(nullptr),

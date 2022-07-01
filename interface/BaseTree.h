@@ -96,6 +96,7 @@ public:
   BaseTree();
   BaseTree(const TString cinput, const TString treename, const TString failedtreename, const TString countersname);
   BaseTree(const TString cinput, std::vector<TString> const& treenames, const TString countersname);
+  BaseTree(std::vector<TString> const& strinputfnames, std::vector<TString> const& treenames, const TString countersname);
   BaseTree(const TString treename); // Output constructor
   BaseTree(TFile* finput_, TTree* tree_, TTree* failedtree_, TH1F* hCounters_, bool receiver_override); // Mixed definition constructor
   BaseTree(TFile* finput_, std::vector<TTree*> const& treelist_, TH1F* hCounters_, bool receiver_override); // Mixed definition constructor
@@ -144,7 +145,8 @@ public:
   int getNEvents() const;
 
   template<typename T> void getVal(TString const& branchname, T& val) const;
-  template<typename T> void setVal(TString const& branchname, T const& val);
+  template<typename T> void setVal(TString const& branchname, T const& val); // For scalars, vectors, and double vectors
+  template<typename T> void setVal(TString const& branchname, unsigned long n_vals, T const& val); // For arrays, T is actually a pointer type.
   template<typename T> void getValRef(TString const& branchname, T*& val) const;
   template<typename T> void getValRef(TString const& branchname, T*& val);
 

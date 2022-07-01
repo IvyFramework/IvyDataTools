@@ -88,7 +88,7 @@ $(LIBRULE):	$(OBJECTS) $(OBJDIR)LinkDef_out.o | alldirs
 
 $(OBJDIR)%.d:	$(SRCDIR)%.c* | alldirs
 	echo "Checking dependencies for $<"; \
-	$(CXX) -MM -MT $@ -MT ${@:.d=.o} $(CXXFLAGS) $< > $@; \
+	$(CXX) -MM -MT $@ $(CXXFLAGS) $< > $@; \
                      [ -s $@ ] || rm -f $@
 
 $(OBJDIR)%.o: 	$(SRCDIR)%.c* $(OBJDIR)%.d | alldirs
@@ -148,6 +148,7 @@ clean:
 
 
 include $(DEPS)
+
 
 endif
 endif
