@@ -66,9 +66,9 @@ EXES = $(subst $(BINDIR),$(EXEDIR),$(EXESPRIM))
 
 
 .PHONY: all help compile clean
-.SILENT: alldirs scripts clean $(OBJECTS) $(DEPS) $(OBJDIR)LinkDef_out.o $(LIBRULE) $(EXES)
+.SILENT: alldirs scritture clean $(OBJECTS) $(DEPS) $(OBJDIR)LinkDef_out.o $(LIBRULE) $(EXES)
 
-all: $(OBJECTS) $(LIBRULE) python $(EXES) scripts
+all: $(OBJECTS) $(LIBRULE) python $(EXES) scritture
 
 
 alldirs:
@@ -76,7 +76,8 @@ alldirs:
 	mkdir -p $(LIBDIR); \
 	mkdir -p $(EXEDIR)
 
-scripts: | alldirs
+scritture: | alldirs
+	echo "Copying scripts"; \
 	cp $(SCRIPTSDIR)* $(EXEDIR)
 
 python:
