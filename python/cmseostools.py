@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """
 Some tools to handle accesing datasets information on dbs and files on eos
-stolen from https://github.com/CERN-PH-CMG/cmg-cmssw/blob/CMGTools-from-CMSSW_7_4_0/CMGTools/Production/python/eostools.py
-and from CMGTools.Production.datasetToSource
-and yet again from ZZAnalysis
+Modified from https://github.com/CERN-PH-CMG/cmg-cmssw/blob/CMGTools-from-CMSSW_7_4_0/CMGTools/Production/python/eostools.py,
+and CMGTools.Production.datasetToSource,
+and, yet again, ZZAnalysis.
 """
 
 import sys
@@ -11,6 +11,7 @@ import os
 import re
 import FWCore.ParameterSet.Config as cms
 import subprocess
+
 
 class cmsFileManip:
     """A class to interact with files/directories"""
@@ -25,7 +26,6 @@ class cmsFileManip:
             print >> sys.stderr, err
 
         return out,err,myCommand.returncode
-
 
 
 def setCAFPath():
@@ -49,14 +49,12 @@ def runXRDCommand(path, cmd, *args):
     return runner.runCommand(command, False) # fails when shell=True
 
 
-
 def eosToLFN( path ):
     """Converts a EOS PFN to an LFN.
     Just strip out /eos/cms from path.
     If this string is not found, return path.
     ??? Shouldn't we raise an exception instead?"""
     return path.replace('root://eoscms.cern.ch/', '').replace('/eos/cms','')
-
 
 
 def lfnToPFN( path, tfcProt = 'rfio'):
@@ -87,6 +85,7 @@ def lfnToPFN( path, tfcProt = 'rfio'):
             pfn.replace("eoscms","castorcms")
     return pfn
 
+
 def runDBS(dataset, instance = 'prod/global', query_type='file', extra_args=''):
     cmd = '"%s'%query_type+' dataset='+dataset +' instance=%s"'%instance
 
@@ -95,13 +94,21 @@ def runDBS(dataset, instance = 'prod/global', query_type='file', extra_args=''):
     run_command = ' '.join(command)
     return runner.runCommand(run_command)
 
+
 def findChildren(sample):
     res, _, _ = runDBS(sample, query_type='child')
     return res.strip().split('\n')
 
+
 def findParent(sample):
     res, _, _ = runDBS(sample, query_type='parent')
-    return res.strip()
+    return res.strip().split('\n')
+
+
+def findDatasets(sample):
+    res, _, _ = runDBS(sample, query_type='')
+    return res.strip().split('\n')
+
 
 def listFiles(sample, path, rec = False, full_info = False, other_options=None):
     """Provides a list of files with different methods according to path. Valid paths: 'list', 'dbs', 'dbs-USER', a local filesystem path, an eos path
