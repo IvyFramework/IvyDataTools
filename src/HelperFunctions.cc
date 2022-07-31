@@ -1156,6 +1156,8 @@ float HelperFunctions::translateEfficiencyErrorToNumeratorError(
   return sqrt(res);
 }
 
+bool HelperFunctions::isASCIICharacter(signed char ch){ unsigned char uch = static_cast<unsigned char>(ch); return uch<128; }
+bool HelperFunctions::isNonASCIICharacter(signed char ch){ return !HelperFunctions::isASCIICharacter(ch); }
 
 template<> bool HelperFunctions::replaceString<TString, const TString>(TString& strinput, const TString strTakeOut, const TString strPutIn){
   Ssiz_t ipos=strinput.Index(strTakeOut);
@@ -1176,6 +1178,20 @@ template<> bool HelperFunctions::replaceString<std::string, const char*>(std::st
   std::string::size_type ipos=strinput.find(strTakeOut);
   if (ipos!=std::string::npos){ strinput.replace(ipos, strlen(strTakeOut), strPutIn); return true; }
   else return false;
+}
+
+template<> void HelperFunctions::removeNonASCIIChars<std::string>(std::string& str){
+  str.erase(
+    std::remove_if(
+      str.begin(), str.end(), HelperFunctions::isNonASCIICharacter
+    ),
+    str.end()
+  );
+}
+template<> void HelperFunctions::removeNonASCIIChars<TString>(TString& str){
+  std::string strtmp = str.Data();
+  HelperFunctions::removeNonASCIIChars<std::string>(strtmp);
+  str=strtmp.c_str();
 }
 
 template<> void HelperFunctions::lstrip<std::string>(std::string& str, const char* chars){

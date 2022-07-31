@@ -59,6 +59,10 @@ namespace HelperFunctions{
   template<> bool replaceString<std::string, const std::string>(std::string& strinput, const std::string strTakeOut, const std::string strPutIn);
   template<> bool replaceString<std::string, const char*>(std::string& strinput, const char* strTakeOut, const char* strPutIn);
 
+  template<typename T> void removeNonASCIIChars(T& str);
+  template<> void removeNonASCIIChars<std::string>(std::string& str);
+  template<> void removeNonASCIIChars<TString>(TString& str);
+
   template<typename T> void lstrip(T& str, const char* chars=nullptr);
   template<typename T> void rstrip(T& str, const char* chars=nullptr);
   template<typename T> void lrstrip(T& str, const char* chars=nullptr){ lstrip(str, chars); rstrip(str, chars); }
@@ -90,6 +94,9 @@ namespace HelperFunctions{
 
   void splitOptionRecursive(const std::string& rawoption, std::vector<std::string>& splitoptions, char delimiter, bool uniqueResults=true);
   void splitOptionRecursive(const TString& rawoption, std::vector<TString>& splitoptions, char delimiter, bool uniqueResults=true);
+
+  bool isASCIICharacter(signed char ch);
+  bool isNonASCIICharacter(signed char ch);
 
   // Find the power of the first significant figure
   template<typename T> int getFirstSignificantDecimalPowerBase10(T const& val);

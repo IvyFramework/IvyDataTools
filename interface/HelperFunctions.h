@@ -191,6 +191,7 @@ namespace HelperFunctions{
   void getExtendedBinning(TAxis const* theAxis, ExtendedBinning& res);
   void getExtendedBinning(TH1 const* histo, unsigned int iaxis, ExtendedBinning& res);
 
+  template <typename T, typename U> TSpline3* convertPointsToSpline3(std::vector<std::pair<T, U>> const& points, bool faithfulFirst=false, bool faithfulSecond=false, double* dfirst=nullptr, double* dlast=nullptr);
   TSpline3* convertGraphToSpline3(TGraph const* tg, bool faithfulFirst=false, bool faithfulSecond=false, double* dfirst=nullptr, double* dlast=nullptr);
 
   void convertTGraphErrorsToTH1F(TGraphErrors const* tg, TH1F*& histo);
@@ -699,6 +700,23 @@ template <typename T, typename U> void HelperFunctions::getGenericHistogramSlice
   }
 }
 
+template <typename T, typename U> TSpline3* HelperFunctions::convertPointsToSpline3(std::vector<std::pair<T, U>> const& points, bool faithfulFirst, bool faithfulSecond, double* dfirst, double* dlast){
+  int npoints = points.size();
+  if (npoints==0) return nullptr;
+
+  std::vector<double> xx; xx.reserve(npoints);
+  std::vector<double> yy; yy.reserve(npoints);
+
+  std::vector< std::pair<double, double> > points_ordered; points_ordered.reserve(npoints);
+  for (auto const& pp:points) HelperFunctions::addByLowest<double, double>(points_ordered, static_cast<double>(pp.first), static_cast<double>(pp.second));
+
+  TGraph* gr = makeGraphFromPair(points_ordered, "_gr_tmp_HelperFunctions_convertPointsToSpline3_");
+  TSpline3* res = convertGraphToSpline3(gr, faithfulFirst, faithfulSecond, dfirst, dlast);
+  delete gr;
+
+  return res;
+}
+
 /****************************************************************/
 // Explicit instantiations
 template double HelperFunctions::getHistogramIntegralAndError<TH1F>(TH1F const* histo, int ix, int jx, bool useWidth, double* error);
@@ -756,6 +774,11 @@ template TF1* HelperFunctions::getFcn_a0plusa1timesXN<7>(TSpline3* sp, double xm
 template TF1* HelperFunctions::getFcn_a0plusa1timesXN<8>(TSpline3* sp, double xmin, double xmax, bool useLowBound);
 template TF1* HelperFunctions::getFcn_a0plusa1timesXN<9>(TSpline3* sp, double xmin, double xmax, bool useLowBound);
 template TF1* HelperFunctions::getFcn_a0plusa1timesXN<10>(TSpline3* sp, double xmin, double xmax, bool useLowBound);
+
+template TSpline3* HelperFunctions::convertPointsToSpline3(std::vector<std::pair<float, float>> const& points, bool faithfulFirst, bool faithfulSecond, double* dfirst, double* dlast);
+template TSpline3* HelperFunctions::convertPointsToSpline3(std::vector<std::pair<float, double>> const& points, bool faithfulFirst, bool faithfulSecond, double* dfirst, double* dlast);
+template TSpline3* HelperFunctions::convertPointsToSpline3(std::vector<std::pair<double, float>> const& points, bool faithfulFirst, bool faithfulSecond, double* dfirst, double* dlast);
+template TSpline3* HelperFunctions::convertPointsToSpline3(std::vector<std::pair<double, double>> const& points, bool faithfulFirst, bool faithfulSecond, double* dfirst, double* dlast);
 
 
 #endif

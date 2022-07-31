@@ -9,7 +9,10 @@
 #include "SampleHelpersCore.h"
 #include "HelperFunctions.h"
 #include "StatisticsHelpers.h"
+#include "IvyCSVReader.h"
 #include "IvyStreamHelpers.hh"
+#include "TDirectory.h"
+#include "TFile.h"
 
 
 using namespace std;
@@ -18,6 +21,8 @@ using namespace IvyStreamHelpers;
 
 int main(int argc, char** argv){
   constexpr int iarg_offset=1; // argv[0]==[Executable name]
+
+  TDirectory* curdir = gDirectory;
 
   int exit_status = 1;
   bool print_help = false;
@@ -146,6 +151,29 @@ int main(int argc, char** argv){
         exit_status = 0;
       }
     }
+    // Other handy helper utilities
+    else if (strCmdLower == "convertcsvtottree"){
+      if (strArgs.size()!=3 && strArgs.size()!=4) print_help = true;
+      else{
+        TString const& csvname = strArgs.front();
+        TString const& coutput = strArgs.at(1);
+        TString const& treename = strArgs.at(2);
+        TString strcomment; if (strArgs.size()==4) strcomment = strArgs.back();
+
+        IVYout << "Reading csv " << csvname << " with comment string " << strcomment << "..." << endl;
+        IvyCSVReader csvreader(csvname.Data(), strcomment.Data());
+
+        TFile* foutput = TFile::Open(coutput, "recreate");
+        foutput->cd();
+        BaseTree* tcsv = csvreader.convertToTree(treename.Data());
+        tcsv->writeToFile(foutput);
+        delete tcsv;
+        foutput->Close();
+        curdir->cd();
+
+        exit_status = 0;
+      }
+    }
     else{
       IVYerr << "Command " << strCmd << " with arguments " << strArgs << " is not supported." << endl;
       print_help = true;
@@ -178,6 +206,9 @@ int main(int argc, char** argv){
     cout << "  ComputeChisqQuantile [CL] [ndof]: Compute the chi-square quantile corresponding to a CL and a certain ndof." << endl;
     cout << "  ComputePoissonCountingInterval [count] [CL] [count error (optional)]: Compute the Poisson confidence interval for a count of events at a certain CL." << endl;
     cout << "  ComputePoissonEfficienyFrequentistInterval [total] [pass] [CL] [total error (optional)]: Compute the Clopper-Pearson confidence interval for counts of total and passing events at a certain CL." << endl;
+    cout << "*** Other handy helper utilities ***" << endl;
+    cout << endl;
+    cout << "  ConvertCSVToTTree [csvfile] [outputfile] [treename] [comment string (optional)]: Convert a CSV file format to a TTree format stored in a TFile." << endl;
   }
 
   return exit_status;
