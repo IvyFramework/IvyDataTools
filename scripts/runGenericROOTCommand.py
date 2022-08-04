@@ -1,16 +1,8 @@
 #!/bin/env python
 
 import sys
-import imp
-import copy
 import os
-import shutil
-import pickle
-import math
-import pprint
-import subprocess
-from datetime import date
-from optparse import OptionParser
+from argparse import ArgumentParser
 
 
 def check_module_exists(module_name):
@@ -38,7 +30,7 @@ def check_module_exists(module_name):
    return res is not None
 
 
-if check_module_exists("IvyFramework.IvyDataTools.cmseostools"):
+if check_module_exists("IvyFramework.IvyDataTools.TranslateStringBetweenPythonAndShell"):
    from IvyFramework.IvyDataTools.TranslateStringBetweenPythonAndShell import *
 else:
    from TranslateStringBetweenPythonAndShell import *
@@ -47,39 +39,37 @@ else:
 class GenericROOTExecutor:
    def __init__(self):
       # define options and arguments ====================================
-      self.parser = OptionParser()
+      self.parser = ArgumentParser()
 
-      self.parser.add_option("--loadlib", dest="loadlib", type="string", help="Name of the library loading script to pre-load")
-      self.parser.add_option("--script", dest="script", type="string", help="Name of the script")
-      self.parser.add_option("--function", dest="function", type="string", help="Name of the function")
-      self.parser.add_option("--command", dest="fcncmd", type="string", help="Function arguments", default="")
+      self.parser.add_argument("--loadlib", type=str, help="Name of the library loading script to pre-load", required=False, default=None)
+      self.parser.add_argument("--script", type=str, help="Name of the script", required=True)
+      self.parser.add_argument("--function", type=str, help="Name of the function", required=False, default=None)
+      self.parser.add_argument("--command", type=str, help="Function arguments", required=False, default="")
 
-      self.parser.add_option("--recompile", action="store_true", default=False, help="Force the recompilation of the script")
-      self.parser.add_option("--dry", dest="dryRun", action="store_true", default=False, help="Do not submit jobs, just set up the files")
+      self.parser.add_argument("--recompile", action="store_true", default=False, help="Force the recompilation of the script")
+      self.parser.add_argument("--onlyrecompile", action="store_true", default=False, help="Just recompile the script without running anything")
+      self.parser.add_argument("--dry", action="store_true", default=False, help="Do not submit jobs, just set up the files")
 
-      (self.opt,self.args) = self.parser.parse_args()
-
-      if self.opt.script is None:
-         sys.exit("Need to set --script option")
-      if self.opt.function is None:
-         sys.exit("Need to set --function option")
-
+      self.opt = self.parser.parse_args()
       self.run()
 
 
    def run(self):
-      if self.opt.fcncmd is not None:
-         self.opt.fcncmd = translateROOTArgumentFromShellToPython(self.opt.fcncmd)
+      if self.opt.command is not None:
+         self.opt.command = translateROOTArgumentFromShellToPython(self.opt.command)
       jobcmd = r""
       if self.opt.loadlib is not None: jobcmd += r'gROOT->ProcessLine(".x {}");'.format(self.opt.loadlib)
-      if not self.opt.recompile:
+      if not self.opt.recompile and not self.opt.onlyrecompile:
          jobcmd += r'gROOT->ProcessLine(".L {}+");'.format(self.opt.script)
       else:
          jobcmd += r'gROOT->ProcessLine(".L {}++");'.format(self.opt.script)
-      jobcmd += r'gROOT->ProcessLine("{}({})");'.format(self.opt.function, self.opt.fcncmd)
+      if not self.opt.onlyrecompile:
+         if self.opt.function is None or self.opt.function=="":
+            self.opt.function = self.opt.script
+         jobcmd += r'gROOT->ProcessLine("{}({})");'.format(self.opt.function, self.opt.command)
       jobcmd = "root -l -b -q -e '{}'".format(jobcmd)
       print("Running {}".format(jobcmd))
-      if not self.opt.dryRun:
+      if not self.opt.dry:
          ret = os.system( jobcmd )
 
 

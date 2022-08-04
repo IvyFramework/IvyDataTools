@@ -6,9 +6,10 @@
   this_dir = this_dir(0, this_dir.Last('/'));
   this_dir = this_dir(0, this_dir.Last('/'));
 
-  gSystem->Load(this_dir+"/JHUGenMELA/MELA/test/loadMELA.C");
-
   gSystem->AddIncludePath(Form("-I%s/IvyFramework/IvyDataTools/interface/", this_dir.Data()));
   gSystem->AddIncludePath(Form("-I%s/IvyFramework/IvyDataTools/test/", this_dir.Data()));
+
+  gSystem->Load("libMatrix");
+  gSystem->Load("libRooFit");
   gSystem->Load("libIvyFrameworkIvyDataTools.so");
 }
