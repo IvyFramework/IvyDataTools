@@ -31,7 +31,7 @@ void IvyCSVReader::readFile(std::string fname, std::string escape_seq){
       if (str_in=="" || (escape_seq!="" && str_in.find(escape_seq)==0)) continue; // Do not increment the line number, just skip.
 
       std::vector<std::string> entries;
-      HelperFunctions::splitOptionRecursive(str_in, entries, ',');
+      HelperFunctions::splitOptionRecursive(str_in, entries, ',', false);
       if (labels.empty()){
         labels = entries;
         for (auto const& lb:labels) label_entries_map[lb] = std::vector<std::string>();
@@ -46,6 +46,7 @@ void IvyCSVReader::readFile(std::string fname, std::string escape_seq){
       else{
         if (entries.size()!=labels.size()){
           IVYerr << "IvyCSVReader::readFile: The number of columns (" << entries.size() << ") is not the same as number of labels (" << labels.size() << ")." << endl;
+          IVYerr << "(Row: '" << str_in << "')" << endl;
           assert(0);
         }
         unsigned int icl = 0;
