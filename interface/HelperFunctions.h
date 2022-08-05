@@ -701,8 +701,8 @@ template <typename T, typename U> void HelperFunctions::getGenericHistogramSlice
 }
 
 template <typename T, typename U> TSpline3* HelperFunctions::convertPointsToSpline3(std::vector<std::pair<T, U>> const& points, bool faithfulFirst, bool faithfulSecond, double* dfirst, double* dlast){
-  int npoints = points.size();
-  if (npoints==0) return nullptr;
+  if (points.empty()) return nullptr;
+  unsigned int npoints = points.size();
 
   std::vector<double> xx; xx.reserve(npoints);
   std::vector<double> yy; yy.reserve(npoints);
