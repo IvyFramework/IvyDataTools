@@ -125,13 +125,13 @@ printenvinstr () {
   echo
   echo "remember to do"
   echo
-  echo 'eval $(./setup.sh env standalone)'
+  echo 'eval $('${BASH_SOURCE[0]}' env standalone)'
   echo "or"
-  echo 'eval `./setup.sh env standalone`'
+  echo 'eval `'${BASH_SOURCE[0]}' env standalone`'
   echo
   echo "if you are using a bash-related shell, or you can do"
   echo
-  echo './setup.sh env standalone'
+  echo ${BASH_SOURCE[0]}' env standalone'
   echo
   echo "and change the commands according to your shell in order to do something equivalent to set up the environment variables."
   echo
@@ -165,7 +165,7 @@ elif [[ "$nSetupArgs" -ge 1 ]] && [[ "$nSetupArgs" -le 2 ]] && [[ "${setupArgs[0
 else
     echo "Unknown arguments:"
     echo "  ${setupArgs[@]}"
-    echo "Should be nothing, env, or clean"
+    echo "Should be nothing, env, envinstr, clean, or -j [Ncores]"
     exit 1
 fi
 
