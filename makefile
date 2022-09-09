@@ -66,9 +66,9 @@ EXES = $(subst $(BINDIR),$(EXEDIR),$(EXESPRIM))
 
 
 .PHONY: all help compile clean
-.SILENT: alldirs scritture clean $(OBJECTS) $(DEPS) $(OBJDIR)LinkDef_out.o $(LIBRULE) $(EXES)
+.SILENT: alldirs scritture pythoninit clean $(OBJECTS) $(DEPS) $(OBJDIR)LinkDef_out.o $(LIBRULE) $(EXES)
 
-all: $(OBJECTS) $(LIBRULE) python $(EXES) scritture
+all: $(OBJECTS) $(LIBRULE) pythoninit $(EXES) scritture
 
 
 alldirs:
@@ -80,7 +80,8 @@ scritture: | alldirs
 	echo "Copying scripts"; \
 	cp $(SCRIPTSDIR)* $(EXEDIR)
 
-python:
+pythoninit:
+	echo "Creating python init"; \
 	touch $(PYTHONDIR)__init__.py
 
 $(LIBRULE):	$(OBJECTS) $(OBJDIR)LinkDef_out.o | alldirs
