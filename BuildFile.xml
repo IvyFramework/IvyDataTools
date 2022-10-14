@@ -1,5 +1,3 @@
-<flags ADD_SUBDIR="1" />
-
 <flags CPPFLAGS="-Wall -Wextra -Wpedantic -I$(CMSSW_BASE)/src/IvyFramework/IvyDataTools/interface/" />
 
 <use name="root"/>
