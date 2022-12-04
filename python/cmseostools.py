@@ -102,7 +102,15 @@ def findChildren(sample):
 
 def findParent(sample):
     res, _, _ = runDBS(sample, query_type='parent')
-    return res.strip().split('\n')
+    parentList = res.strip().split('\n')
+    nparents = len(parentList)
+    if nparents==1:
+       return parentList[0]
+    elif nparents==0:
+       return ""
+    else:
+       raise RuntimeError("{} has {} parents.".format(sample,nparents))
+       return None
 
 
 def findDatasets(sample):
