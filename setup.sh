@@ -62,6 +62,16 @@ printenv() {
     export LD_LIBRARY_PATH=${libappend}${end}
   fi
 
+  rincpathappend="${PKGDIR}/interface"
+  end=""
+  if [[ ! -z "${ROOT_INCLUDE_PATH+x}" ]]; then
+    end=":${ROOT_INCLUDE_PATH}"
+  fi
+  if [[ "${end}" != *"$rincpathappend"* ]]; then
+    echo "export ROOT_INCLUDE_PATH=${rincpathappend}${end}"
+    export ROOT_INCLUDE_PATH=${rincpathappend}${end}
+  fi
+
   pathappend="${PKGDIR}/executables"
   end=""
   if [[ ! -z "${PATH+x}" ]]; then
@@ -85,6 +95,16 @@ doenv() {
   if [[ "${end}" != *"$pythonappend"* ]]; then
     export PYTHONPATH="${pythonappend}${end}"
     echo "Temporarily using PYTHONPATH as ${PYTHONPATH}"
+  fi
+
+  rincpathappend="${PKGDIR}/interface"
+  end=""
+  if [[ ! -z "${ROOT_INCLUDE_PATH+x}" ]]; then
+    end=":${ROOT_INCLUDE_PATH}"
+  fi
+  if [[ "${end}" != *"$rincpathappend"* ]]; then
+    export ROOT_INCLUDE_PATH=${rincpathappend}${end}
+    echo "Temporarily using ROOT_INCLUDE_PATH as ${ROOT_INCLUDE_PATH}"
   fi
 
   pathappend="${PKGDIR}/executables"
@@ -145,7 +165,7 @@ elif [[ "$nSetupArgs" -ge 1 ]] && [[ "$nSetupArgs" -le 2 ]] && [[ "${setupArgs[0
 else
     echo "Unknown arguments:"
     echo "  ${setupArgs[@]}"
-    echo "Should be nothing, env, envinstr, clean, or -j [Ncores]"
+    echo "Should be nothing, env, envinstr, clean, or -j [Ncores] (and standalone - for standalone compilation)"
     exit 1
 fi
 
