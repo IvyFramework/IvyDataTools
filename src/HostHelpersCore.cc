@@ -95,6 +95,15 @@ TString HostHelpers::SearchPathToStore(const char* name){
       if (HostHelpers::DirectoryExists(path) || HostHelpers::FileExists(path)) return path;
     }
   }
+  // If the path is not found by now, search it globally.
+  {
+    TString strname = name;
+    if (strname.Contains("/store")){
+      TString path = strname(strname.Index("/store"), strname.Length());
+      path.Prepend("root://cms-xrd-global.cern.ch/");
+      if (HostHelpers::DirectoryExists(path) || HostHelpers::FileExists(path)) return path;
+    }
+  }
   return "";
 }
 
