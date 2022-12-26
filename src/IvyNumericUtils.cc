@@ -11,8 +11,7 @@ void NumericUtils::PermutationGenerator(int n, int k, std::vector<std::vector<in
   vector<int> d(n);
   iota(d.begin(), d.end(), 1);
   do{
-    vector<int> aperm;
-    for (int i=0; i<k; i++) aperm.push_back(d[i]);
+    vector<int> aperm(d.begin(), d.begin()+k);
     perms.push_back(aperm);
     reverse(d.begin()+k, d.end());
   } while (next_permutation(d.begin(), d.end()));

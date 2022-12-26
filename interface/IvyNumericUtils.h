@@ -74,7 +74,85 @@ namespace NumericUtils{
   void PermutationGenerator(int n, int k, std::vector<std::vector<int>>& perms, int valbegin=1, int increment=1); // n!/(n-k)! different permutations of {i_1,...,i_k}, i+j in {valbegin,...,valbegin+increment*(n-1)}
   void CombinationGenerator(int n, int k, std::vector<std::vector<int>>& perms, int valbegin=1, int increment=1); // n!/(k!(n-k)!) different combinations (unordered permutations) of {i_1,...,i_k}, i+j in {valbegin,...,valbegin+increment*(n-1)}
 
+  template<typename T> void GreatestCommonDivisor(T const& a, T const& b, T& res);
+  template<typename T> void GreatestCommonDivisor(std::vector<T> const& nums, T& res);
+
+  template<typename T> void LeastCommonMultiple(T const& a, T const& b, T& res);
+  template<typename T> void LeastCommonMultiple(std::vector<T> const& nums, T& res);
+
 }
 
-#endif
+template<typename T> void NumericUtils::GreatestCommonDivisor(T const& a, T const& b, T& res){
+  if (b==T(0)){
+    res = (a!=T(0) ? a : T(1));
+    return;
+  }
+  GreatestCommonDivisor(b, static_cast<T>(a % b), res);
+}
+template void NumericUtils::GreatestCommonDivisor(unsigned char const& a, unsigned char const& b, unsigned char& res);
+template void NumericUtils::GreatestCommonDivisor(char const& a, char const& b, char& res);
+template void NumericUtils::GreatestCommonDivisor(unsigned short const& a, unsigned short const& b, unsigned short& res);
+template void NumericUtils::GreatestCommonDivisor(short const& a, short const& b, short& res);
+template void NumericUtils::GreatestCommonDivisor(unsigned int const& a, unsigned int const& b, unsigned int& res);
+template void NumericUtils::GreatestCommonDivisor(int const& a, int const& b, int& res);
+template void NumericUtils::GreatestCommonDivisor(unsigned long long int const& a, unsigned long long int const& b, unsigned long long int& res);
+template void NumericUtils::GreatestCommonDivisor(long long int const& a, long long int const& b, long long int& res);
 
+template<typename T> void NumericUtils::GreatestCommonDivisor(std::vector<T> const& nums, T& res){
+  if (nums.empty()){
+    res = 0;
+    return;
+  }
+  else if (nums.size()==1){
+    res = nums.front();
+    return;
+  }
+  NumericUtils::GreatestCommonDivisor(std::vector<T>(nums.begin()+1, nums.end()), res);
+  NumericUtils::GreatestCommonDivisor(nums.front(), res, res);
+}
+template void NumericUtils::GreatestCommonDivisor(std::vector<unsigned char> const& nums, unsigned char& res);
+template void NumericUtils::GreatestCommonDivisor(std::vector<char> const& nums, char& res);
+template void NumericUtils::GreatestCommonDivisor(std::vector<unsigned short> const& nums, unsigned short& res);
+template void NumericUtils::GreatestCommonDivisor(std::vector<short> const& nums, short& res);
+template void NumericUtils::GreatestCommonDivisor(std::vector<unsigned int> const& nums, unsigned int& res);
+template void NumericUtils::GreatestCommonDivisor(std::vector<int> const& nums, int& res);
+template void NumericUtils::GreatestCommonDivisor(std::vector<unsigned long long int> const& nums, unsigned long long int& res);
+template void NumericUtils::GreatestCommonDivisor(std::vector<long long int> const& nums, long long int& res);
+
+template<typename T> void NumericUtils::LeastCommonMultiple(T const& a, T const& b, T& res){
+  T gcd = 0;
+  GreatestCommonDivisor(a, b, gcd);
+  res = a*b/gcd;
+}
+template void NumericUtils::LeastCommonMultiple(unsigned char const& a, unsigned char const& b, unsigned char& res);
+template void NumericUtils::LeastCommonMultiple(char const& a, char const& b, char& res);
+template void NumericUtils::LeastCommonMultiple(unsigned short const& a, unsigned short const& b, unsigned short& res);
+template void NumericUtils::LeastCommonMultiple(short const& a, short const& b, short& res);
+template void NumericUtils::LeastCommonMultiple(unsigned int const& a, unsigned int const& b, unsigned int& res);
+template void NumericUtils::LeastCommonMultiple(int const& a, int const& b, int& res);
+template void NumericUtils::LeastCommonMultiple(unsigned long long int const& a, unsigned long long int const& b, unsigned long long int& res);
+template void NumericUtils::LeastCommonMultiple(long long int const& a, long long int const& b, long long int& res);
+
+template<typename T> void NumericUtils::LeastCommonMultiple(std::vector<T> const& nums, T& res){
+  if (nums.empty()){
+    res = 0;
+    return;
+  }
+  else if (nums.size()==1){
+    res = nums.front();
+    return;
+  }
+  NumericUtils::LeastCommonMultiple(std::vector<T>(nums.begin()+1, nums.end()), res);
+  NumericUtils::LeastCommonMultiple(nums.front(), res, res);
+}
+template void NumericUtils::LeastCommonMultiple(std::vector<unsigned char> const& nums, unsigned char& res);
+template void NumericUtils::LeastCommonMultiple(std::vector<char> const& nums, char& res);
+template void NumericUtils::LeastCommonMultiple(std::vector<unsigned short> const& nums, unsigned short& res);
+template void NumericUtils::LeastCommonMultiple(std::vector<short> const& nums, short& res);
+template void NumericUtils::LeastCommonMultiple(std::vector<unsigned int> const& nums, unsigned int& res);
+template void NumericUtils::LeastCommonMultiple(std::vector<int> const& nums, int& res);
+template void NumericUtils::LeastCommonMultiple(std::vector<unsigned long long int> const& nums, unsigned long long int& res);
+template void NumericUtils::LeastCommonMultiple(std::vector<long long int> const& nums, long long int& res);
+
+
+#endif

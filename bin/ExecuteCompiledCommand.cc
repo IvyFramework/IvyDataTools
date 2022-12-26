@@ -9,6 +9,7 @@
 #include "SampleHelpersCore.h"
 #include "HelperFunctions.h"
 #include "StatisticsHelpers.h"
+#include "IvyNumericUtils.h"
 #include "IvyCSVReader.h"
 #include "IvyStreamHelpers.hh"
 #include "TDirectory.h"
@@ -151,6 +152,22 @@ int main(int argc, char** argv){
         exit_status = 0;
       }
     }
+    else if (strCmdLower == "computegreatestcommondivisor"){
+      std::vector<unsigned long long int> nums; nums.reserve(strArgs.size());
+      for (auto const& ss:strArgs) nums.push_back(std::abs(std::stoll(ss.Data())));
+      unsigned long long int res;
+      NumericUtils::GreatestCommonDivisor(nums, res);
+      cout << res << endl;
+      exit_status = 0;
+    }
+    else if (strCmdLower == "computeleastcommonmultiple"){
+      std::vector<unsigned long long int> nums; nums.reserve(strArgs.size());
+      for (auto const& ss:strArgs) nums.push_back(std::abs(std::stoll(ss.Data())));
+      unsigned long long int res;
+      NumericUtils::LeastCommonMultiple(nums, res);
+      cout << res << endl;
+      exit_status = 0;
+    }
     // Other handy helper utilities
     else if (strCmdLower == "convertcsvtottree"){
       if (strArgs.size()!=3 && strArgs.size()!=4) print_help = true;
@@ -206,6 +223,8 @@ int main(int argc, char** argv){
     cout << "  ComputeChisqQuantile [CL] [ndof]: Compute the chi-square quantile corresponding to a CL and a certain ndof." << endl;
     cout << "  ComputePoissonCountingInterval [count] [CL] [count error (optional)]: Compute the Poisson confidence interval for a count of events at a certain CL." << endl;
     cout << "  ComputePoissonEfficienyFrequentistInterval [total] [pass] [CL] [total error (optional)]: Compute the Clopper-Pearson confidence interval for counts of total and passing events at a certain CL." << endl;
+    cout << "  ComputeGreatestCommonDivisor [integer 1] [integer 2]... (can pass more than two integers): Compute the greatest common divisor of a list of integers." << endl;
+    cout << "  ComputeLeastCommonMultiple [integer 1] [integer 2]... (can pass more than two integers): Compute the least common multiple of a list of integers." << endl;
     cout << "*** Other handy helper utilities ***" << endl;
     cout << endl;
     cout << "  ConvertCSVToTTree [csvfile] [outputfile] [treename] [comment string (optional)]: Convert a CSV file format to a TTree format stored in a TFile." << endl;
