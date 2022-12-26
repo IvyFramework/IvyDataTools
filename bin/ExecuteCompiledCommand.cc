@@ -155,7 +155,7 @@ int main(int argc, char** argv){
     else if (strCmdLower == "computegreatestcommondivisor"){
       std::vector<unsigned long long int> nums; nums.reserve(strArgs.size());
       for (auto const& ss:strArgs) nums.push_back(std::abs(std::stoll(ss.Data())));
-      unsigned long long int res;
+      unsigned long long int res = 0;
       NumericUtils::GreatestCommonDivisor(nums, res);
       cout << res << endl;
       exit_status = 0;
@@ -163,7 +163,7 @@ int main(int argc, char** argv){
     else if (strCmdLower == "computeleastcommonmultiple"){
       std::vector<unsigned long long int> nums; nums.reserve(strArgs.size());
       for (auto const& ss:strArgs) nums.push_back(std::abs(std::stoll(ss.Data())));
-      unsigned long long int res;
+      unsigned long long int res = 0;
       NumericUtils::LeastCommonMultiple(nums, res);
       cout << res << endl;
       exit_status = 0;
