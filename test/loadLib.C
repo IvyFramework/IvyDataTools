@@ -6,10 +6,21 @@
   this_dir = this_dir(0, this_dir.Last('/'));
   this_dir = this_dir(0, this_dir.Last('/'));
 
-  gSystem->AddIncludePath(Form("-I%s/IvyFramework/IvyDataTools/interface/", this_dir.Data()));
-  gSystem->AddIncludePath(Form("-I%s/IvyFramework/IvyDataTools/test/", this_dir.Data()));
+  TString inc_this_dir = Form("-I%s", this_dir.Data());
+  gSystem->AddIncludePath(inc_this_dir+"/IvyFramework/IvyDataTools/interface/");
+  gSystem->AddIncludePath(inc_this_dir);
 
+  gSystem->Load("libCore");
+  gSystem->Load("libRIO");
   gSystem->Load("libMatrix");
+  gSystem->Load("libMinuit");
+  gSystem->Load("libMathCore");
+  gSystem->Load("libMathMore");
+  gSystem->Load("libPhysics");
+  gSystem->Load("libHist");
+  gSystem->Load("libTree");
+  gSystem->Load("libGraf");
+  gSystem->Load("libRooFitCore");
   gSystem->Load("libRooFit");
   gSystem->Load("libIvyFrameworkIvyDataTools.so");
 }
