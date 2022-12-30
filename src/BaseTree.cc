@@ -140,14 +140,14 @@ BaseTree::BaseTree(const TString cinput, std::vector<TString> const& treenames, 
     std::vector< std::vector<TString> > valid_files;
     valid = getValidFilesForTreeList(cinput, treenames, valid_files);
     if (valid){
-      unsigned int itree=0;
+      auto it_valid_files = valid_files.begin();
       for (auto const& treename:treenames){
         if (treename!=""){
           TChain* tc = new TChain(treename);
-          for (auto const& fname:valid_files.at(itree)) tc->Add(fname);
+          for (auto const& fname:(*it_valid_files)) tc->Add(fname);
           treelist.push_back(tc);
         }
-        itree++;
+        it_valid_files++;
       }
     }
     if (!valid){
@@ -226,17 +226,25 @@ BaseTree::BaseTree(std::vector<TString> const& strinputfnames, std::vector<TStri
       std::vector< std::vector<TString> > valid_files_tmp;
       valid &= getValidFilesForTreeList(strfname, treenames, valid_files_tmp);
       if (valid_files.empty()) valid_files.assign(valid_files_tmp.size(), std::vector<TString>());
-      for (unsigned int itree=0; itree<valid_files_tmp.size(); itree++) HelperFunctions::appendVector(valid_files.at(itree), valid_files_tmp.at(itree));
+      {
+        auto it_valid_files = valid_files.begin();
+        auto it_valid_files_tmp = valid_files_tmp.begin();
+        while (it_valid_files_tmp!=valid_files_tmp.end()){
+          HelperFunctions::appendVector((*it_valid_files), (*it_valid_files_tmp));
+          it_valid_files++;
+          it_valid_files_tmp++;
+        }
+      }
     }
     if (valid){
-      unsigned int itree=0;
+      auto it_valid_files = valid_files.begin();
       for (auto const& treename:treenames){
         if (treename!=""){
           TChain* tc = new TChain(treename);
-          for (auto const& fname:valid_files.at(itree)) tc->Add(fname);
+          for (auto const& fname:(*it_valid_files)) tc->Add(fname);
           treelist.push_back(tc);
         }
-        itree++;
+        it_valid_files++;
       }
     }
     if (!valid){
@@ -846,25 +854,26 @@ bool BaseTree::getValidFilesForTreeList(TString cinput, std::vector<TString> con
     if (ftmp){
       if (ftmp->IsOpen() && !ftmp->IsZombie()){
         ftmp->cd();
-        unsigned int it=0;
+        auto it_res=res.begin();
         for (auto const& treename:treenames){
           if (treename!=""){
             TTree* tt = (TTree*) ftmp->Get(treename);
+            bool doSkip = false;
             if (!tt){
               IVYerr << "BaseTree::getValidFilesForTreeList: " << fname << " does not contain " << treename << endl;
-              continue;
+              doSkip = true;
             }
             else if (tt->GetEntries()==0){
               std::vector<TString> bnames;
               BaseTree::getValidBranchNamesWithoutAlias(tt, bnames, false);
               if (bnames.empty()){
                 IVYerr << "BaseTree::getValidFilesForTreeList: " << fname << " contains " << treename << ", but the tree has no branches." << endl;
-                continue;
+                doSkip = true;
               }
             }
-            res.at(it).push_back(fname);
+            if (!doSkip) it_res->push_back(fname);
           }
-          it++;
+          it_res++;
         }
         ftmp->Close();
       }
@@ -887,16 +896,16 @@ bool BaseTree::getValidFilesForTreeList(TString cinput, std::vector<TString> con
   }
 
   {
-    unsigned int it=0;
+    auto it_treenames = treenames.begin();
     for (auto& vv:res){
-      if (treenames.at(it)!=""){
+      if ((*it_treenames)!=""){
         if (vv.empty()) return false;
         else if (vv.size() == fnames.size()){
           vv.clear();
           vv.push_back(cinput);
         }
       }
-      it++;
+      it_treenames++;
     }
   }
 
