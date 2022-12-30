@@ -105,8 +105,8 @@ public:
   template<typename T> bool bookBranch(TString const& branchname, T valdef);
   template<BranchType T> bool bookBranch(TString const& branchname);
 
-  template<typename T> bool bookArrayBranch(TString const& branchname, T valdef, unsigned int nmax);
-  template<BranchType T> bool bookArrayBranch(TString const& branchname, unsigned int nmax);
+  template<typename T> bool bookArrayBranch(TString const& branchname, T valdef, ArrayWrapperPrimitive::ArraySize_t nmax);
+  template<BranchType T> bool bookArrayBranch(TString const& branchname, ArrayWrapperPrimitive::ArraySize_t nmax);
 
   template<typename T> bool putBranch(TString const& branchname, T valdef);
   template<BranchType T> bool putBranch(TString const& branchname);

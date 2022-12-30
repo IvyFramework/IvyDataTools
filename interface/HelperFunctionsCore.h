@@ -349,7 +349,7 @@ template void HelperFunctions::castStringToValue(TString const& name, double& va
 template void HelperFunctions::castStringToValue(const char* name, double& val);
 
 template<typename T> std::string HelperFunctions::castValueToString(T const& val, unsigned short max_decimals, unsigned short precision){
-  double decimals = std::abs(val - T((long int) val));
+  double decimals = std::abs(val - T((long) val));
   if (decimals == 0.) return Form("%.0f", double(val));
   decimals += 1e-10; // Machine precision correction...
   unsigned short base10exponent = std::ceil(std::abs(std::log10(decimals)));

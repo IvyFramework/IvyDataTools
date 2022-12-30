@@ -1094,7 +1094,7 @@ template<> bool BaseTree::bookBranch<BaseTree::BranchType_unknown_t>(TString con
 
   return false;
 }
-template<> bool BaseTree::bookArrayBranch<BaseTree::BranchType_unknown_t>(TString const& branchname, unsigned int nmax){
+template<> bool BaseTree::bookArrayBranch<BaseTree::BranchType_unknown_t>(TString const& branchname, ArrayWrapperPrimitive::ArraySize_t nmax){
   BaseTree::set_global_branchtype_class_map();
 
   TBranch* pt_br = nullptr;

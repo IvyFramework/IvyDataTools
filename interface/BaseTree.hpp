@@ -280,13 +280,13 @@ template<> bool BaseTree::getBranchCIterator<ArrayWrapper<type>*>(TString const&
 } \
 template<> void BaseTree::resetBranch<BaseTree::BranchType_a##name##_t>(){ for (auto& it:valA##name##s){ if (it.second){ it.second->reset(); } } } \
 template<> void BaseTree::removeBranch<BaseTree::BranchType_a##name##_t>(TString const& branchname){ for (auto& it:valA##name##s){ if (it.first==branchname){ delete it.second; it.second=0; } } valA##name##s.erase(branchname); } \
-template<> bool BaseTree::bookArrayBranch<type>(TString const& branchname, type valdef, unsigned int nmax){ \
+template<> bool BaseTree::bookArrayBranch<type>(TString const& branchname, type valdef, ArrayWrapperPrimitive::ArraySize_t nmax){ \
   if (valA##name##s.find(branchname)==valA##name##s.end()) valA##name##s[branchname] = new ArrayWrapper<type>(nmax, valdef); \
   else{ valA##name##s[branchname]->setDefaultValue(valdef); valA##name##s[branchname]->reset(); } \
   for (auto& tt:treelist) SampleHelpers::bookBranch(tt, branchname, &(valA##name##s[branchname]->get_values()[0])); \
   return true; \
 } \
-template<> bool BaseTree::bookArrayBranch<BaseTree::BranchType_a##name##_t>(TString const& branchname, unsigned int nmax){ return this->bookArrayBranch<type>(branchname, default_value, nmax); } \
+template<> bool BaseTree::bookArrayBranch<BaseTree::BranchType_a##name##_t>(TString const& branchname, ArrayWrapperPrimitive::ArraySize_t nmax){ return this->bookArrayBranch<type>(branchname, default_value, nmax); } \
 /* There is no putBranch for array-type branches. */ \
 template<> void BaseTree::getVal<type*>(TString const& branchname, type*& val) const{ \
   std::unordered_map<TString, ArrayWrapper<type>*>::const_iterator it; \
