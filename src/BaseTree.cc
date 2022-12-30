@@ -58,6 +58,26 @@ BaseTree::BaseTree(const TString cinput, const TString treename, const TString f
     valid = getValidFilesForTreeList(cinput, treenamelist, valid_files);
 
     if (valid){
+      if (countersname!=""){
+        std::vector<TString> all_valid_files;
+        for (auto const& vfiles:valid_files){ for (auto const& fname:vfiles){ if (!HelperFunctions::checkListVariable(all_valid_files, fname)) all_valid_files.push_back(fname); } }
+        for (auto const& fname:all_valid_files){
+          TFile* ftmp = TFile::Open(fname, "read");
+          HCounters_t* htmp = dynamic_cast<HCounters_t*>(ftmp->Get(countersname));
+          if (htmp){
+            if (hCounters) hCounters->Add(htmp);
+            else hCounters = dynamic_cast<HCounters_t*>(htmp->Clone(countersname+"_clone"));
+          }
+          else{
+            IVYerr << "BaseTree::BaseTree: Cannot find histogram " << countersname << " in " << fname << "." << endl;
+            assert(0);
+          }
+          ftmp->Close();
+          curdir->cd();
+        }
+        if (hCounters) hCounters->SetName(countersname);
+        valid &= (hCounters!=nullptr);
+      }
       if (treename!=""){
         TChain* tc = new TChain(treename);
         for (auto const& fname:valid_files.front()) tc->Add(fname);
@@ -69,10 +89,6 @@ BaseTree::BaseTree(const TString cinput, const TString treename, const TString f
         for (auto const& fname:vfiles) tc->Add(fname);
         failedtree = tc;
       }
-    }
-    if (countersname!=""){
-      IVYerr << "BaseTree::BaseTree: Cannot add histograms in chain mode." << endl;
-      assert(0);
     }
   }
   else if (HostHelpers::FileReadable(cinput.Data())){
@@ -92,7 +108,7 @@ BaseTree::BaseTree(const TString cinput, const TString treename, const TString f
           valid &= (failedtree!=nullptr);
         }
         if (countersname!=""){
-          hCounters = (TH1F*) finput->Get(countersname);
+          hCounters = (HCounters_t*) finput->Get(countersname);
           if (!hCounters) cout << "BaseTree::BaseTree(" << cinput << ") does not contain " << countersname << endl;
           valid &= (hCounters!=nullptr);
         }
@@ -140,6 +156,26 @@ BaseTree::BaseTree(const TString cinput, std::vector<TString> const& treenames, 
     std::vector< std::vector<TString> > valid_files;
     valid = getValidFilesForTreeList(cinput, treenames, valid_files);
     if (valid){
+      if (countersname!=""){
+        std::vector<TString> all_valid_files;
+        for (auto const& vfiles:valid_files){ for (auto const& fname:vfiles){ if (!HelperFunctions::checkListVariable(all_valid_files, fname)) all_valid_files.push_back(fname); } }
+        for (auto const& fname:all_valid_files){
+          TFile* ftmp = TFile::Open(fname, "read");
+          HCounters_t* htmp = dynamic_cast<HCounters_t*>(ftmp->Get(countersname));
+          if (htmp){
+            if (hCounters) hCounters->Add(htmp);
+            else hCounters = dynamic_cast<HCounters_t*>(htmp->Clone(countersname+"_clone"));
+          }
+          else{
+            IVYerr << "BaseTree::BaseTree: Cannot find histogram " << countersname << " in " << fname << "." << endl;
+            assert(0);
+          }
+          ftmp->Close();
+          curdir->cd();
+        }
+        if (hCounters) hCounters->SetName(countersname);
+        valid &= (hCounters!=nullptr);
+      }
       auto it_valid_files = valid_files.begin();
       for (auto const& treename:treenames){
         if (treename!=""){
@@ -153,10 +189,6 @@ BaseTree::BaseTree(const TString cinput, std::vector<TString> const& treenames, 
     if (!valid){
       for (auto& tt:treelist) delete tt;
       treelist.clear();
-    }
-    if (countersname!=""){
-      IVYerr << "BaseTree::BaseTree: Cannot add histograms in chain mode." << endl;
-      assert(0);
     }
   }
   else if (HostHelpers::FileReadable(cinput.Data())){
@@ -175,7 +207,7 @@ BaseTree::BaseTree(const TString cinput, std::vector<TString> const& treenames, 
           }
         }
         if (countersname!=""){
-          hCounters = (TH1F*) finput->Get(countersname);
+          hCounters = (HCounters_t*) finput->Get(countersname);
           if (!hCounters) cout << "BaseTree::BaseTree(" << cinput << ") does not contain " << countersname << endl;
           valid &= (hCounters!=nullptr);
         }
@@ -237,6 +269,26 @@ BaseTree::BaseTree(std::vector<TString> const& strinputfnames, std::vector<TStri
       }
     }
     if (valid){
+      if (countersname!=""){
+        std::vector<TString> all_valid_files;
+        for (auto const& vfiles:valid_files){ for (auto const& fname:vfiles){ if (!HelperFunctions::checkListVariable(all_valid_files, fname)) all_valid_files.push_back(fname); } }
+        for (auto const& fname:all_valid_files){
+          TFile* ftmp = TFile::Open(fname, "read");
+          HCounters_t* htmp = dynamic_cast<HCounters_t*>(ftmp->Get(countersname));
+          if (htmp){
+            if (hCounters) hCounters->Add(htmp);
+            else hCounters = dynamic_cast<HCounters_t*>(htmp->Clone(countersname+"_clone"));
+          }
+          else{
+            IVYerr << "BaseTree::BaseTree: Cannot find histogram " << countersname << " in " << fname << "." << endl;
+            assert(0);
+          }
+          ftmp->Close();
+          curdir->cd();
+        }
+        if (hCounters) hCounters->SetName(countersname);
+        valid &= (hCounters!=nullptr);
+      }
       auto it_valid_files = valid_files.begin();
       for (auto const& treename:treenames){
         if (treename!=""){
@@ -272,7 +324,7 @@ BaseTree::BaseTree(std::vector<TString> const& strinputfnames, std::vector<TStri
           }
         }
         if (countersname!=""){
-          hCounters = (TH1F*) finput->Get(countersname);
+          hCounters = (HCounters_t*) finput->Get(countersname);
           if (!hCounters) cout << "BaseTree::BaseTree(" << cinput << ") does not contain " << countersname << endl;
           valid &= (hCounters!=nullptr);
         }
@@ -314,7 +366,7 @@ BaseTree::BaseTree(const TString treename) :
   treelist.reserve(1);
   treelist.push_back(tree);
 }
-BaseTree::BaseTree(TFile* finput_, TTree* tree_, TTree* failedtree_, TH1F* hCounters_, bool receiver_override) :
+BaseTree::BaseTree(TFile* finput_, TTree* tree_, TTree* failedtree_, HCounters_t* hCounters_, bool receiver_override) :
   sampleIdentifier(""),
   finput(finput_),
   tree(tree_),
@@ -349,7 +401,7 @@ BaseTree::BaseTree(TFile* finput_, TTree* tree_, TTree* failedtree_, TH1F* hCoun
   if (tree) treelist.push_back(tree);
   if (failedtree) treelist.push_back(failedtree);
 }
-BaseTree::BaseTree(TFile* finput_, std::vector<TTree*> const& treelist_, TH1F* hCounters_, bool receiver_override) :
+BaseTree::BaseTree(TFile* finput_, std::vector<TTree*> const& treelist_, HCounters_t* hCounters_, bool receiver_override) :
   sampleIdentifier(""),
   finput(finput_),
   tree(nullptr),
@@ -444,12 +496,12 @@ BaseTree::BranchType BaseTree::searchBranchType(TString const& branchname) const
 TFile* BaseTree::getInputFile(){ return finput; }
 TTree* BaseTree::getSelectedTree(){ return tree; }
 TTree* BaseTree::getFailedTree(){ return failedtree; }
-TH1F* BaseTree::getCountersHistogram(){ return hCounters; }
+BaseTree::HCounters_t* BaseTree::getCountersHistogram(){ return hCounters; }
 std::vector<TTree*>& BaseTree::getValidTrees(){ return treelist; }
 TFile const* BaseTree::getInputFile() const{ return finput; }
 TTree const* BaseTree::getSelectedTree() const{ return tree; }
 TTree const* BaseTree::getFailedTree() const{ return failedtree; }
-TH1F const* BaseTree::getCountersHistogram() const{ return hCounters; }
+BaseTree::HCounters_t const* BaseTree::getCountersHistogram() const{ return hCounters; }
 std::vector<TTree*> const& BaseTree::getValidTrees() const{ return treelist; }
 
 bool BaseTree::getSelectedEvent(int ev){

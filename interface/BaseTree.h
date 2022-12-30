@@ -9,7 +9,7 @@
 #include "SimpleEntry.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "TH1F.h"
+#include "TH1.h"
 #include "CMSLorentzVector.h"
 #include "AnalysisDataTypes.hh"
 #include "ArrayWrapper.h"
@@ -40,12 +40,14 @@ public:
 
   TString sampleIdentifier;
 
+  typedef TH1 HCounters_t;
+
 protected:
   TFile* finput;
   std::vector<TTree*> treelist;
   TTree* tree;
   TTree* failedtree;
-  TH1F* hCounters;
+  HCounters_t* hCounters;
   bool valid;
   const bool receiver;
   bool acquireTreePossession; // If true, deletes trees and histograms upon destruction.
@@ -98,8 +100,8 @@ public:
   BaseTree(const TString cinput, std::vector<TString> const& treenames, const TString countersname);
   BaseTree(std::vector<TString> const& strinputfnames, std::vector<TString> const& treenames, const TString countersname);
   BaseTree(const TString treename); // Output constructor
-  BaseTree(TFile* finput_, TTree* tree_, TTree* failedtree_, TH1F* hCounters_, bool receiver_override); // Mixed definition constructor
-  BaseTree(TFile* finput_, std::vector<TTree*> const& treelist_, TH1F* hCounters_, bool receiver_override); // Mixed definition constructor
+  BaseTree(TFile* finput_, TTree* tree_, TTree* failedtree_, HCounters_t* hCounters_, bool receiver_override); // Mixed definition constructor
+  BaseTree(TFile* finput_, std::vector<TTree*> const& treelist_, HCounters_t* hCounters_, bool receiver_override); // Mixed definition constructor
   virtual ~BaseTree();
 
   template<typename T> bool bookBranch(TString const& branchname, T valdef);
@@ -116,12 +118,12 @@ public:
   TFile* getInputFile();
   TTree* getSelectedTree();
   TTree* getFailedTree();
-  TH1F* getCountersHistogram();
+  HCounters_t* getCountersHistogram();
   std::vector<TTree*>& getValidTrees();
   TFile const* getInputFile() const;
   TTree const* getSelectedTree() const;
   TTree const* getFailedTree() const;
-  TH1F const* getCountersHistogram() const;
+  HCounters_t const* getCountersHistogram() const;
   std::vector<TTree*> const& getValidTrees() const;
 
   bool getSelectedEvent(int ev);
