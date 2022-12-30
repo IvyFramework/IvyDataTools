@@ -24,7 +24,7 @@ SIMPLE_DATA_INPUT_DIRECTIVE(double, double, 0)
 SIMPLE_DATA_INPUT_DIRECTIVE(TBits, TBits, TBits()) \
 SIMPLE_DATA_INPUT_DIRECTIVE(string, std::string, "") \
 SIMPLE_DATA_INPUT_DIRECTIVE(TString, TString, "") \
-SIMPLE_DATA_INPUT_DIRECTIVE(CMSLorentzVector, CMSLorentzVector, CMSLorentzVector(0, 0, 0, 0))
+SIMPLE_DATA_INPUT_DIRECTIVE(IvyLorentzVectorFloat, IvyLorentzVector_f, IvyLorentzVector_f(0, 0, 0, 0))
 
 #define SIMPLE_DATA_INPUT_DIRECTIVES \
 FUNDAMENTAL_DATA_INPUT_DIRECTIVES \
@@ -47,7 +47,7 @@ VECTOR_DATA_INPUT_DIRECTIVE(double, std::vector<double>) \
 /*VECTOR_DATA_INPUT_DIRECTIVE(TBits, std::vector<TBits>)*/ \
 VECTOR_DATA_INPUT_DIRECTIVE(string, std::vector<std::string>) \
 VECTOR_DATA_INPUT_DIRECTIVE(TString, std::vector<TString>) \
-VECTOR_DATA_INPUT_DIRECTIVE(CMSLorentzVector, std::vector<CMSLorentzVector>)
+VECTOR_DATA_INPUT_DIRECTIVE(IvyLorentzVectorFloat, std::vector<IvyLorentzVector_f>)
 
 #define DOUBLEVECTOR_DATA_INPUT_DIRECTIVES \
 DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(bool, std::vector<std::vector<bool>>) \
@@ -66,7 +66,7 @@ DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(double, std::vector<std::vector<double>>) \
 /*DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(TBits, std::vector<std::vector<TBits>>)*/ \
 /*DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(string, std::vector<std::vector<std::string>>)*/ \
 /*DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(TString, std::vector<std::vector<TString>>)*/ \
-DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(CMSLorentzVector, std::vector<std::vector<CMSLorentzVector>>)
+DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(IvyLorentzVectorFloat, std::vector<std::vector<IvyLorentzVector_f>>)
 
 #define ARRAY_DATA_INPUT_DIRECTIVES \
 ARRAY_DATA_INPUT_DIRECTIVE(bool, bool, false) \
@@ -100,7 +100,7 @@ SIMPLE_DATA_OUTPUT_DIRECTIVE(float, float) \
 SIMPLE_DATA_OUTPUT_DIRECTIVE(double, double) \
 SIMPLE_DATA_OUTPUT_DIRECTIVE(string, std::string) \
 SIMPLE_DATA_OUTPUT_DIRECTIVE(TString, TString) \
-/*SIMPLE_DATA_OUTPUT_DIRECTIVE(CMSLorentzVector, CMSLorentzVector)*/
+/*SIMPLE_DATA_OUTPUT_DIRECTIVE(IvyLorentzVectorFloat, IvyLorentzVector_f)*/
 
 #define VECTOR_DATA_OUTPUT_DIRECTIVES \
 VECTOR_DATA_OUTPUT_DIRECTIVE(bool, std::vector<bool>) \
@@ -118,7 +118,7 @@ VECTOR_DATA_OUTPUT_DIRECTIVE(float, std::vector<float>) \
 VECTOR_DATA_OUTPUT_DIRECTIVE(double, std::vector<double>) \
 VECTOR_DATA_OUTPUT_DIRECTIVE(string, std::vector<std::string>) \
 VECTOR_DATA_OUTPUT_DIRECTIVE(TString, std::vector<TString>) \
-/*VECTOR_DATA_OUTPUT_DIRECTIVE(CMSLorentzVector, std::vector<CMSLorentzVector>)*/
+/*VECTOR_DATA_OUTPUT_DIRECTIVE(IvyLorentzVectorFloat, std::vector<IvyLorentzVector_f>)*/
 
 #define DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVES \
 DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVE(bool, std::vector<std::vector<bool>>) \
@@ -136,7 +136,7 @@ DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVE(float, std::vector<std::vector<float>>) \
 /*DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVE(double, std::vector<std::vector<double>>)*/ \
 /*DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVE(string, std::vector<std::vector<std::string>>)*/ \
 /*DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVE(TString, std::vector<std::vector<TString>>)*/ \
-/*DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVE(CMSLorentzVector, std::vector<std::vector<CMSLorentzVector>>)*/
+/*DOUBLEVECTOR_DATA_OUTPUT_DIRECTIVE(IvyLorentzVectorFloat, std::vector<std::vector<IvyLorentzVector_f>>)*/
 
 
 #endif
