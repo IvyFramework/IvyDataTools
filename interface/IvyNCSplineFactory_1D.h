@@ -1,5 +1,5 @@
-#ifndef ROONCSPLINEFACTORY_1D
-#define ROONCSPLINEFACTORY_1D
+#ifndef IVYNCSPLINEFACTORY_1D
+#define IVYNCSPLINEFACTORY_1D
 
 #include <vector>
 #include <utility>
@@ -7,7 +7,8 @@
 #include "TGraph.h"
 #include "TTree.h"
 #include "IvyNCSpline_1D_fast.h"
-#include "RooFuncPdf.h"
+#include "IvyFuncPdf.h"
+
 
 class IvyNCSplineFactory_1D{
 protected:
@@ -18,7 +19,7 @@ protected:
 
   RooAbsReal* splineVar;
   IvyNCSpline_1D_fast* fcn;
-  RooFuncPdf* PDF;
+  IvyFuncPdf* PDF;
 
   const std::vector<std::pair<IvyNCSplineCore::T, IvyNCSplineCore::T>> getPoints(const std::vector<IvyNCSplineCore::T>& XList, const std::vector<IvyNCSplineCore::T>& FcnList);
 
@@ -34,7 +35,7 @@ public:
   ~IvyNCSplineFactory_1D();
 
   IvyNCSpline_1D_fast* getFunc(){ return fcn; }
-  RooFuncPdf* getPDF(){ return PDF; }
+  IvyFuncPdf* getPDF(){ return PDF; }
 
   void setEndConditions(
     IvyNCSplineCore::BoundaryCondition const bcBegin,

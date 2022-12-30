@@ -1,5 +1,5 @@
-#ifndef ROONCSPLINE_3D_FAST
-#define ROONCSPLINE_3D_FAST
+#ifndef IVYNCSPLINE_3D_FAST
+#define IVYNCSPLINE_3D_FAST
 
 #include <vector>
 #include "RooAbsPdf.h"

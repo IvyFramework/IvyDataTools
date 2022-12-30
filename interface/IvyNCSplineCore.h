@@ -1,5 +1,5 @@
-#ifndef ROONCSPLINECORE
-#define ROONCSPLINECORE  
+#ifndef IVYNCSPLINECORE
+#define IVYNCSPLINECORE  
 
 #include <vector>
 #include "IvyAccumulators.h"

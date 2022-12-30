@@ -1,5 +1,4 @@
-#include "RooFuncPdf.h"
-//#include "RooLinearInterpFunc.h"
+#include "IvyFuncPdf.h"
 #include "IvyNCSplineFactory_1D.h"
 #include "IvyNCSplineFactory_2D.h"
 #include "IvyNCSplineFactory_3D.h"
@@ -15,8 +14,7 @@
 #pragma link C++ nestedclasses;
 #pragma link C++ nestedtypedefs;
 
-#pragma link C++ class RooFuncPdf;
-//#pragma link C++ class RooLinearInterpFunc;
+#pragma link C++ class IvyFuncPdf;
 #pragma link C++ class IvyNCSplineCore;
 #pragma link C++ class IvyNCSpline_1D_fast;
 #pragma link C++ class IvyNCSpline_2D_fast;

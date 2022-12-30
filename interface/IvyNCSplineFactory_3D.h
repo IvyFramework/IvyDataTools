@@ -1,5 +1,5 @@
-#ifndef ROONCSPLINEFACTORY_3D
-#define ROONCSPLINEFACTORY_3D
+#ifndef IVYNCSPLINEFACTORY_3D
+#define IVYNCSPLINEFACTORY_3D
 
 #include <vector>
 #include <utility>
@@ -7,7 +7,7 @@
 #include "TTree.h"
 #include "IvyNumericUtils.h"
 #include "IvyNCSpline_3D_fast.h"
-#include "RooFuncPdf.h"
+#include "IvyFuncPdf.h"
 
 
 typedef NumericUtils::quadruplet<IvyNCSplineCore::T> splineQuadruplet_t;
@@ -28,7 +28,7 @@ protected:
   RooAbsReal* YVar;
   RooAbsReal* ZVar;
   IvyNCSpline_3D_fast* fcn;
-  RooFuncPdf* PDF;
+  IvyFuncPdf* PDF;
 
   const std::vector<splineQuadruplet_t> getPoints(const std::vector<IvyNCSplineCore::T>& XList, const std::vector<IvyNCSplineCore::T>& YList, const std::vector<IvyNCSplineCore::T>& ZList, const std::vector<IvyNCSplineCore::T>& FcnList);
 
@@ -50,7 +50,7 @@ public:
   ~IvyNCSplineFactory_3D();
 
   IvyNCSpline_3D_fast* getFunc(){ return fcn; }
-  RooFuncPdf* getPDF(){ return PDF; }
+  IvyFuncPdf* getPDF(){ return PDF; }
 
   void setEndConditions(
     IvyNCSplineCore::BoundaryCondition const bcBegin,

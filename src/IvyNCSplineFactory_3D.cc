@@ -1,5 +1,6 @@
 #include "IvyNCSplineFactory_3D.h"
 
+
 using namespace std;
 
 
@@ -102,7 +103,7 @@ void IvyNCSplineFactory_3D::initPDF(const std::vector<splineQuadruplet_t>& pList
   );
 
   name.Prepend("PDF_"); title=name;
-  PDF = new RooFuncPdf(
+  PDF = new IvyFuncPdf(
     name.Data(),
     title.Data(),
     *fcn

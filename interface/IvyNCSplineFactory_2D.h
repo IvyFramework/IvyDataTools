@@ -1,5 +1,5 @@
-#ifndef ROONCSPLINEFACTORY_2D
-#define ROONCSPLINEFACTORY_2D
+#ifndef IVYNCSPLINEFACTORY_2D
+#define IVYNCSPLINEFACTORY_2D
 
 #include <vector>
 #include <utility>
@@ -7,7 +7,7 @@
 #include "TTree.h"
 #include "IvyNumericUtils.h"
 #include "IvyNCSpline_2D_fast.h"
-#include "RooFuncPdf.h"
+#include "IvyFuncPdf.h"
 
 
 typedef NumericUtils::triplet<IvyNCSplineCore::T> splineTriplet_t;
@@ -25,7 +25,7 @@ protected:
   RooAbsReal* XVar;
   RooAbsReal* YVar;
   IvyNCSpline_2D_fast* fcn;
-  RooFuncPdf* PDF;
+  IvyFuncPdf* PDF;
 
   const std::vector<splineTriplet_t> getPoints(const std::vector<IvyNCSplineCore::T>& XList, const std::vector<IvyNCSplineCore::T>& YList, const std::vector<IvyNCSplineCore::T>& FcnList);
 
@@ -45,7 +45,7 @@ public:
   ~IvyNCSplineFactory_2D();
 
   IvyNCSpline_2D_fast* getFunc(){ return fcn; }
-  RooFuncPdf* getPDF(){ return PDF; }
+  IvyFuncPdf* getPDF(){ return PDF; }
 
   void setEndConditions(
     IvyNCSplineCore::BoundaryCondition const bcBegin,

@@ -1,6 +1,7 @@
 #include "IvyNCSplineFactory_1D.h"
 #include <cassert>
 
+
 using namespace std;
 
 
@@ -71,7 +72,7 @@ void IvyNCSplineFactory_1D::initPDF(const std::vector<std::pair<IvyNCSplineCore:
     );
 
   name.Prepend("PDF_"); title=name;
-  PDF = new RooFuncPdf(
+  PDF = new IvyFuncPdf(
     name.Data(),
     title.Data(),
     *fcn

@@ -1,28 +1,28 @@
-#ifndef ROOFUNCPDF_H
-#define ROOFUNCPDF_H
+#ifndef IVYFUNCPDF_H
+#define IVYFUNCPDF_H
 
 #include "RooRealProxy.h"
 #include "RooAbsPdf.h"
 
 
-class RooFuncPdf : public RooAbsPdf{
+class IvyFuncPdf : public RooAbsPdf{
 protected:
   RooRealProxy theFunc;
 
 public:
-  RooFuncPdf() : RooAbsPdf(){}
-  RooFuncPdf(
+  IvyFuncPdf() : RooAbsPdf(){}
+  IvyFuncPdf(
     const char* name,
     const char* title
     ) : RooAbsPdf(name, title), theFunc("theFunc","theFunc",this){}
-  RooFuncPdf(
+  IvyFuncPdf(
     const char* name,
     const char* title,
     RooAbsReal& inFunc
     ) : RooAbsPdf(name, title), theFunc("theFunc", "theFunc", this, inFunc){}
-  RooFuncPdf(const RooFuncPdf& other, const char* name=0) : RooAbsPdf(other, name), theFunc("theFunc", this, other.theFunc){}
-  TObject* clone(const char* newname) const{ return new RooFuncPdf(*this, newname); }
-  inline virtual ~RooFuncPdf(){}
+  IvyFuncPdf(const IvyFuncPdf& other, const char* name=0) : RooAbsPdf(other, name), theFunc("theFunc", this, other.theFunc){}
+  TObject* clone(const char* newname) const{ return new IvyFuncPdf(*this, newname); }
+  inline virtual ~IvyFuncPdf(){}
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const{ return dynamic_cast<RooAbsReal*>(theFunc.absArg())->getAnalyticalIntegral(allVars, analVars, rangeName); }
   Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const{ return dynamic_cast<RooAbsReal*>(theFunc.absArg())->analyticalIntegral(code, rangeName); }
@@ -38,10 +38,10 @@ protected:
   Double_t evaluate() const{ return theFunc; }
 
 
-  ClassDef(RooFuncPdf, 1)
+  ClassDef(IvyFuncPdf, 1)
 
 };
 
-ClassImp(RooFuncPdf)
+ClassImp(IvyFuncPdf)
 
 #endif
