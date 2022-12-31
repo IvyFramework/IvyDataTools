@@ -6,7 +6,8 @@ This is the simplest class ever. No members exist.
 One can inherit from this class to generalize any call structure.
 */
 
-struct BaseEmptyClass{
+class BaseEmptyClass{
+public:
   BaseEmptyClass(){}
   BaseEmptyClass(BaseEmptyClass const&){}
   BaseEmptyClass(BaseEmptyClass&&){}

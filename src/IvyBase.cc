@@ -10,6 +10,7 @@ using namespace std;
 
 
 IvyBase::IvyBase() :
+  BaseEmptyClass(),
   verbosity(MiscUtils::ERROR),
   currentTree(nullptr),
   eventCache_currentTTree(nullptr),

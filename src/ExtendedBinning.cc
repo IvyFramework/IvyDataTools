@@ -1,8 +1,10 @@
+#include <utility>
 #include "ExtendedBinning.h"
 #include "HelperFunctions.h"
 
 
 ExtendedBinning::ExtendedBinning(const TString name_, const TString label_) :
+  BaseEmptyClass(),
   name(name_),
   label(label_),
   hasAbsoluteLowerBound(false),
@@ -11,6 +13,7 @@ ExtendedBinning::ExtendedBinning(const TString name_, const TString label_) :
   adjustNameLabel();
 }
 ExtendedBinning::ExtendedBinning(const unsigned int nbins, const double min, const double max, const TString name_, const TString label_) :
+  BaseEmptyClass(),
   name(name_),
   label(label_),
   hasAbsoluteLowerBound(false),
@@ -25,6 +28,7 @@ ExtendedBinning::ExtendedBinning(const unsigned int nbins, const double min, con
   }
 }
 ExtendedBinning::ExtendedBinning(const std::vector<double>& vbinlow_, const TString name_, const TString label_) :
+  BaseEmptyClass(),
   vbinlow(vbinlow_),
   name(name_),
   label(label_),
@@ -34,13 +38,47 @@ ExtendedBinning::ExtendedBinning(const std::vector<double>& vbinlow_, const TStr
   adjustNameLabel();
 }
 ExtendedBinning::ExtendedBinning(ExtendedBinning const& other) :
+  BaseEmptyClass(other),
   vbinlow(other.vbinlow),
   name(other.name),
   label(other.label),
   hasAbsoluteLowerBound(other.hasAbsoluteLowerBound),
   hasAbsoluteUpperBound(other.hasAbsoluteUpperBound)
 {}
+ExtendedBinning::ExtendedBinning(ExtendedBinning&& other) :
+  BaseEmptyClass(other),
+  vbinlow(std::move(other.vbinlow)),
+  name(std::move(other.name)),
+  label(std::move(other.label)),
+  hasAbsoluteLowerBound(std::move(other.hasAbsoluteLowerBound)),
+  hasAbsoluteUpperBound(std::move(other.hasAbsoluteUpperBound))
+{
+  other.hasAbsoluteLowerBound = other.hasAbsoluteUpperBound = false;
+}
 
+void ExtendedBinning::swap(ExtendedBinning& other){
+  std::swap(vbinlow, other.vbinlow);
+  std::swap(name, other.name);
+  std::swap(label, other.label);
+  std::swap(hasAbsoluteLowerBound, other.hasAbsoluteLowerBound);
+  std::swap(hasAbsoluteUpperBound, other.hasAbsoluteUpperBound);
+}
+ExtendedBinning& ExtendedBinning::operator=(ExtendedBinning const& other){
+  ExtendedBinning tmp(other);
+  this->swap(tmp);
+  return *this;
+}
+ExtendedBinning& ExtendedBinning::operator=(ExtendedBinning&& other){
+  vbinlow = std::move(other.vbinlow);
+  name = std::move(other.name);
+  label = std::move(other.label);
+  hasAbsoluteLowerBound = std::move(other.hasAbsoluteLowerBound);
+  hasAbsoluteUpperBound = std::move(other.hasAbsoluteUpperBound);
+
+  other.hasAbsoluteLowerBound = other.hasAbsoluteUpperBound = false;
+
+  return *this;
+}
 
 void ExtendedBinning::adjustNameLabel(){ if (this->label=="") this->label = this->name; }
 

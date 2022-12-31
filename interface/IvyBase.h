@@ -2,12 +2,13 @@
 #define IVYBASE_H
 
 #include "VerbosityLevel.h"
+#include "BaseEmptyClass.h"
 #include "BaseTree.h"
 #include "HelperFunctionsCore.h"
 #include "IvyStreamHelpers.hh"
 
 
-class IvyBase{
+class IvyBase : public BaseEmptyClass{
 protected:
   MiscUtils::VerbosityLevel verbosity;
   BaseTree* currentTree;

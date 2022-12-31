@@ -19,6 +19,7 @@ std::unordered_map< BaseTree::BranchType, std::pair<TString, EDataType> > BaseTr
 
 
 BaseTree::BaseTree() :
+  BaseEmptyClass(),
   sampleIdentifier(""),
   finput(nullptr),
   tree(nullptr),
@@ -33,6 +34,7 @@ BaseTree::BaseTree() :
   currentTree(nullptr)
 {}
 BaseTree::BaseTree(const TString cinput, const TString treename, const TString failedtreename, const TString countersname) :
+  BaseEmptyClass(),
   sampleIdentifier(""), // Sample identifier is supposed to be overwritten by the daughter class
   finput(nullptr),
   tree(nullptr),
@@ -136,6 +138,7 @@ BaseTree::BaseTree(const TString cinput, const TString treename, const TString f
   curdir->cd(); // Return back to the directory before opening the input file
 }
 BaseTree::BaseTree(const TString cinput, std::vector<TString> const& treenames, const TString countersname) :
+  BaseEmptyClass(),
   sampleIdentifier(""), // Sample identifier is supposed to be overwritten by the daughter class
   finput(nullptr),
   tree(nullptr),
@@ -235,6 +238,7 @@ BaseTree::BaseTree(const TString cinput, std::vector<TString> const& treenames, 
   curdir->cd(); // Return back to the directory before opening the input file
 }
 BaseTree::BaseTree(std::vector<TString> const& strinputfnames, std::vector<TString> const& treenames, const TString countersname) :
+  BaseEmptyClass(),
   sampleIdentifier(""), // Sample identifier is supposed to be overwritten by the daughter class
   finput(nullptr),
   tree(nullptr),
@@ -353,6 +357,7 @@ BaseTree::BaseTree(std::vector<TString> const& strinputfnames, std::vector<TStri
   curdir->cd(); // Return back to the directory before opening the input file
 }
 BaseTree::BaseTree(const TString treename) :
+  BaseEmptyClass(),
   sampleIdentifier(""),
   finput(nullptr),
   tree(new TTree(treename, "")),
@@ -370,6 +375,7 @@ BaseTree::BaseTree(const TString treename) :
   treelist.push_back(tree);
 }
 BaseTree::BaseTree(TFile* finput_, TTree* tree_, TTree* failedtree_, HCounters_t* hCounters_, bool receiver_override) :
+  BaseEmptyClass(),
   sampleIdentifier(""),
   finput(finput_),
   tree(tree_),
@@ -405,6 +411,7 @@ BaseTree::BaseTree(TFile* finput_, TTree* tree_, TTree* failedtree_, HCounters_t
   if (failedtree) treelist.push_back(failedtree);
 }
 BaseTree::BaseTree(TFile* finput_, std::vector<TTree*> const& treelist_, HCounters_t* hCounters_, bool receiver_override) :
+  BaseEmptyClass(),
   sampleIdentifier(""),
   finput(finput_),
   tree(nullptr),

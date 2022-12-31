@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <unordered_map>
 #include "StdExtensions.h"
+#include "BaseEmptyClass.h"
 #include "SimpleEntry.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -15,7 +16,7 @@
 #include "ArrayWrapper.h"
 
 
-class BaseTree{
+class BaseTree : public BaseEmptyClass{
 protected:
   static bool robustSaveWrite;
   static bool doRobustInputCheck;

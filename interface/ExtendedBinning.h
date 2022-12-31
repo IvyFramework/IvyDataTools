@@ -5,9 +5,10 @@
 #include <utility>
 #include "TString.h"
 #include "TH1.h"
+#include "BaseEmptyClass.h"
 
 
-class ExtendedBinning{
+class ExtendedBinning : public BaseEmptyClass{
 protected:
   std::vector<double> vbinlow; // Size=Nbins+1
   TString name;
@@ -25,6 +26,11 @@ public:
   ExtendedBinning(const unsigned int nbins, const double min, const double max, const TString name="", const TString label_=""); // Uniform constructor
   ExtendedBinning(const std::vector<double>& vbinlow_, const TString name="", const TString label_="");
   ExtendedBinning(ExtendedBinning const& other);
+  ExtendedBinning(ExtendedBinning&& other);
+
+  void swap(ExtendedBinning& other);
+  ExtendedBinning& operator=(ExtendedBinning const& other);
+  ExtendedBinning& operator=(ExtendedBinning&& other);
 
   bool isValid() const;
 
