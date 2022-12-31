@@ -27,7 +27,8 @@ public:
   IvyParticle();
   IvyParticle(ivy_id_t id_);
   IvyParticle(ivy_id_t id_, LorentzVector_t const& mom_);
-  IvyParticle(const IvyParticle& other);
+  IvyParticle(IvyParticle const& other);
+  IvyParticle(IvyParticle&& other);
   virtual ~IvyParticle(){}
 
   // Swap and assignment operators are not virtual; they bring more complication than necessary, so they are implemented in the derived classes.

@@ -26,7 +26,7 @@ IvyParticle::IvyParticle(ivy_id_t id_, LorentzVector_t const& momentum_) :
   selectionBits(0),
   momentum(momentum_)
 {}
-IvyParticle::IvyParticle(const IvyParticle& other) :
+IvyParticle::IvyParticle(IvyParticle const& other) :
   id(other.id),
   uniqueIdentifier(other.uniqueIdentifier),
   selectionBits(other.selectionBits),
@@ -34,6 +34,19 @@ IvyParticle::IvyParticle(const IvyParticle& other) :
   mothers(other.mothers),
   daughters(other.daughters)
 {}
+IvyParticle::IvyParticle(IvyParticle&& other) :
+  id(std::move(other.id)),
+  uniqueIdentifier(std::move(other.uniqueIdentifier)),
+  selectionBits(std::move(other.selectionBits)),
+  momentum(std::move(other.momentum)),
+  mothers(std::move(other.mothers)),
+  daughters(std::move(other.daughters))
+{
+  other.id = -9000;
+  other.uniqueIdentifier = 0;
+  other.selectionBits = 0;
+  other.momentum = LorentzVector_t(0, 0, 0, 0);
+}
 
 void IvyParticle::swap(IvyParticle& other){
   std::swap(id, other.id);
