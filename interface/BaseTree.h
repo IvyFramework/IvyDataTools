@@ -85,7 +85,7 @@ protected:
   template<BranchType T> void removeBranch(TString const& branchname);
 
   // [tree][file] is the order of output vector indices
-  bool getValidFilesForTreeList(TString cinput, std::vector<TString> const& treenames, std::vector< std::vector<TString> >& res) const;
+  bool getValidFilesForTreeList(TString cinput, std::vector<TString> const& treenames, std::vector< std::vector<TString> >& res, std::vector<TString>* all_files = nullptr) const;
 
   TBranch* getActiveBranch(int ev, TString const& bname, int* ptr_ev_tree = nullptr);
 

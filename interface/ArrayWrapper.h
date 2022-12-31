@@ -18,7 +18,7 @@ protected:
 
 public:
   ArrayWrapperPrimitive() : max_size(0){}
-  ArrayWrapperPrimitive(ArraySize_t const& max_size_) : max_size(max_size_){ assert(max_size>0); }
+  ArrayWrapperPrimitive(ArraySize_t const& max_size_) : max_size(max_size_){ assert(this->max_size>0); }
   virtual ~ArrayWrapperPrimitive(){}
 };
 
@@ -26,7 +26,6 @@ template<typename T> class ArrayWrapper : public ArrayWrapperPrimitive{
 protected:
   typedef T Wrapped_t;
 
-  ArraySize_t max_size;
   Wrapped_t valdef;
   Wrapped_t* values;
 
