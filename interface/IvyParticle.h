@@ -67,7 +67,7 @@ public:
   LorentzVector_t::Scalar eta() const{ return momentum.Eta(); }
   LorentzVector_t::Scalar phi() const{ return momentum.Phi(); }
   LorentzVector_t::Scalar rapidity() const{ return momentum.Rapidity(); }
-  virtual LorentzVector_t::Scalar uncorrected_pt() const{ return pt(); }
+  virtual LorentzVector_t::Scalar uncorrected_pt() const{ return this->uncorrected_p4().Pt(); }
   virtual LorentzVector_t uncorrected_p4() const{ return p4(); }
   LorentzVector_t::Scalar energy() const{ return this->E(); }
   LorentzVector_t::Scalar mass() const{ return this->m(); }

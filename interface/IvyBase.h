@@ -71,6 +71,7 @@ public:
 
   // Tree
   virtual bool wrapTree(BaseTree* tree);
+  BaseTree* getWrappedTree() const{ return currentTree; }
   BaseTree* getWrappedTree(){ return currentTree; }
 
   // Reset the cache
