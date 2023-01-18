@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <cctype>
 #include <unordered_map>
+#include <iterator>
+#include <cmath>
 #include "TMath.h"
 #include "StdExtensions.h"
 #include "CMSLorentzVector.h"
@@ -45,6 +47,9 @@ namespace HelperFunctions{
 
   template<typename T> bool checkListVariable(std::vector<T> const& list, T const& var);
   template<typename T> bool hasCommonElements(std::vector<T> const& list1, std::vector<T> const& list2);
+  template<typename T> void splitElementsByCommonalty(std::vector<T> const& list1, std::vector<T> const& list2, std::vector<T>* common, std::vector<T>* only_list1, std::vector<T>* only_list2);
+
+  template<typename T> bool removeListVariable(std::vector<T>& list, T const& var);
 
   template<typename T, typename U> bool getUnorderedMapIterator(T const& theKey, std::unordered_map<T, U> const& theMap, typename std::unordered_map<T, U>::const_iterator& it);
   template<typename T, typename U> bool getUnorderedMapIterator(T const& theKey, std::unordered_map<T, U>& theMap, typename std::unordered_map<T, U>::iterator& it);
@@ -76,10 +81,17 @@ namespace HelperFunctions{
   template<typename T> void castStringToValue(TString const& name, T& val);
   template<typename T> void castStringToValue(const char* name, T& val);
 
-  template<typename T> void lowercase(T const& name, T& val);
-  template<> void lowercase(std::string const& name, std::string& val);
-  template<> void lowercase(TString const& name, TString& val);
-  template<> void lowercase(const char* const& name, const char*& val);
+  // In the following functions, assuming ibegin and iend are both nonnegative,
+  // the transformed range is [ibegin, iend).
+  template<typename T> void lowercase(T const& name, T& val, int ibegin=-1, int iend=-1);
+  template<> void lowercase(std::string const& name, std::string& val, int ibegin, int iend);
+  template<> void lowercase(TString const& name, TString& val, int ibegin, int iend);
+  template<> void lowercase(const char* const& name, const char*& val, int ibegin, int iend);
+
+  template<typename T> void uppercase(T const& name, T& val, int ibegin=-1, int iend=-1);
+  template<> void uppercase(std::string const& name, std::string& val, int ibegin, int iend);
+  template<> void uppercase(TString const& name, TString& val, int ibegin, int iend);
+  template<> void uppercase(const char* const& name, const char*& val, int ibegin, int iend);
 
   // Value-to-string casts
   template<typename T> std::string castValueToString(T const& val, unsigned short max_decimals=4, unsigned short precision=4);
@@ -140,7 +152,7 @@ template<typename T, typename U> void HelperFunctions::zipVectors(std::vector<T>
 template<typename T> void HelperFunctions::addByLowest(std::vector<T>& valArray, T const& val, bool unique){
   bool inserted = false;
   if (unique){
-    for (typename std::vector<T>::iterator it = valArray.begin(); it<valArray.end(); it++){
+    for (typename std::vector<T>::iterator it = valArray.begin(); it!=valArray.end(); it++){
       if (*it==val){
         inserted=true;
         break;
@@ -148,7 +160,7 @@ template<typename T> void HelperFunctions::addByLowest(std::vector<T>& valArray,
     }
   }
   if (!inserted){
-    for (typename std::vector<T>::iterator it = valArray.begin(); it<valArray.end(); it++){
+    for (typename std::vector<T>::iterator it = valArray.begin(); it!=valArray.end(); it++){
       if (*it>=val){
         inserted=true;
         valArray.insert(it, val);
@@ -160,7 +172,7 @@ template<typename T> void HelperFunctions::addByLowest(std::vector<T>& valArray,
 }
 template<typename T, typename U> void HelperFunctions::addByLowest(std::vector<std::pair<T, U>>& valArray, T const& val, U const& index){
   bool inserted = false;
-  for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it<valArray.end(); it++){
+  for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); it++){
     if ((*it).first>=val){
       inserted=true;
       if ((*it).second!=index) valArray.insert(it, std::pair<T, U>(val, index));
@@ -174,7 +186,7 @@ template<typename T, typename U> void HelperFunctions::addByLowest(std::vector<s
     bool inserted = false;
     typename std::vector<std::pair<T, U>>::iterator inbegin = inArray.begin();
     typename std::vector<std::pair<T, U>>::iterator inend = inArray.end();
-    for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it<valArray.end(); it++){
+    for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); it++){
       if ((*it).first>=(*inbegin).first){
         inserted=true;
         if ((*it).second!=(*inbegin).second) valArray.insert(it, inbegin, inend);
@@ -184,9 +196,9 @@ template<typename T, typename U> void HelperFunctions::addByLowest(std::vector<s
     if (!inserted) appendVector<std::pair<T, U>>(valArray, inArray);
   }
   else if (!inputordered){
-    for (typename std::vector<std::pair<T, U>>::iterator init = inArray.begin(); init<inArray.end(); init++){
+    for (typename std::vector<std::pair<T, U>>::iterator init = inArray.begin(); init!=inArray.end(); init++){
       bool inserted = false;
-      for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it<valArray.end(); it++){
+      for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); it++){
         if ((*it).first>=(*init).first){
           inserted=true;
           if ((*it).second!=(*init).second) valArray.insert(it, *init);
@@ -206,9 +218,9 @@ template<typename T, typename U> void HelperFunctions::addByLowest(std::vector<s
     vallast++;
     inlast++;
 
-    for (typename std::vector<std::pair<T, U>>::iterator init = infirst; init<inlast; init++){
+    for (typename std::vector<std::pair<T, U>>::iterator init = infirst; init!=inlast; init++){
       bool inserted = false;
-      for (typename std::vector<std::pair<T, U>>::iterator it = valfirst; it<vallast; it++){
+      for (typename std::vector<std::pair<T, U>>::iterator it = valfirst; it!=vallast; it++){
         if ((*it).first>=(*init).first){
           inserted=true;
           if ((*it).second!=(*init).second) valArray.insert(it, *init);
@@ -223,7 +235,7 @@ template<typename T, typename U> void HelperFunctions::addByLowest(std::vector<s
 template<typename T> void HelperFunctions::addByHighest(std::vector<T>& valArray, T const& val, bool unique){
   bool inserted = false;
   if (unique){
-    for (typename std::vector<T>::iterator it = valArray.begin(); it<valArray.end(); it++){
+    for (typename std::vector<T>::iterator it = valArray.begin(); it!=valArray.end(); it++){
       if (*it==val){
         inserted=true;
         break;
@@ -231,7 +243,7 @@ template<typename T> void HelperFunctions::addByHighest(std::vector<T>& valArray
     }
   }
   if (!inserted){
-    for (typename std::vector<T>::iterator it = valArray.begin(); it<valArray.end(); it++){
+    for (typename std::vector<T>::iterator it = valArray.begin(); it!=valArray.end(); it++){
       if (*it<=val){
         inserted=true;
         valArray.insert(it, val);
@@ -243,7 +255,7 @@ template<typename T> void HelperFunctions::addByHighest(std::vector<T>& valArray
 }
 template<typename T, typename U> void HelperFunctions::addByHighest(std::vector<std::pair<T, U>>& valArray, T const& val, U const& index){
   bool inserted = false;
-  for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it<valArray.end(); it++){
+  for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); it++){
     if ((*it).first<=val){
       inserted=true;
       if ((*it).second!=index) valArray.insert(it, std::pair<T, U>(val, index));
@@ -257,7 +269,7 @@ template<typename T, typename U> void HelperFunctions::addByHighest(std::vector<
     bool inserted = false;
     typename std::vector<std::pair<T, U>>::iterator inbegin = inArray.begin();
     typename std::vector<std::pair<T, U>>::iterator inend = inArray.end();
-    for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it<valArray.end(); it++){
+    for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); it++){
       if ((*it).first<=(*inbegin).first){
         inserted=true;
         if ((*it).second!=(*inbegin).second) valArray.insert(it, inbegin, inend);
@@ -267,9 +279,9 @@ template<typename T, typename U> void HelperFunctions::addByHighest(std::vector<
     if (!inserted) appendVector<std::pair<T, U>>(valArray, inArray);
   }
   else if (!inputordered){
-    for (typename std::vector<std::pair<T, U>>::iterator init = inArray.begin(); init<inArray.end(); init++){
+    for (typename std::vector<std::pair<T, U>>::iterator init = inArray.begin(); init!=inArray.end(); init++){
       bool inserted = false;
-      for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it<valArray.end(); it++){
+      for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); it++){
         if ((*it).first<=(*init).first){
           inserted=true;
           if ((*it).second!=(*init).second) valArray.insert(it, *init);
@@ -289,9 +301,9 @@ template<typename T, typename U> void HelperFunctions::addByHighest(std::vector<
     vallast++;
     inlast++;
 
-    for (typename std::vector<std::pair<T, U>>::iterator init = infirst; init<inlast; init++){
+    for (typename std::vector<std::pair<T, U>>::iterator init = infirst; init!=inlast; init++){
       bool inserted = false;
-      for (typename std::vector<std::pair<T, U>>::iterator it = valfirst; it<vallast; it++){
+      for (typename std::vector<std::pair<T, U>>::iterator it = valfirst; it!=vallast; it++){
         if ((*it).first<=(*init).first){
           inserted=true;
           if ((*it).second!=(*init).second) valArray.insert(it, *init);
@@ -311,6 +323,26 @@ template<typename T> bool HelperFunctions::hasCommonElements(std::vector<T> cons
     }
   }
   return false;
+}
+template<typename T> void HelperFunctions::splitElementsByCommonalty(std::vector<T> const& list1, std::vector<T> const& list2, std::vector<T>* common, std::vector<T>* only_list1, std::vector<T>* only_list2){
+  if (common) common->clear();
+  if (only_list1) only_list1->clear();
+  if (only_list2) only_list2->clear();
+  for (T const& el:list1){
+    if (checkListVariable(list2, el)){ if (common) common->push_back(el); }
+    else{ if (only_list1) only_list1->push_back(el); }
+  }
+  auto const& l2comp = (common ? *common : list1);
+  for (T const& el:list2){
+    if (!checkListVariable(l2comp, el)){ if (only_list2) only_list2->push_back(el); }
+  }
+}
+
+template<typename T> bool HelperFunctions::removeListVariable(std::vector<T>& list, T const& var){
+  unsigned long long nlist_old = list.size();
+  auto it_end_eff = std::remove(std::begin(list), std::end(list), var);
+  list.erase(it_end_eff, std::end(list));
+  return (list.size()!=nlist_old);
 }
 
 template<typename T, typename U> bool HelperFunctions::getUnorderedMapIterator(T const& theKey, std::unordered_map<T, U> const& theMap, typename std::unordered_map<T, U>::const_iterator& it){

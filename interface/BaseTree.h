@@ -187,6 +187,7 @@ public:
   static void setRobustSaveWrite(bool flag);
   static void setRobustInputCheck(bool flag);
   static void writeSimpleEntries(std::vector<SimpleEntry>::const_iterator const& vecBegin, std::vector<SimpleEntry>::const_iterator const& vecEnd, BaseTree* const& tree_, bool createBranches=true);
+  static TString getBranchTypeName(BranchType const& type);
 
 };
 

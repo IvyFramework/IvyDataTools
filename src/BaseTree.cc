@@ -1013,6 +1013,24 @@ void BaseTree::writeSimpleEntries(std::vector<SimpleEntry>::const_iterator const
     tree_->doAutoSave("FlushBaskets");
   }
 }
+TString BaseTree::getBranchTypeName(BranchType const& type){
+#define SIMPLE_DATA_INPUT_DIRECTIVE(name, type, default_value) case BranchType_##name##_t: return #name;
+#define VECTOR_DATA_INPUT_DIRECTIVE(name, type) case BranchType_v##name##_t: return Form("v%s", #name);
+#define DOUBLEVECTOR_DATA_INPUT_DIRECTIVE(name, type) case BranchType_vv##name##_t: return Form("vv%s", #name);
+#define ARRAY_DATA_INPUT_DIRECTIVE(name, type, default_value) case BranchType_a##name##_t: return Form("a%s", #name);
+  switch (type){
+  SIMPLE_DATA_INPUT_DIRECTIVES
+  VECTOR_DATA_INPUT_DIRECTIVES
+  DOUBLEVECTOR_DATA_INPUT_DIRECTIVES
+  ARRAY_DATA_INPUT_DIRECTIVES
+  default: return "unknown";
+  }
+#undef SIMPLE_DATA_INPUT_DIRECTIVE
+#undef VECTOR_DATA_INPUT_DIRECTIVE
+#undef DOUBLEVECTOR_DATA_INPUT_DIRECTIVE
+#undef ARRAY_DATA_INPUT_DIRECTIVE
+}
+
 
 void BaseTree::set_global_branchtype_class_map(){
   if (!BaseTree::global_branchtype_class_map.empty()) return;

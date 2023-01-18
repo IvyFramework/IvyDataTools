@@ -1,6 +1,5 @@
 #include <cassert>
 #include <cstring>
-#include <cctype>
 #include "HelperFunctions.h"
 #include "StatisticsHelpers.h"
 #include "IvyNCSplineFactory_1D.h"
@@ -1236,18 +1235,57 @@ template<> void HelperFunctions::rstrip<TString>(TString& str, const char* chars
   str=strtmp.c_str();
 }
 
-template<> void HelperFunctions::lowercase(std::string const& name, std::string& val){
+template<> void HelperFunctions::lowercase(std::string const& name, std::string& val, int ibegin, int iend){
   val = name;
-  std::transform(val.begin(), val.end(), val.begin(), [] (unsigned char c){ return std::tolower(c); });
+  auto it_begin = std::begin(val);
+  auto it_end = std::end(val);
+  auto len = std::distance(it_begin, it_end);
+  if (ibegin>=0 && ibegin<len){
+    for (int i=0; i<ibegin; i++) it_begin++;
+  }
+  if (iend>=0 && iend<len){
+    it_end = it_begin;
+    for (int i=0; i<iend; i++) it_end++;
+  }
+  std::transform(it_begin, it_end, it_begin, [] (unsigned char c){ return std::tolower(c); });
 }
-template<> void HelperFunctions::lowercase(TString const& name, TString& val){
-  val = name;
-  val.ToLower();
+template<> void HelperFunctions::lowercase(TString const& name, TString& val, int ibegin, int iend){
+  std::string strname = name.Data();
+  std::string strval;
+  HelperFunctions::lowercase(strname, strval, ibegin, iend);
+  val = strval.data();
 }
-template<> void HelperFunctions::lowercase(const char* const& name, const char*& val){
+template<> void HelperFunctions::lowercase(const char* const& name, const char*& val, int ibegin, int iend){
   std::string strname = name;
   std::string strval;
-  HelperFunctions::lowercase(strname, strval);
+  HelperFunctions::lowercase(strname, strval, ibegin, iend);
+  val = strval.data();
+}
+
+template<> void HelperFunctions::uppercase(std::string const& name, std::string& val, int ibegin, int iend){
+  val = name;
+  auto it_begin = std::begin(val);
+  auto it_end = std::end(val);
+  auto len = std::distance(it_begin, it_end);
+  if (ibegin>=0 && ibegin<len){
+    for (int i=0; i<ibegin; i++) it_begin++;
+  }
+  if (iend>=0 && iend<len){
+    it_end = it_begin;
+    for (int i=0; i<iend; i++) it_end++;
+  }
+  std::transform(it_begin, it_end, it_begin, [] (unsigned char c){ return std::toupper(c); });
+}
+template<> void HelperFunctions::uppercase(TString const& name, TString& val, int ibegin, int iend){
+  std::string strname = name.Data();
+  std::string strval;
+  HelperFunctions::uppercase(strname, strval, ibegin, iend);
+  val = strval.data();
+}
+template<> void HelperFunctions::uppercase(const char* const& name, const char*& val, int ibegin, int iend){
+  std::string strname = name;
+  std::string strval;
+  HelperFunctions::uppercase(strname, strval, ibegin, iend);
   val = strval.data();
 }
 

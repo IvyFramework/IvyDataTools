@@ -1,6 +1,9 @@
 #ifndef ANALYSISDATATYPES_HH
 #define ANALYSISDATATYPES_HH
 
+#include <vector>
+#include <string>
+#include "TString.h"
 #include "CMSLorentzVector.h"
 
 
