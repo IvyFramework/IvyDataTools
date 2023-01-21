@@ -11,10 +11,13 @@
 #include <iomanip>
 #include <string>
 #include <vector>
+#include <array>
+#include <map>
+#include <unordered_map>
 #include <utility>
-#include "TString.h"
+#include "StdExtensions.h"
+#include "CMSLorentzVector.h"
 #include "TLorentzVector.h"
-#include "Math/LorentzVector.h"
 
 
 class IvyOutputStreamer{
@@ -28,8 +31,13 @@ public:
 
   template<typename T> IvyOutputStreamer& operator<<(T const& val);
   template<typename T> IvyOutputStreamer& operator<<(ROOT::Math::LorentzVector<T> const& val);
-  template<typename T, typename U> IvyOutputStreamer& operator<<(std::pair<T, U> const& val);
+  template<typename T> IvyOutputStreamer& operator<<(ROOT::Math::DisplacementVector3D<T> const& val);
+  template<typename T> IvyOutputStreamer& operator<<(ROOT::Math::DisplacementVector2D<T> const& val);
   template<typename T> IvyOutputStreamer& operator<<(std::vector<T> const& val);
+  template<typename T, typename U> IvyOutputStreamer& operator<<(std::pair<T, U> const& val);
+  template<typename T, typename U> IvyOutputStreamer& operator<<(std::unordered_map<T, U> const& val);
+  template<typename T, typename U> IvyOutputStreamer& operator<<(std::map<T, U> const& val);
+  template<typename T, std::size_t N> IvyOutputStreamer& operator<<(std::array<T, N> const& val);
   IvyOutputStreamer& operator<<(std::ostream& (*fcn)(std::ostream&));
   IvyOutputStreamer& operator<<(std::ios& (*fcn)(std::ios&));
   IvyOutputStreamer& operator<<(std::ios_base& (*fcn)(std::ios_base&));
@@ -98,17 +106,52 @@ template<typename T> IvyOutputStreamer& IvyOutputStreamer::operator<<(ROOT::Math
   *this << "[ " << val.X() << ", " << val.Y() << ", " << val.Z() << ", " << val.T() << ", " << val.M() << " ]";
   return *this;
 }
+template<typename T> IvyOutputStreamer& IvyOutputStreamer::operator<<(ROOT::Math::DisplacementVector3D<T> const& val){
+  *this << "[ " << val.X() << ", " << val.Y() << ", " << val.Z() << " ]";
+  return *this;
+}
+template<typename T> IvyOutputStreamer& IvyOutputStreamer::operator<<(ROOT::Math::DisplacementVector2D<T> const& val){
+  *this << "[ " << val.X() << ", " << val.Y() << " ]";
+  return *this;
+}
 
 template<typename T, typename U> IvyOutputStreamer& IvyOutputStreamer::operator<<(std::pair<T, U> const& val){
   *this << "{ " << val.first << ", " << val.second << " }";
+  return *this;
+}
+template<typename T, typename U> IvyOutputStreamer& IvyOutputStreamer::operator<<(std::unordered_map<T, U> const& val){
+  *this << "{ ";
+  for (auto it=val.cbegin(); it!=val.cend(); it++){
+    if (it!=val.cbegin()) *this << ", ";
+    *this << *it;
+  }
+  *this << " }";
+  return *this;
+}
+template<typename T, typename U> IvyOutputStreamer& IvyOutputStreamer::operator<<(std::map<T, U> const& val){
+  *this << "{ ";
+  for (auto it=val.cbegin(); it!=val.cend(); it++){
+    if (it!=val.cbegin()) *this << ", ";
+    *this << *it;
+  }
+  *this << " }";
+  return *this;
+}
+template<typename T, std::size_t N> IvyOutputStreamer& IvyOutputStreamer::operator<<(std::array<T, N> const& val){
+  *this << "{ ";
+  for (auto it=val.cbegin(); it!=val.cend(); it++){
+    if (it!=val.cbegin()) *this << ", ";
+    *this << *it;
+  }
+  *this << " }";
   return *this;
 }
 
 template<typename T> IvyOutputStreamer& IvyOutputStreamer::operator<<(std::vector<T> const& val){
   *this << "{ ";
   for (typename std::vector<T>::const_iterator it=val.cbegin(); it!=val.cend(); it++){
+    if (it!=val.cbegin()) *this << ", ";
     *this << *it;
-    if (it!=val.cend()-1) *this << ", ";
   }
   *this << " }";
   return *this;
