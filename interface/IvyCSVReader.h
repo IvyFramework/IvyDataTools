@@ -14,10 +14,10 @@ protected:
 
 public:
   IvyCSVReader(){}
-  IvyCSVReader(std::string fname, std::string escape_seq="");
+  IvyCSVReader(std::string fname, std::string escape_seq="", const char* preserve_quotes="\"'");
   ~IvyCSVReader(){}
 
-  void readFile(std::string fname, std::string escape_seq="");
+  void readFile(std::string fname, std::string escape_seq="", const char* preserve_quotes="\"'");
 
   std::vector<std::string> const& getLabels() const{ return labels; }
   std::vector<std::string> const& getColumn(std::string const& label) const;

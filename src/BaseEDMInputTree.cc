@@ -1,4 +1,4 @@
-#ifndef _COMPILE_STANDALONE_
+#ifndef _COMPILE_IVY_STANDALONE_
 
 #include "TSystem.h"
 #include "TDirectory.h"

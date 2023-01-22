@@ -1,7 +1,7 @@
 #ifndef IVYLORENTZVECTOR_H
 #define IVYLORENTZVECTOR_H
 
-#ifdef _COMPILE_STANDALONE_
+#ifdef _COMPILE_IVY_STANDALONE_
 
 #include "Math/PtEtaPhiE4D.h"
 #include "Math/PtEtaPhiM4D.h"
