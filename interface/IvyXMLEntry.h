@@ -14,8 +14,10 @@ protected:
 
 public:
   IvyXMLBasicEntry(){}
-  IvyXMLBasicEntry(std::string strentry);
+  IvyXMLBasicEntry(std::string const& strentry);
   virtual ~IvyXMLBasicEntry(){}
+
+  void readBasicEntry(std::string strentry);
 
   std::string const& getType() const{ return this->type; }
   std::string const& getType(){ return this->type; }
@@ -32,8 +34,11 @@ protected:
   EntryType_t value;
 
 public:
+  void readEntry(std::string strentry){}
+
+public:
   IvyXMLEntry(){}
-  IvyXMLEntry(std::string strentry);
+  IvyXMLEntry(std::string const& strentry) : IvyXMLBasicEntry(strentry){ this->readEntry(strentry); }
   virtual ~IvyXMLEntry(){}
 
   EntryType_t const& getValue() const{ return this->value; }

@@ -11,9 +11,7 @@ using namespace std;
 using namespace IvyStreamHelpers;
 
 
-template<> IvyXMLStringEntry_t::IvyXMLEntry(std::string strentry) :
-  IvyXMLBasicEntry(strentry)
-{
+template<> void IvyXMLStringEntry_t::readEntry(std::string /*strentry*/){
   this->value = this->body;
 
   while (this->value.find("&lt;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(this->value, "&lt;", "<");
@@ -22,10 +20,7 @@ template<> IvyXMLStringEntry_t::IvyXMLEntry(std::string strentry) :
   while (this->value.find("&apos;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(this->value, "&apos;", "'");
   while (this->value.find("&quot;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(this->value, "&quot;", "\"");
 }
-
-template<> IvyXMLCompositeEntry_t::IvyXMLEntry(std::string strentry) :
-  IvyXMLBasicEntry(strentry)
-{
+template<> void IvyXMLCompositeEntry_t::readEntry(std::string strentry){
   // Clean the entry from comment blocks
   {
     std::size_t pos_first_comment_begin = strentry.find("<!--");
@@ -45,18 +40,41 @@ template<> IvyXMLCompositeEntry_t::IvyXMLEntry(std::string strentry) :
   {
     std::size_t pos_first_lt = strentry.find('<');
     while (pos_first_lt!=std::string::npos){
-      std::size_t pos_first_gt = strentry.find('>', pos_first_lt);
-      std::string tmp_block(strentry.cbegin()+pos_first_lt+1, strentry.cbegin()+pos_first_gt);
-      tmp_block = tmp_block.substr(0, tmp_block.find(' '));
+      bool const is_cdata = strentry.find("<![CDATA[")==pos_first_lt;
+      bool const is_preproc = strentry.find("<?")==pos_first_lt;
+      if (!is_cdata && !is_preproc){
+        std::size_t pos_first_gt = strentry.find('>', pos_first_lt);
+        std::string tmp_block(strentry.cbegin()+pos_first_lt+1, strentry.cbegin()+pos_first_gt);
+        tmp_block = tmp_block.substr(0, tmp_block.find(' '));
 
-      std::string tmp_block_end = Form("</%s>", tmp_block.data());
-      std::size_t pos_block_end_begin = strentry.find(tmp_block_end);
-      std::size_t pos_block_end = pos_block_end_begin + tmp_block_end.size();
+        std::string tmp_block_end = Form("</%s>", tmp_block.data());
+        std::size_t pos_block_end_begin = strentry.find(tmp_block_end);
+        std::size_t pos_block_end = pos_block_end_begin + tmp_block_end.size();
 
-      std::string tmp_body(strentry.cbegin()+pos_first_gt+1, strentry.cbegin()+pos_block_end_begin);
-      std::string tmp_block_begin(strentry.cbegin()+pos_first_lt, strentry.cbegin()+pos_first_gt+1);
-      entries.push_back(std::pair<std::pair<std::string, std::string>, std::string>(std::pair<std::string, std::string>(tmp_block_begin, tmp_block_end), tmp_body));
-      strentry = strentry.substr(pos_block_end);
+        std::string tmp_body(strentry.cbegin()+pos_first_gt+1, strentry.cbegin()+pos_block_end_begin);
+        std::string tmp_block_begin(strentry.cbegin()+pos_first_lt, strentry.cbegin()+pos_first_gt+1);
+        entries.push_back(std::pair<std::pair<std::string, std::string>, std::string>(std::pair<std::string, std::string>(tmp_block_begin, tmp_block_end), tmp_body));
+        strentry = strentry.substr(pos_block_end);
+      }
+      else if (is_preproc){
+        std::size_t pos_first_gt = strentry.find("?>", pos_first_lt);
+        std::string tmp_block(strentry.cbegin()+pos_first_lt, strentry.cbegin()+pos_first_gt);
+        tmp_block = tmp_block.substr(0, tmp_block.find(' ')+1); // Block is in fact 'xml ', ', ' etc.
+        std::size_t pos_block_end = pos_first_gt + 2;
+
+        std::string tmp_body(strentry.cbegin()+pos_first_lt+tmp_block.size(), strentry.cbegin()+pos_first_gt);
+        entries.push_back(std::pair<std::pair<std::string, std::string>, std::string>(std::pair<std::string, std::string>(tmp_block, "?>"), tmp_body));
+        strentry = strentry.substr(pos_block_end);
+      }
+      else if (is_cdata){
+        std::size_t pos_first_gt = strentry.find("]]>", pos_first_lt);
+        std::string tmp_block = "<![CDATA[";
+        std::size_t pos_block_end = pos_first_gt + 3;
+
+        std::string tmp_body(strentry.cbegin()+pos_first_lt+tmp_block.size(), strentry.cbegin()+pos_first_gt);
+        entries.push_back(std::pair<std::pair<std::string, std::string>, std::string>(std::pair<std::string, std::string>(tmp_block, "]]>"), tmp_body));
+        strentry = strentry.substr(pos_block_end);
+      }
 
       pos_first_lt = strentry.find('<');
     }
