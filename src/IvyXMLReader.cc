@@ -22,6 +22,15 @@ IvyXMLReader::IvyXMLReader(std::string const& fname) :
 
 void IvyXMLReader::readFile(std::string fname){
   HostHelpers::ExpandEnvironmentVariables(fname);
+  if (!HostHelpers::FileReadable(fname.data())){
+    IVYerr << "IvyXMLReader::readFile: File " << fname << " is not readable." << endl;
+    assert(0);
+  }
+  if (entry){
+    IVYout << "IvyXMLReader::readFile: A file was loaded previously. The existing entry is now being discarded." << endl;
+    delete entry;
+    entry = nullptr;
+  }
 
   std::size_t total_size=0;
   std::vector<std::string> strlist;
@@ -56,17 +65,19 @@ void IvyXMLReader::readFile(std::string fname){
   }
 
   {
-    std::string str_dummy;
-    std::size_t const max_size = str_dummy.max_size();
+    // The head entry is a pseudotag with type="xml" to wrap the rest of the XML file.
+    // This is needed to contain multiple tags at the first level properly.
+    std::string const strbegin = "<xml>";
+    std::string const strend = "</xml>";
+    std::string const str_dummy;
+    std::size_t const max_size = str_dummy.max_size() - strbegin.size() - strend.size();
     if (total_size>max_size){
       IVYerr << "IvyXMLReader::readFile: Implementation is limited to a maximum of " << max_size << " characters in the XML file. The current size is " << total_size << "." << endl;
       assert(0);
     }
-  }
 
-  {
     std::string strentry;
     for (auto const& ss:strlist) strentry += ss;
-    entry = new IvyXMLCompositeEntry_t(strentry);
+    entry = new IvyXMLCompositeEntry_t(strbegin+strentry+strend);
   }
 }

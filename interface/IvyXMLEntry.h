@@ -24,6 +24,7 @@ public:
   std::unordered_map<std::string, std::string> const& getAttributes() const{ return this->attributes; }
   std::unordered_map<std::string, std::string> const& getAttributes(){ return this->attributes; }
 
+  virtual void print(unsigned int level=0) const;
 };
 
 template<typename T> class IvyXMLEntry : public IvyXMLBasicEntry{
@@ -34,14 +35,16 @@ protected:
   EntryType_t value;
 
 public:
-  void readEntry(std::string strentry){}
+  void readEntry();
 
 public:
   IvyXMLEntry(){}
-  IvyXMLEntry(std::string const& strentry) : IvyXMLBasicEntry(strentry){ this->readEntry(strentry); }
+  IvyXMLEntry(std::string const& strentry) : IvyXMLBasicEntry(strentry){ this->readEntry(); }
   virtual ~IvyXMLEntry(){}
 
   EntryType_t const& getValue() const{ return this->value; }
+
+  void print(unsigned int level=0) const;
 };
 
 

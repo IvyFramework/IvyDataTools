@@ -83,13 +83,13 @@ BaseTree::BaseTree(const TString cinput, const TString treename, const TString f
       }
       if (treename!=""){
         TChain* tc = new TChain(treename);
-        for (auto const& fname:valid_files.front()) tc->Add(fname);
+        for (auto const& fname:valid_files.front()) tc->Add(fname, -1);
         tree = tc;
       }
       if (failedtreename!=""){
         TChain* tc = new TChain(failedtreename);
         auto const& vfiles = (treename!="" ? valid_files.back() : valid_files.front());
-        for (auto const& fname:vfiles) tc->Add(fname);
+        for (auto const& fname:vfiles) tc->Add(fname, -1);
         failedtree = tc;
       }
     }
@@ -185,7 +185,7 @@ BaseTree::BaseTree(const TString cinput, std::vector<TString> const& treenames, 
       for (auto const& treename:treenames){
         if (treename!=""){
           TChain* tc = new TChain(treename);
-          for (auto const& fname:(*it_valid_files)) tc->Add(fname);
+          for (auto const& fname:(*it_valid_files)) tc->Add(fname, -1);
           treelist.push_back(tc);
         }
         it_valid_files++;
@@ -300,7 +300,7 @@ BaseTree::BaseTree(std::vector<TString> const& strinputfnames, std::vector<TStri
       for (auto const& treename:treenames){
         if (treename!=""){
           TChain* tc = new TChain(treename);
-          for (auto const& fname:(*it_valid_files)) tc->Add(fname);
+          for (auto const& fname:(*it_valid_files)) tc->Add(fname, -1);
           treelist.push_back(tc);
         }
         it_valid_files++;
@@ -967,10 +967,12 @@ bool BaseTree::getValidFilesForTreeList(TString cinput, std::vector<TString> con
     for (auto& vv:res){
       if ((*it_treenames)!=""){
         if (vv.empty()) return false;
+        /*
         else if (vv.size() == fnames.size()){
           vv.clear();
           vv.push_back(cinput);
         }
+        */
       }
       it_treenames++;
     }

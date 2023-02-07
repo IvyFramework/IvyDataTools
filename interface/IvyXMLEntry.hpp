@@ -11,7 +11,7 @@ using namespace std;
 using namespace IvyStreamHelpers;
 
 
-template<> void IvyXMLStringEntry_t::readEntry(std::string /*strentry*/){
+template<> void IvyXMLStringEntry_t::readEntry(){
   this->value = this->body;
 
   while (this->value.find("&lt;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(this->value, "&lt;", "<");
@@ -20,7 +20,8 @@ template<> void IvyXMLStringEntry_t::readEntry(std::string /*strentry*/){
   while (this->value.find("&apos;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(this->value, "&apos;", "'");
   while (this->value.find("&quot;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(this->value, "&quot;", "\"");
 }
-template<> void IvyXMLCompositeEntry_t::readEntry(std::string strentry){
+template<> void IvyXMLCompositeEntry_t::readEntry(){
+  std::string strentry = this->body;
   // Clean the entry from comment blocks
   {
     std::size_t pos_first_comment_begin = strentry.find("<!--");
@@ -88,6 +89,28 @@ template<> void IvyXMLCompositeEntry_t::readEntry(std::string strentry){
   }
 }
 template<> IvyXMLCompositeEntry_t::~IvyXMLEntry(){ for (auto& v:this->value) delete v; }
+
+template<> void IvyXMLStringEntry_t::print(unsigned int level) const{
+  for (unsigned int i=0; i<level; i++) IVYout << ' ';
+  IVYout << "Type: " << this->type << endl;
+  for (unsigned int i=0; i<level; i++) IVYout << ' ';
+  IVYout << "Attributes: " << this->attributes << endl;
+  for (unsigned int i=0; i<level; i++) IVYout << ' ';
+  IVYout << "Body: " << this->body << endl;
+  for (unsigned int i=0; i<level; i++) IVYout << ' ';
+  IVYout << "Value (string): " << this->value << endl;
+}
+template<> void IvyXMLCompositeEntry_t::print(unsigned int level) const{
+  for (unsigned int i=0; i<level; i++) IVYout << ' ';
+  IVYout << "Type: " << this->type << endl;
+  for (unsigned int i=0; i<level; i++) IVYout << ' ';
+  IVYout << "Attributes: " << this->attributes << endl;
+  for (unsigned int i=0; i<level; i++) IVYout << ' ';
+  IVYout << "Body: " << this->body << endl;
+  for (unsigned int i=0; i<level; i++) IVYout << ' ';
+  IVYout << "Value (composite):" << endl;
+  for (auto const& vv:this->value) vv->print(level+1);
+}
 
 
 #endif

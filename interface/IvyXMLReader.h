@@ -15,6 +15,10 @@ public:
 
   void readFile(std::string fname);
 
+  IvyXMLCompositeEntry_t* const& getEntry() const{ return entry; }
+  IvyXMLCompositeEntry_t* const& getEntry(){ return entry; }
+
+  void print() const{ if (entry) entry->print(); }
 };
 
 
