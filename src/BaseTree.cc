@@ -194,6 +194,8 @@ BaseTree::BaseTree(const TString cinput, std::vector<TString> const& treenames, 
     if (!valid){
       for (auto& tt:treelist) delete tt;
       treelist.clear();
+      delete hCounters;
+      hCounters = nullptr;
     }
   }
   else if (HostHelpers::FileReadable(cinput.Data())){
@@ -309,10 +311,8 @@ BaseTree::BaseTree(std::vector<TString> const& strinputfnames, std::vector<TStri
     if (!valid){
       for (auto& tt:treelist) delete tt;
       treelist.clear();
-    }
-    if (countersname!=""){
-      IVYerr << "BaseTree::BaseTree: Cannot add histograms in chain mode." << endl;
-      assert(0);
+      delete hCounters;
+      hCounters = nullptr;
     }
   }
   else if (HostHelpers::FileReadable(cinput.Data())){
@@ -529,8 +529,8 @@ bool BaseTree::getFailedEvent(int ev){
   bool result=false;
   if (failedtree && ev<failedtree->GetEntries()) result = (failedtree->GetEntry(ev)>0);
   if (result){
-    currentEvent = ev;
-    currentGlobalEvent = ev + (tree ? tree->GetEntries() : 0);
+    currentGlobalEvent = currentEvent = ev;
+    for (auto& tt:treelist){ if (tt && tt!=failedtree) currentGlobalEvent += tt->GetEntries(); }
     currentTree = failedtree;
   }
   return result;

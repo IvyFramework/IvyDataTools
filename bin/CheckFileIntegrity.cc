@@ -87,7 +87,6 @@ int main(int argc, char** argv){
       else{
         if (finput->IsOpen()) finput->Close();
         else delete finput;
-        finput = nullptr;
       }
     }
 
