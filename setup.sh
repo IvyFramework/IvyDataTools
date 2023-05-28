@@ -7,18 +7,14 @@ set -euo pipefail
 cd $(dirname ${BASH_SOURCE[0]})
 
 PKGDIR="$(readlink -f .)"
-declare -i forceStandalone=0
 declare -i doPrintEnv=0
 declare -i doPrintEnvInstr=0
-declare -i usingCMSSW=0
 declare -i needROOFITSYS_ROOTSYS=0
 declare -a setupArgs=()
 
 for farg in "$@"; do
   fargl="$(echo $farg | awk '{print tolower($0)}')"
-  if [[ "$fargl" == "standalone" ]]; then
-    forceStandalone=1
-  elif [[ "$fargl" == "env" ]]; then
+  if [[ "$fargl" == "env" ]]; then
     doPrintEnv=1
   elif [[ "$fargl" == "envinstr" ]]; then
     doPrintEnvInstr=1
@@ -29,19 +25,8 @@ done
 declare -i nSetupArgs
 nSetupArgs=${#setupArgs[@]}
 
-if [[ ${forceStandalone} -eq 0 ]] && [[ ! -z "${CMSSW_BASE+x}" ]]; then
-
-  usingCMSSW=1
-
-  eval $(scram ru -sh)
-
-fi
 
 printenv() {
-  if [[ ${usingCMSSW} -eq 1 ]]; then
-    return 0
-  fi
-
   pythonappend="${PKGDIR}/python"
   end=""
   if [[ ! -z "${PYTHONPATH+x}" ]]; then
@@ -83,10 +68,6 @@ printenv() {
   fi
 }
 doenv() {
-  if [[ ${usingCMSSW} -eq 1 ]]; then
-    return 0
-  fi
-
   pythonappend="${PKGDIR}/python"
   end=""
   if [[ ! -z "${PYTHONPATH+x}" ]]; then
@@ -118,20 +99,16 @@ doenv() {
   fi
 }
 printenvinstr () {
-  if [[ ${usingCMSSW} -eq 1 ]]; then
-    return 0
-  fi
-
   echo
-  echo "remember to do"
+  echo "Remember to do"
   echo
-  echo 'eval $('${BASH_SOURCE[0]}' env standalone)'
+  echo 'eval $('${BASH_SOURCE[0]}' env)'
   echo "or"
-  echo 'eval `'${BASH_SOURCE[0]}' env standalone`'
+  echo 'eval `'${BASH_SOURCE[0]}' env`'
   echo
   echo "if you are using a bash-related shell, or you can do"
   echo
-  echo ${BASH_SOURCE[0]}' env standalone'
+  echo ${BASH_SOURCE[0]}' env'
   echo
   echo "and change the commands according to your shell in order to do something equivalent to set up the environment variables."
   echo
@@ -152,13 +129,7 @@ fi
 
 
 if [[ "$nSetupArgs" -eq 1 ]] && [[ "${setupArgs[0]}" == *"clean"* ]]; then
-    #echo "Cleaning C++"
-    if [[ ${usingCMSSW} -eq 1 ]];then
-      scramv1 b "${setupArgs[@]}"
-    else
-      make clean
-    fi
-
+    make clean
     exit $?
 elif [[ "$nSetupArgs" -ge 1 ]] && [[ "$nSetupArgs" -le 2 ]] && [[ "${setupArgs[0]}" == *"-j"* ]]; then
     : ok
@@ -171,11 +142,7 @@ fi
 
 doenv
 
-if [[ ${usingCMSSW} -eq 1 ]]; then
-  scramv1 b "${setupArgs[@]}"
-else
-  make "${setupArgs[@]}"
-fi
+make "${setupArgs[@]}"
 
 compile_status=$?
 if [[ ${compile_status} -ne 0 ]]; then
