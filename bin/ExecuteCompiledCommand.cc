@@ -179,7 +179,10 @@ int main(int argc, char** argv){
         const char* preserve_quotes = "\"'"; if (strArgs.size() >= 5) preserve_quotes = strArgs.at(4).Data();
         TString strdne; if (strArgs.size() >= 6) strdne = strArgs.at(5);
 
-        IVYout << "Reading csv " << csvname << " with comment string " << strcomment << "..." << endl;
+        IVYout << "Reading csv " << csvname << " with comment string " << strcomment;
+        if (preserve_quotes) IVYout << ", quote preservation " << preserve_quotes;
+        if (strdne!="") IVYout << ", DNE string " << strdne;
+        IVYout << "..." << endl;
         IvyCSVReader csvreader(csvname.Data(), strcomment.Data(), preserve_quotes);
 
         TFile* foutput = TFile::Open(coutput, "recreate");
