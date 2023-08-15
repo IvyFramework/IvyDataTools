@@ -4,6 +4,7 @@
 #include <iostream>
 #include <utility>
 #include <algorithm>
+#include <limits>
 #include "HelperFunctionsCore.h"
 #include "HostHelpersCore.h"
 #include "IvyStreamHelpers.hh"
@@ -119,7 +120,7 @@ std::vector<std::string> IvyCSVReader::getRow(unsigned long long irow) const{
   return res;
 }
 
-BaseTree* IvyCSVReader::convertToTree(std::string const& treename) const{
+BaseTree* IvyCSVReader::convertToTree(std::string const& treename, std::string strdne) const{
   BaseTree* res = new BaseTree(treename.data());
 
   std::unordered_map<std::string, BaseTree::BranchType> label_btype_map;
@@ -127,6 +128,7 @@ BaseTree* IvyCSVReader::convertToTree(std::string const& treename) const{
     auto const& strvals = label_entries_map.find(lb)->second;
     BaseTree::BranchType btype = BaseTree::BranchType_int_t;
     for (auto const& strval:strvals){
+      if (strdne != "" && strval == strdne) continue;
       double dval = 0;
       try{ dval = std::stod(strval); }
       catch (std::invalid_argument const& e){
@@ -156,18 +158,35 @@ BaseTree* IvyCSVReader::convertToTree(std::string const& treename) const{
       double dval=0;
       int ival=0;
       std::string const& sval = label_entries_map.find(lb)->second.at(irow);
-      switch (btype){
-      case BaseTree::BranchType_double_t:
-        dval = std::stod(sval);
-        res->setVal(lb.data(), dval);
-        break;
-      case BaseTree::BranchType_int_t:
-        ival = std::stoi(sval);
-        res->setVal(lb.data(), ival);
-        break;
-      default:
-        res->setVal(lb.data(), sval);
-        break;
+      if (strdne != "" && sval == strdne){
+        switch (btype){
+        case BaseTree::BranchType_double_t:
+          dval = std::numeric_limits<double>::max();
+          res->setVal(lb.data(), dval);
+          break;
+        case BaseTree::BranchType_int_t:
+          ival = std::numeric_limits<int>::max();
+          res->setVal(lb.data(), ival);
+          break;
+        default:
+          res->setVal(lb.data(), sval);
+          break;
+        }
+      }
+      else{
+        switch (btype){
+        case BaseTree::BranchType_double_t:
+          dval = std::stod(sval);
+          res->setVal(lb.data(), dval);
+          break;
+        case BaseTree::BranchType_int_t:
+          ival = std::stoi(sval);
+          res->setVal(lb.data(), ival);
+          break;
+        default:
+          res->setVal(lb.data(), sval);
+          break;
+        }
       }
     }
     res->fill();

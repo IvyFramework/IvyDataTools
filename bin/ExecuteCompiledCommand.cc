@@ -170,20 +170,21 @@ int main(int argc, char** argv){
     }
     // Other handy helper utilities
     else if (strCmdLower == "convertcsvtottree"){
-      if (strArgs.size()!=3 && strArgs.size() != 4 && strArgs.size() != 5) print_help = true;
+      if (strArgs.size()!=3 && strArgs.size() != 4 && strArgs.size() != 5 && strArgs.size() != 6) print_help = true;
       else{
         TString const& csvname = strArgs.front();
         TString const& coutput = strArgs.at(1);
         TString const& treename = strArgs.at(2);
         TString strcomment; if (strArgs.size() >= 4) strcomment = strArgs.at(3);
-        const char* preserve_quotes = nullptr; if (strArgs.size() >= 5) preserve_quotes = strArgs.at(4).Data();
+        const char* preserve_quotes = "\"'"; if (strArgs.size() >= 5) preserve_quotes = strArgs.at(4).Data();
+        TString strdne; if (strArgs.size() >= 6) strdne = strArgs.at(5);
 
         IVYout << "Reading csv " << csvname << " with comment string " << strcomment << "..." << endl;
         IvyCSVReader csvreader(csvname.Data(), strcomment.Data(), preserve_quotes);
 
         TFile* foutput = TFile::Open(coutput, "recreate");
         foutput->cd();
-        BaseTree* tcsv = csvreader.convertToTree(treename.Data());
+        BaseTree* tcsv = csvreader.convertToTree(treename.Data(), strdne.Data());
         tcsv->writeToFile(foutput);
         delete tcsv;
         foutput->Close();
@@ -228,7 +229,7 @@ int main(int argc, char** argv){
     cout << "  ComputeLeastCommonMultiple [integer 1] [integer 2]... (can pass more than two integers): Compute the least common multiple of a list of integers." << endl;
     cout << "*** Other handy helper utilities ***" << endl;
     cout << endl;
-    cout << "  ConvertCSVToTTree [csvfile] [outputfile] [treename] [comment string (optional)] [xharacters to group in a single line (optional)]: Convert a CSV file format to a TTree format stored in a TFile." << endl;
+    cout << "  ConvertCSVToTTree [csvfile] [outputfile] [treename] [comment string (optional)] [xharacters to group in a single line (optional)] [does-not-exist string (optional)]: Convert a CSV file format to a TTree format stored in a TFile." << endl;
   }
 
   return exit_status;

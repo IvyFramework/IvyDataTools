@@ -28,7 +28,7 @@ public:
 
   // This function converts the csv file to an output tree.
   // The branch types are double, int, or std::string in order of precedence.
-  BaseTree* convertToTree(std::string const& treename) const;
+  BaseTree* convertToTree(std::string const& treename, std::string strdne="") const;
 };
 
 
