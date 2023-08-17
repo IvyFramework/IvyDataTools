@@ -1933,17 +1933,19 @@ template<> void HelperFunctions::wipeOverUnderFlows<TH1>(TH1* hwipe, bool rescal
   }
 }
 template<> void HelperFunctions::wipeOverUnderFlows<TH2>(TH2* hwipe, bool rescale, bool addToLastBin){
-  double integral = hwipe->Integral(0, hwipe->GetNbinsX()+1, 0, hwipe->GetNbinsY()+1);
-  for (int binx=0; binx<=hwipe->GetNbinsX()+1; binx++){
-    for (int biny=0; biny<=hwipe->GetNbinsY()+1; biny++){
+  int const nx = hwipe->GetNbinsX();
+  int const ny = hwipe->GetNbinsY();
+  double integral = hwipe->Integral(0, nx+1, 0, ny+1);
+  for (int binx=0; binx<=nx+1; binx++){
+    for (int biny=0; biny<=ny+1; biny++){
       if (
-        (binx>=1 && binx<=hwipe->GetNbinsX())
+        (binx>=1 && binx<=nx)
         &&
-        (biny>=1 && biny<=hwipe->GetNbinsY())
+        (biny>=1 && biny<=ny)
         ) continue;
       if (addToLastBin){
-        int binx_last = std::min(std::max(binx, 1), hwipe->GetNbinsX());
-        int biny_last = std::min(std::max(biny, 1), hwipe->GetNbinsY());
+        int binx_last = std::min(std::max(binx, 1), nx);
+        int biny_last = std::min(std::max(biny, 1), ny);
         if (binx!=binx_last || biny!=biny_last){
           double bincontent = hwipe->GetBinContent(binx, biny);
           double binerror = hwipe->GetBinError(binx, biny);
@@ -1966,21 +1968,24 @@ template<> void HelperFunctions::wipeOverUnderFlows<TH2>(TH2* hwipe, bool rescal
   }
 }
 template<> void HelperFunctions::wipeOverUnderFlows<TH3>(TH3* hwipe, bool rescale, bool addToLastBin){
-  double integral = hwipe->Integral(0, hwipe->GetNbinsX()+1, 0, hwipe->GetNbinsY()+1, 0, hwipe->GetNbinsZ()+1);
-  for (int binx=0; binx<=hwipe->GetNbinsX()+1; binx++){
-    for (int biny=0; biny<=hwipe->GetNbinsY()+1; biny++){
-      for (int binz=0; binz<=hwipe->GetNbinsZ()+1; binz++){
+  int const nx = hwipe->GetNbinsX();
+  int const ny = hwipe->GetNbinsY();
+  int const nz = hwipe->GetNbinsZ();
+  double integral = hwipe->Integral(0, nx+1, 0, ny+1, 0, nz+1);
+  for (int binx=0; binx<=nx+1; binx++){
+    for (int biny=0; biny<=ny+1; biny++){
+      for (int binz=0; binz<=nz+1; binz++){
         if (
-          (binx>=1 && binx<=hwipe->GetNbinsX())
+          (binx>=1 && binx<=nx)
           &&
-          (biny>=1 && biny<=hwipe->GetNbinsY())
+          (biny>=1 && biny<=ny)
           &&
-          (binz>=1 && binz<=hwipe->GetNbinsZ())
+          (binz>=1 && binz<=nz)
           ) continue;
         if (addToLastBin){
-          int binx_last = std::min(std::max(binx, 1), hwipe->GetNbinsX());
-          int biny_last = std::min(std::max(biny, 1), hwipe->GetNbinsY());
-          int binz_last = std::min(std::max(binz, 1), hwipe->GetNbinsZ());
+          int binx_last = std::min(std::max(binx, 1), nx);
+          int biny_last = std::min(std::max(biny, 1), ny);
+          int binz_last = std::min(std::max(binz, 1), nz);
           if (binx!=binx_last || biny!=biny_last || binz!=binz_last){
             double bincontent = hwipe->GetBinContent(binx, biny, binz);
             double binerror = hwipe->GetBinError(binx, biny, binz);
