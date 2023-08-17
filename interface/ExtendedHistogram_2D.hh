@@ -63,6 +63,26 @@ template<typename Hist_t> void ExtendedHistogram_2D<Hist_t>::build(){
     histo = new Hist_t(name, title, nbinsx, xbins, nbinsy, ybins); histo->GetXaxis()->SetTitle(xbinning.getLabel()); histo->GetYaxis()->SetTitle(ybinning.getLabel()); histo->Sumw2();
     prof_x = new TProfile(Form("%s_prof_%s", name.Data(), xbinning.getName().Data()), title, nbinsx, xbins); prof_x->GetXaxis()->SetTitle(xbinning.getLabel()); prof_x->Sumw2();
     prof_y = new TProfile(Form("%s_prof_%s", name.Data(), ybinning.getName().Data()), title, nbinsy, ybins); prof_y->GetXaxis()->SetTitle(ybinning.getLabel()); prof_y->Sumw2();
+    if (xbinning.hasBinLabels()){
+      int i=1;
+      for (auto const& bl:xbinning.getBinLabels()){
+        histo->GetXaxis()->SetBinLabel(i, bl);
+        prof_x->GetXaxis()->SetBinLabel(i, bl);
+        i++;
+      }
+      histo->GetXaxis()->SetCanExtend(false);
+      prof_x->GetXaxis()->SetCanExtend(false);
+    }
+    if (ybinning.hasBinLabels()){
+      int i=1;
+      for (auto const& bl:ybinning.getBinLabels()){
+        histo->GetYaxis()->SetBinLabel(i, bl);
+        prof_y->GetXaxis()->SetBinLabel(i, bl);
+        i++;
+      }
+      histo->GetYaxis()->SetCanExtend(false);
+      prof_y->GetXaxis()->SetCanExtend(false);
+    }
   }
 }
 template<typename Hist_t> void ExtendedHistogram_2D<Hist_t>::reset(){

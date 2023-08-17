@@ -11,6 +11,7 @@
 class ExtendedBinning : public BaseEmptyClass{
 protected:
   std::vector<double> vbinlow; // Size=Nbins+1
+  std::vector<TString> binlabels;
   TString name;
   TString label;
 
@@ -25,6 +26,7 @@ public:
   ExtendedBinning(const TString name_="", const TString label_="");
   ExtendedBinning(const unsigned int nbins, const double min, const double max, const TString name="", const TString label_=""); // Uniform constructor
   ExtendedBinning(const std::vector<double>& vbinlow_, const TString name="", const TString label_="");
+  ExtendedBinning(const std::vector<TString>& binlabels_, const TString name="", const TString label_="");
   ExtendedBinning(ExtendedBinning const& other);
   ExtendedBinning(ExtendedBinning&& other);
 
@@ -40,14 +42,18 @@ public:
   void setLabel(const TString label_);
   TString getLabel() const;
 
+  void setBinLabels(std::vector<TString> const& labels);
+
   double* getBinning();
   const double* getBinning() const;
-  std::vector<double> const& getBinningVector();
   std::vector<double> const& getBinningVector() const;
   template<typename T> std::vector<std::pair<T, T>> getBoundaryPairsList() const;
+  bool hasBinLabels() const;
+  std::vector<TString> const& getBinLabels() const;
   unsigned int getNbins() const;
 
   int getBin(double val) const; // = [ -1,0,...,vbinlow.size() ]
+  int getBin(TString binlabel) const; // = [ -1,0,...,vbinlow.size()-1 ]
   double getBinLowEdge(const int bin) const;
   double getBinHighEdge(const int bin) const;
   double getBinCenter(const int bin) const;

@@ -48,6 +48,16 @@ template<typename Hist_t> void ExtendedHistogram_1D<Hist_t>::build(){
     const int nbins = xbinning.getNbins();
     histo = new Hist_t(name, title, nbins, xbins); histo->GetXaxis()->SetTitle(xbinning.getLabel()); histo->Sumw2();
     prof_x = new TProfile(Form("%s_prof_%s", name.Data(), xbinning.getName().Data()), title, nbins, xbins); prof_x->GetXaxis()->SetTitle(xbinning.getLabel()); prof_x->Sumw2();
+    if (xbinning.hasBinLabels()){
+      int i=1;
+      for (auto const& bl:xbinning.getBinLabels()){
+        histo->GetXaxis()->SetBinLabel(i, bl);
+        prof_x->GetXaxis()->SetBinLabel(i, bl);
+        i++;
+      }
+      histo->GetXaxis()->SetCanExtend(false);
+      prof_x->GetXaxis()->SetCanExtend(false);
+    }
   }
 }
 template<typename Hist_t> void ExtendedHistogram_1D<Hist_t>::reset(){

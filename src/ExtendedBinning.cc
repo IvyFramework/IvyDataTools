@@ -37,9 +37,25 @@ ExtendedBinning::ExtendedBinning(const std::vector<double>& vbinlow_, const TStr
 {
   adjustNameLabel();
 }
+ExtendedBinning::ExtendedBinning(const std::vector<TString>& binlabels_, const TString name_, const TString label_) :
+  BaseEmptyClass(),
+  binlabels(binlabels_),
+  name(name_),
+  label(label_),
+  hasAbsoluteLowerBound(false),
+  hasAbsoluteUpperBound(false)
+{
+  if (!binlabels.empty()){
+    unsigned int n = binlabels.size()+1;
+    vbinlow.reserve(n);
+    for (unsigned int i=0; i<n; i++) vbinlow.push_back(i);
+  }
+  adjustNameLabel();
+}
 ExtendedBinning::ExtendedBinning(ExtendedBinning const& other) :
   BaseEmptyClass(other),
   vbinlow(other.vbinlow),
+  binlabels(other.binlabels),
   name(other.name),
   label(other.label),
   hasAbsoluteLowerBound(other.hasAbsoluteLowerBound),
@@ -48,6 +64,7 @@ ExtendedBinning::ExtendedBinning(ExtendedBinning const& other) :
 ExtendedBinning::ExtendedBinning(ExtendedBinning&& other) :
   BaseEmptyClass(other),
   vbinlow(std::move(other.vbinlow)),
+  binlabels(std::move(other.binlabels)),
   name(std::move(other.name)),
   label(std::move(other.label)),
   hasAbsoluteLowerBound(std::move(other.hasAbsoluteLowerBound)),
@@ -58,6 +75,7 @@ ExtendedBinning::ExtendedBinning(ExtendedBinning&& other) :
 
 void ExtendedBinning::swap(ExtendedBinning& other){
   std::swap(vbinlow, other.vbinlow);
+  std::swap(binlabels, other.binlabels);
   std::swap(name, other.name);
   std::swap(label, other.label);
   std::swap(hasAbsoluteLowerBound, other.hasAbsoluteLowerBound);
@@ -70,6 +88,7 @@ ExtendedBinning& ExtendedBinning::operator=(ExtendedBinning const& other){
 }
 ExtendedBinning& ExtendedBinning::operator=(ExtendedBinning&& other){
   vbinlow = std::move(other.vbinlow);
+  binlabels = std::move(other.binlabels);
   name = std::move(other.name);
   label = std::move(other.label);
   hasAbsoluteLowerBound = std::move(other.hasAbsoluteLowerBound);
@@ -90,9 +109,12 @@ TString ExtendedBinning::getName() const{ return name; }
 void ExtendedBinning::setLabel(const TString label_){ label=label_; }
 TString ExtendedBinning::getLabel() const{ return label; }
 
+void ExtendedBinning::setBinLabels(std::vector<TString> const& labels){ binlabels = labels; }
+
 double* ExtendedBinning::getBinning(){ return vbinlow.data(); }
 const double* ExtendedBinning::getBinning() const{ return vbinlow.data(); }
-std::vector<double> const& ExtendedBinning::getBinningVector(){ return vbinlow; }
+std::vector<TString> const& ExtendedBinning::getBinLabels() const{ return binlabels; }
+bool ExtendedBinning::hasBinLabels() const{ return !binlabels.empty(); }
 std::vector<double> const& ExtendedBinning::getBinningVector() const{ return vbinlow; }
 
 unsigned int ExtendedBinning::getNbins() const{
@@ -106,6 +128,15 @@ int ExtendedBinning::getBin(double val) const{
   }
   if (val>=vbinlow.back()) return this->getNbins();
   else return -1;
+}
+int ExtendedBinning::getBin(TString binlabel) const{
+  if (!this->isValid()) return -1;
+  int bin = 0;
+  for (auto const& bl:binlabels){
+    if (binlabel == bl) return bin;
+    bin++;
+  }
+  return -1;
 }
 double ExtendedBinning::getBinLowEdge(const int bin) const{
   if (bin>=0 && bin<(int) vbinlow.size()) return vbinlow.at(bin);
@@ -159,6 +190,8 @@ ExtendedBinning ExtendedBinning::extractBinning(TH1 const* histo, unsigned int c
   }
   res.setLabel(axis->GetTitle());
   const int nbins=axis->GetNbins();
+  std::vector<TString> binlabels;
   for (int i=0; i<=nbins; i++) res.addBinBoundary(axis->GetBinLowEdge(i+1));
+
   return res;
 }
