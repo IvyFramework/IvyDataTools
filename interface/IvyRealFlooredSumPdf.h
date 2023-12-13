@@ -2,7 +2,7 @@
 #define IVYREALFLOOREDSUMPDF_H
 
 /*
-  Originally RooRealFlooredSumPdf in the Higgs Combine tool, now consolidated here under the name IvyRealFlooredSumPdf.
+  Originally RooRealFlooredSumPdf in the CMS Higgs Combine tool, now consolidated here under the name IvyRealFlooredSumPdf.
 */
 
 
@@ -92,5 +92,6 @@ private:
 
 // Necessary typedef to ensure backwards compatibility with existing use cases with the Higgs Combine tool.
 typedef IvyRealFlooredSumPdf RooRealFlooredSumPdf;
+
 
 #endif

@@ -21,7 +21,7 @@
 #include <algorithm>
 #include "IvyRealFlooredSumPdf.h" 
 
-using namespace std;
+
 using namespace RooFit;
 using namespace TMath;
 
@@ -81,7 +81,7 @@ IvyRealFlooredSumPdf::IvyRealFlooredSumPdf(const char* name, const char* title, 
 
 	if (!(inFuncList.getSize() == inCoefList.getSize() + 1 || inFuncList.getSize() == inCoefList.getSize())){
 		coutE(InputArguments) << "IvyRealFlooredSumPdf::IvyRealFlooredSumPdf(" << GetName()
-			<< ") number of pdfs and coefficients inconsistent, must have Nfunc=Ncoef or Nfunc=Ncoef+1" << endl;
+			<< ") number of pdfs and coefficients inconsistent, must have Nfunc=Ncoef or Nfunc=Ncoef+1" << std::endl;
 		assert(0);
 	}
 
@@ -98,11 +98,11 @@ IvyRealFlooredSumPdf::IvyRealFlooredSumPdf(const char* name, const char* title, 
 		func = (RooAbsArg*) funcIter->Next();
 
 		if (!dynamic_cast<RooAbsReal*>(coef)){
-			coutW(InputArguments) << "IvyRealFlooredSumPdf::IvyRealFlooredSumPdf(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal, ignored" << endl;
+			coutW(InputArguments) << "IvyRealFlooredSumPdf::IvyRealFlooredSumPdf(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal, ignored" << std::endl;
 			continue;
 		}
 		if (!dynamic_cast<RooAbsReal*>(func)){
-			coutW(InputArguments) << "IvyRealFlooredSumPdf::IvyRealFlooredSumPdf(" << GetName() << ") func " << func->GetName() << " is not of type RooAbsReal, ignored" << endl;
+			coutW(InputArguments) << "IvyRealFlooredSumPdf::IvyRealFlooredSumPdf(" << GetName() << ") func " << func->GetName() << " is not of type RooAbsReal, ignored" << std::endl;
 			continue;
 		}
 		_funcList.add(*func);
@@ -112,7 +112,7 @@ IvyRealFlooredSumPdf::IvyRealFlooredSumPdf(const char* name, const char* title, 
 	func = (RooAbsReal*) funcIter->Next();
 	if (func){
 		if (!dynamic_cast<RooAbsReal*>(func)){
-			coutE(InputArguments) << "IvyRealFlooredSumPdf::IvyRealFlooredSumPdf(" << GetName() << ") last func " << func->GetName() << " is not of type RooAbsReal, fatal error" << endl;
+			coutE(InputArguments) << "IvyRealFlooredSumPdf::IvyRealFlooredSumPdf(" << GetName() << ") last func " << func->GetName() << " is not of type RooAbsReal, fatal error" << std::endl;
 			assert(0);
 		}
 		_funcList.add(*func);
@@ -193,7 +193,7 @@ Double_t IvyRealFlooredSumPdf::evaluate() const
 		func = (RooAbsReal*) funcIter.next();
 		Double_t coefVal = coef->getVal();
 		if (coefVal){
-			cxcoutD(Eval) << "IvyRealFlooredSumPdf::eval(" << GetName() << ") coefVal = " << coefVal << " funcVal = " << func->ClassName() << "::" << func->GetName() << " = " << func->getVal() << endl;
+			cxcoutD(Eval) << "IvyRealFlooredSumPdf::eval(" << GetName() << ") coefVal = " << coefVal << " funcVal = " << func->ClassName() << "::" << func->GetName() << " = " << func->getVal() << std::endl;
 			value += func->getVal()*coefVal;
 			lastCoef -= coef->getVal();
 		}
@@ -204,13 +204,13 @@ Double_t IvyRealFlooredSumPdf::evaluate() const
 		func = (RooAbsReal*) funcIter.next();
 		value += func->getVal()*lastCoef;
 
-		cxcoutD(Eval) << "IvyRealFlooredSumPdf::eval(" << GetName() << ") lastCoef = " << lastCoef << " funcVal = " << func->getVal() << endl;
+		cxcoutD(Eval) << "IvyRealFlooredSumPdf::eval(" << GetName() << ") lastCoef = " << lastCoef << " funcVal = " << func->getVal() << std::endl;
 
 		// Warn about coefficient degeneration
 		if (lastCoef<0 || lastCoef>1){
 			coutW(Eval) << "IvyRealFlooredSumPdf::evaluate(" << GetName()
 				<< " WARNING: sum of FUNC coefficients not in range [0-1], value="
-				<< 1 - lastCoef << endl;
+				<< 1 - lastCoef << std::endl;
 		}
 	}
 
@@ -243,7 +243,7 @@ Bool_t IvyRealFlooredSumPdf::checkObservables(const RooArgSet* nset) const
 		func = (RooAbsReal*) _funcIter->Next();
 		if (func->observableOverlaps(nset, *coef)){
 			coutE(InputArguments) << "IvyRealFlooredSumPdf::checkObservables(" << GetName() << "): ERROR: coefficient " << coef->GetName()
-				<< " and FUNC " << func->GetName() << " have one or more observables in common" << endl;
+				<< " and FUNC " << func->GetName() << " have one or more observables in common" << std::endl;
 			ret = kTRUE;
 		}
 		if (coef->dependsOn(*nset)){
@@ -262,7 +262,7 @@ Bool_t IvyRealFlooredSumPdf::checkObservables(const RooArgSet* nset) const
 //_____________________________________________________________________________
 Int_t IvyRealFlooredSumPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& analVars, const RooArgSet* normSet2, const char* rangeName) const
 {
-	//cout << "IvyRealFlooredSumPdf::getAnalyticalIntegralWN:"<<GetName()<<"("<<allVars<<",analVars,"<<(normSet2?*normSet2:RooArgSet())<<","<<(rangeName?rangeName:"<none>") << endl;
+	//cout << "IvyRealFlooredSumPdf::getAnalyticalIntegralWN:"<<GetName()<<"("<<allVars<<",analVars,"<<(normSet2?*normSet2:RooArgSet())<<","<<(rangeName?rangeName:"<none>") << std::endl;
 	// Advertise that all integrals can be handled internally.
 
 	// Handle trivial no-integration scenario
@@ -278,7 +278,7 @@ Int_t IvyRealFlooredSumPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSe
 	Int_t sterileIdx(-1);
 	CacheElem* cache = (CacheElem*) _normIntMgr.getObj(normSet, &analVars, &sterileIdx, RooNameReg::ptr(rangeName));
 	if (cache){
-		//cout << "IvyRealFlooredSumPdf("<<this<<")::getAnalyticalIntegralWN:"<<GetName()<<"("<<allVars<<","<<analVars<<","<<(normSet2?*normSet2:RooArgSet())<<","<<(rangeName?rangeName:"<none>") << " -> " << _normIntMgr.lastIndex()+1 << " (cached)" << endl;
+		//cout << "IvyRealFlooredSumPdf("<<this<<")::getAnalyticalIntegralWN:"<<GetName()<<"("<<allVars<<","<<analVars<<","<<(normSet2?*normSet2:RooArgSet())<<","<<(rangeName?rangeName:"<none>") << " -> " << _normIntMgr.lastIndex()+1 << " (cached)" << std::endl;
 		return _normIntMgr.lastIndex() + 1;
 	}
 
@@ -302,7 +302,7 @@ Int_t IvyRealFlooredSumPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSe
 
 	if (normSet) delete normSet;
 
-	//cout << "IvyRealFlooredSumPdf("<<this<<")::getAnalyticalIntegralWN:"<<GetName()<<"("<<allVars<<","<<analVars<<","<<(normSet2?*normSet2:RooArgSet())<<","<<(rangeName?rangeName:"<none>") << " -> " << code+1 << endl;
+	//cout << "IvyRealFlooredSumPdf("<<this<<")::getAnalyticalIntegralWN:"<<GetName()<<"("<<allVars<<","<<analVars<<","<<(normSet2?*normSet2:RooArgSet())<<","<<(rangeName?rangeName:"<none>") << " -> " << code+1 << std::endl;
 	return code + 1;
 }
 
@@ -312,7 +312,7 @@ Int_t IvyRealFlooredSumPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSe
 //_____________________________________________________________________________
 Double_t IvyRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet* normSet2, const char* rangeName) const
 {
-	//cout << "IvyRealFlooredSumPdf::analyticalIntegralWN:"<<GetName()<<"("<<code<<","<<(normSet2?*normSet2:RooArgSet())<<","<<(rangeName?rangeName:"<none>") << endl;
+	//cout << "IvyRealFlooredSumPdf::analyticalIntegralWN:"<<GetName()<<"("<<code<<","<<(normSet2?*normSet2:RooArgSet())<<","<<(rangeName?rangeName:"<none>") << std::endl;
 	// Implement analytical integrations by deferring integration of component
 	// functions to integrators of components
 
@@ -323,7 +323,7 @@ Double_t IvyRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet*
 	// WVE needs adaptation for rangeName feature
 	CacheElem* cache = (CacheElem*) _normIntMgr.getObjByIndex(code - 1);
 	if (cache == 0){ // revive the (sterilized) cache
-		//cout << "IvyRealFlooredSumPdf("<<this<<")::analyticalIntegralWN:"<<GetName()<<"("<<code<<","<<(normSet2?*normSet2:RooArgSet())<<","<<(rangeName?rangeName:"<none>") << ": reviving cache "<< endl;
+		//cout << "IvyRealFlooredSumPdf("<<this<<")::analyticalIntegralWN:"<<GetName()<<"("<<code<<","<<(normSet2?*normSet2:RooArgSet())<<","<<(rangeName?rangeName:"<none>") << ": reviving cache "<< std::endl;
 		std::unique_ptr<RooArgSet> vars(getParameters(RooArgSet()));
 		RooArgSet dummy;
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,26,0)
@@ -372,7 +372,7 @@ Double_t IvyRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet*
 		if (lastCoef<0 || lastCoef>1){
 			coutW(Eval) << "IvyRealFlooredSumPdf::integral(" << GetName()
 				<< ") WARNING: Sum of FUNC coefficients not in range [0-1], value="
-				<< 1 - lastCoef << endl;
+				<< 1 - lastCoef << std::endl;
 		}
 	}
 
@@ -405,7 +405,7 @@ Double_t IvyRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet*
 	if (normVal>0) result = value / normVal;
 	if (result<=0. && _doFloor){
 		coutW(Eval) << "IvyRealFlooredSumPdf::integral(" << GetName()
-			<< ") WARNING: Integral " << result << " below threshold." << endl;
+			<< ") WARNING: Integral " << result << " below threshold." << std::endl;
 		result = _floorVal;
 	}
 	return result;
@@ -427,7 +427,7 @@ Double_t IvyRealFlooredSumPdf::expectedEvents(const RooArgSet* nset) const
 std::list<Double_t>* IvyRealFlooredSumPdf::binBoundaries(RooAbsRealLValue& obs, Double_t xlo, Double_t xhi) const
 {
 
-	list<Double_t>* sumBinB = 0;
+	std::list<Double_t>* sumBinB = 0;
 	Bool_t needClean(kFALSE);
 
 	RooFIter iter = _funcList.fwdIterator();
@@ -435,7 +435,7 @@ std::list<Double_t>* IvyRealFlooredSumPdf::binBoundaries(RooAbsRealLValue& obs, 
 	// Loop over components pdf
 	while ((func = (RooAbsReal*) iter.next())){
 
-		list<Double_t>* funcBinB = func->binBoundaries(obs, xlo, xhi);
+		std::list<Double_t>* funcBinB = func->binBoundaries(obs, xlo, xhi);
 
 		// Process hint
 		if (funcBinB){
@@ -445,7 +445,7 @@ std::list<Double_t>* IvyRealFlooredSumPdf::binBoundaries(RooAbsRealLValue& obs, 
 			}
 			else {
 
-				list<Double_t>* newSumBinB = new list<Double_t>(sumBinB->size() + funcBinB->size());
+				std::list<Double_t>* newSumBinB = new std::list<Double_t>(sumBinB->size() + funcBinB->size());
 
 				// Merge hints into temporary array
 				merge(funcBinB->begin(), funcBinB->end(), sumBinB->begin(), sumBinB->end(), newSumBinB->begin());
@@ -461,7 +461,7 @@ std::list<Double_t>* IvyRealFlooredSumPdf::binBoundaries(RooAbsRealLValue& obs, 
 
 	// Remove consecutive duplicates
 	if (needClean){
-		list<Double_t>::iterator new_end = unique(sumBinB->begin(), sumBinB->end());
+		std::list<Double_t>::iterator new_end = unique(sumBinB->begin(), sumBinB->end());
 		sumBinB->erase(new_end, sumBinB->end());
 	}
 
@@ -493,7 +493,7 @@ Bool_t IvyRealFlooredSumPdf::isBinnedDistribution(const RooArgSet& obs) const
 //_____________________________________________________________________________
 std::list<Double_t>* IvyRealFlooredSumPdf::plotSamplingHint(RooAbsRealLValue& obs, Double_t xlo, Double_t xhi) const
 {
-	list<Double_t>* sumHint = 0;
+	std::list<Double_t>* sumHint = 0;
 	Bool_t needClean(kFALSE);
 
 	RooFIter iter = _funcList.fwdIterator();
@@ -501,7 +501,7 @@ std::list<Double_t>* IvyRealFlooredSumPdf::plotSamplingHint(RooAbsRealLValue& ob
 	// Loop over components pdf
 	while ((func = (RooAbsReal*) iter.next())){
 
-		list<Double_t>* funcHint = func->plotSamplingHint(obs, xlo, xhi);
+		std::list<Double_t>* funcHint = func->plotSamplingHint(obs, xlo, xhi);
 
 		// Process hint
 		if (funcHint){
@@ -513,7 +513,7 @@ std::list<Double_t>* IvyRealFlooredSumPdf::plotSamplingHint(RooAbsRealLValue& ob
 			}
 			else {
 
-				list<Double_t>* newSumHint = new list<Double_t>(sumHint->size() + funcHint->size());
+				std::list<Double_t>* newSumHint = new std::list<Double_t>(sumHint->size() + funcHint->size());
 
 				// Merge hints into temporary array
 				merge(funcHint->begin(), funcHint->end(), sumHint->begin(), sumHint->end(), newSumHint->begin());
@@ -528,7 +528,7 @@ std::list<Double_t>* IvyRealFlooredSumPdf::plotSamplingHint(RooAbsRealLValue& ob
 
 	// Remove consecutive duplicates
 	if (needClean){
-		list<Double_t>::iterator new_end = unique(sumHint->begin(), sumHint->end());
+		std::list<Double_t>::iterator new_end = unique(sumHint->begin(), sumHint->end());
 		sumHint->erase(new_end, sumHint->end());
 	}
 
@@ -539,7 +539,7 @@ std::list<Double_t>* IvyRealFlooredSumPdf::plotSamplingHint(RooAbsRealLValue& ob
 
 
 //_____________________________________________________________________________
-void IvyRealFlooredSumPdf::printMetaArgs(ostream& os) const
+void IvyRealFlooredSumPdf::printMetaArgs(std::ostream& os) const
 {
 	// Customized printing of arguments of a IvyRealFlooredSumPdf to more intuitively reflect the contents of the
 	// product operator construction
