@@ -39,7 +39,7 @@ protected:
 private:
   Double_t interpolate(Double_t theta_, Double_t valueCenter_, Double_t valueHigh_, Double_t valueLow_) const;
 
-  ClassDef(IvyAsymQuad, 1) // Asymmetric power	
+  ClassDef(IvyAsymQuad, 2) // Asymmetric power	
 };
 
 

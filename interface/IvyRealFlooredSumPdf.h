@@ -86,7 +86,7 @@ protected:
 
 private:
 
-	ClassDef(IvyRealFlooredSumPdf, 2) // PDF constructed from a sum of (non-pdf) functions
+	ClassDef(IvyRealFlooredSumPdf, 3) // PDF constructed from a sum of (non-pdf) functions
 };
 
 

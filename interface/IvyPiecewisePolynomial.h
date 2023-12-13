@@ -45,7 +45,7 @@ public:
   double evaluate()const;
   double evaluate(double* x, double* p) const; // For calling in a TF1 object
 
-  ClassDef(IvyPiecewisePolynomial, 1)
+  ClassDef(IvyPiecewisePolynomial, 2)
 
 };
 
