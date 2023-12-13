@@ -4,7 +4,7 @@
 #include "IvyAsymQuad.h"
 
 
-IvyAsymQuad::IvyAsymQuad() :
+AsymQuad::AsymQuad() :
   RooAbsReal(),
   _funcList("funcList", "List of functions", this),
   _coefList("coefList", "List of coefficients", this),
@@ -15,7 +15,7 @@ IvyAsymQuad::IvyAsymQuad() :
   _coefIter  = _coefList.createIterator();
 }
 
-IvyAsymQuad::IvyAsymQuad(const char* name, const char* title, const RooArgList& inFuncList, const RooArgList& inCoefList, Double_t smoothRegion, Int_t smoothAlgo) :
+AsymQuad::AsymQuad(const char* name, const char* title, const RooArgList& inFuncList, const RooArgList& inCoefList, Double_t smoothRegion, Int_t smoothAlgo) :
   RooAbsReal(name, title),
   _funcList("funcList", "List of functions", this),
   _coefList("coefList", "List of coefficients", this),
@@ -23,7 +23,7 @@ IvyAsymQuad::IvyAsymQuad(const char* name, const char* title, const RooArgList& 
   smoothAlgo_(smoothAlgo)
 {
   if (inFuncList.getSize()!=2*inCoefList.getSize()+1){
-    coutE(InputArguments) << "IvyAsymQuad::IvyAsymQuad(" << GetName()
+    coutE(InputArguments) << "AsymQuad::AsymQuad(" << GetName()
       << ") number of functions and coefficients inconsistent, must have Nfunc=1+2*Ncoef" << std::endl;
     assert(0);
   }
@@ -32,7 +32,7 @@ IvyAsymQuad::IvyAsymQuad(const char* name, const char* title, const RooArgList& 
   RooAbsArg* func;
   while ((func = (RooAbsArg*) funcIter->Next())){
     if (!dynamic_cast<RooAbsReal*>(func)){
-      coutE(InputArguments) << "ERROR: IvyAsymQuad::IvyAsymQuad(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsReal" << std::endl;
+      coutE(InputArguments) << "ERROR: AsymQuad::AsymQuad(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _funcList.add(*func);
@@ -43,7 +43,7 @@ IvyAsymQuad::IvyAsymQuad(const char* name, const char* title, const RooArgList& 
   RooAbsArg* coef;
   while ((coef = (RooAbsArg*) coefIter->Next())){
     if (!dynamic_cast<RooAbsReal*>(coef)){
-      coutE(InputArguments) << "ERROR: IvyAsymQuad::IvyAsymQuad(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << std::endl;
+      coutE(InputArguments) << "ERROR: AsymQuad::AsymQuad(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _coefList.add(*coef);
@@ -54,7 +54,7 @@ IvyAsymQuad::IvyAsymQuad(const char* name, const char* title, const RooArgList& 
   _coefIter = _coefList.createIterator();
 }
 
-IvyAsymQuad::IvyAsymQuad(const IvyAsymQuad& other, const char* name) :
+AsymQuad::AsymQuad(const AsymQuad& other, const char* name) :
   RooAbsReal(other, name),
   _funcList("!funcList", this, other._funcList),
   _coefList("!coefList", this, other._coefList),
@@ -65,12 +65,12 @@ IvyAsymQuad::IvyAsymQuad(const IvyAsymQuad& other, const char* name) :
   _coefIter = _coefList.createIterator();
 }
 
-IvyAsymQuad::~IvyAsymQuad(){
+AsymQuad::~AsymQuad(){
   delete _funcIter;
   delete _coefIter;
 }
 
-Double_t IvyAsymQuad::evaluate() const{
+Double_t AsymQuad::evaluate() const{
   Double_t result(0);
 
   _funcIter->Reset();
@@ -91,28 +91,28 @@ Double_t IvyAsymQuad::evaluate() const{
   return result;
 }
 
-Double_t IvyAsymQuad::interpolate(Double_t theta_, Double_t valueCenter_, Double_t valueHigh_, Double_t valueLow_) const{
+Double_t AsymQuad::interpolate(Double_t theta_, Double_t valueCenter_, Double_t valueHigh_, Double_t valueLow_) const{
   if (smoothAlgo_<0) return 0;
   else{
-    if (fabs(theta_)>=smoothRegion_) return theta_ * (theta_ > 0 ? valueHigh_ - valueCenter_ : valueCenter_ - valueLow_);
+    if (std::abs(theta_)>=smoothRegion_) return theta_ * (theta_ > 0. ? valueHigh_ - valueCenter_ : valueCenter_ - valueLow_);
     if (smoothAlgo_ == 0){
       // Quadratic interpolation null at zero and continuous at boundaries but not smooth at boundaries
-      Double_t c_up  = +theta_ * (smoothRegion_ + theta_) / (2 * smoothRegion_);
-      Double_t c_dn  = -theta_ * (smoothRegion_ - theta_) / (2 * smoothRegion_);
+      Double_t c_up  = +theta_ * (smoothRegion_ + theta_) / (2. * smoothRegion_);
+      Double_t c_dn  = -theta_ * (smoothRegion_ - theta_) / (2. * smoothRegion_);
       Double_t c_cen = -theta_ * theta_ / smoothRegion_;
       return c_up * valueHigh_ + c_dn * valueLow_ + c_cen * valueCenter_;
     }
     else if (smoothAlgo_ == 1){
       // Quadratic interpolation that is everywhere differentiable but not null at zero
-      Double_t c_up  = (smoothRegion_ + theta_) * (smoothRegion_ + theta_) / (4 * smoothRegion_);
-      Double_t c_dn  = (smoothRegion_ - theta_) * (smoothRegion_ - theta_) / (4 * smoothRegion_);
+      Double_t c_up  = (smoothRegion_ + theta_) * (smoothRegion_ + theta_) / (4. * smoothRegion_);
+      Double_t c_dn  = (smoothRegion_ - theta_) * (smoothRegion_ - theta_) / (4. * smoothRegion_);
       Double_t c_cen = -c_up - c_dn;
       return c_up * valueHigh_ + c_dn * valueLow_ + c_cen * valueCenter_;
     }
     else/* if (smoothAlgo_ == 2)*/{
       // Quadratic interpolation that is everywhere differentiable and null at zero
       Double_t cnorm = theta_/smoothRegion_;
-      Double_t cnorm2 = pow(cnorm, 2);
+      Double_t cnorm2 = std::pow(cnorm, 2);
       Double_t hi = valueHigh_ - valueCenter_;
       Double_t lo = valueLow_ - valueCenter_;
       Double_t sum = hi+lo;
@@ -125,4 +125,4 @@ Double_t IvyAsymQuad::interpolate(Double_t theta_, Double_t valueCenter_, Double
   }
 }
 
-ClassImp(IvyAsymQuad)
+ClassImp(AsymQuad)

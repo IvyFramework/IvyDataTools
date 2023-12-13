@@ -1,15 +1,20 @@
 #ifndef IVYPIECEWISEPOLYNOMIAL_H
 #define IVYPIECEWISEPOLYNOMIAL_H
 
+/*
+  Piecewise polynomial that looks like
+  -- . -- ... -- . --
+  Originally RooPiecewisePolynomial in the CMS Higgs Combine tool, now consolidated here under the name IvyPiecewisePolynomial.
+*/
+
+
 #include <vector>
 #include "RooAbsReal.h"
 #include "RooArgList.h"
 #include "RooRealProxy.h"
 #include "RooListProxy.h"
 
-// Piecewise polynomial that looks like
-// -- . -- ... -- . --
-// Originally RooPiecewisePolynomial in the CMS Higgs Combine tool, now consolidated here under the name IvyPiecewisePolynomial.
+
 class IvyPiecewisePolynomial : public RooAbsReal{
 protected:
   RooRealProxy xvar;

@@ -2,7 +2,15 @@
 #define IVYREALFLOOREDSUMPDF_H
 
 /*
-  Originally RooRealFlooredSumPdf in the CMS Higgs Combine tool, now consolidated here under the name IvyRealFlooredSumPdf.
+  Originally developed in the CMS Higgs Combine tool,
+	this class is consolidated in this package for future development and use.
+
+  This class is a modified version of the RooRealSumPdf class from the RooFit package.
+  The original RooRealSumPdf class is a sum of functions (not necessarily pdfs).
+  This modified version is still a sum of functions, but with the option to set a floor.
+	The class is otherwise identical to RooRealSumPdf.
+
+	The floor can be set using the call RooRealFlooredSumPdf::setFloor.
 */
 
 
@@ -22,15 +30,14 @@
 #include "RooHistFunc.h"
 
 
-class IvyRealFlooredSumPdf : public RooAbsPdf{
+class RooRealFlooredSumPdf : public RooAbsPdf{
 public:
-
-	IvyRealFlooredSumPdf();
-	IvyRealFlooredSumPdf(const char* name, const char* title);
-	IvyRealFlooredSumPdf(const char* name, const char* title, const RooArgList& funcList, const RooArgList& coefList, Bool_t extended = kFALSE);
-	IvyRealFlooredSumPdf(const IvyRealFlooredSumPdf& other, const char* name = 0);
-	virtual TObject* clone(const char* newname) const { return new IvyRealFlooredSumPdf(*this, newname); }
-	virtual ~IvyRealFlooredSumPdf();
+	RooRealFlooredSumPdf();
+	RooRealFlooredSumPdf(const char* name, const char* title);
+	RooRealFlooredSumPdf(const char* name, const char* title, const RooArgList& funcList, const RooArgList& coefList, Bool_t extended = kFALSE);
+	RooRealFlooredSumPdf(const RooRealFlooredSumPdf& other, const char* name = 0);
+	virtual TObject* clone(const char* newname) const { return new RooRealFlooredSumPdf(*this, newname); }
+	virtual ~RooRealFlooredSumPdf();
 
 	Double_t evaluate() const;
 	virtual Bool_t checkObservables(const RooArgSet* nset) const;
@@ -76,22 +83,22 @@ protected:
 
 	Bool_t _haveLastCoef;
 
-	RooListProxy _funcList;   //  List of component FUNCs
-	RooListProxy _coefList;  //  List of coefficients
-	TIterator* _funcIter;     //! Iterator over FUNC list
-	TIterator* _coefIter;    //! Iterator over coefficient list
-	Bool_t _extended;        // Allow use as extended p.d.f.
-	Bool_t _doFloor;
-	Double_t _floorVal;
+	RooListProxy _funcList; //  List of component FUNCs
+	RooListProxy _coefList; //  List of coefficients
+	TIterator* _funcIter; //! Iterator over FUNC list
+	TIterator* _coefIter; //! Iterator over coefficient list
+	Bool_t _extended; // Allow use as extended p.d.f.
+	Bool_t _doFloor; // Whether to apply a floor to the sum
+	Double_t _floorVal; // The value of the floor
 
 private:
 
-	ClassDef(IvyRealFlooredSumPdf, 3) // PDF constructed from a sum of (non-pdf) functions
+	ClassDef(RooRealFlooredSumPdf, 2) // PDF constructed from a sum of (non-pdf) functions
 };
 
 
-// Necessary typedef to ensure backwards compatibility with existing use cases with the Higgs Combine tool.
-typedef IvyRealFlooredSumPdf RooRealFlooredSumPdf;
+// Necessary typedef to ensure compatibility with other IvyFramework uses
+typedef RooRealFlooredSumPdf IvyRealFlooredSumPdf;
 
 
 #endif
