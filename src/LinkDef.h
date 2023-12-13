@@ -3,6 +3,7 @@
 #include "IvyNCSplineFactory_1D.h"
 #include "IvyNCSplineFactory_2D.h"
 #include "IvyNCSplineFactory_3D.h"
+#include "IvyRealFlooredSumPdf.h"
 #include "StdExtensions.h"
 
 #ifdef __CINT__
@@ -23,6 +24,8 @@
 #pragma link C++ class IvyNCSplineFactory_1D;
 #pragma link C++ class IvyNCSplineFactory_2D;
 #pragma link C++ class IvyNCSplineFactory_3D;
+
+#pragma link C++ class IvyRealFlooredSumPdf;
 
 #pragma link C++ class std::vector<TString>;
 
