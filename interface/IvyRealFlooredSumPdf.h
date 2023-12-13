@@ -22,7 +22,7 @@
 #include "RooHistFunc.h"
 
 
-class IvyRealFlooredSumPdf : public RooAbsPdf {
+class IvyRealFlooredSumPdf : public RooAbsPdf{
 public:
 
 	IvyRealFlooredSumPdf();
@@ -35,19 +35,19 @@ public:
 	Double_t evaluate() const;
 	virtual Bool_t checkObservables(const RooArgSet* nset) const;
 
-	virtual Bool_t forceAnalyticalInt(const RooAbsArg&) const { return kTRUE; }
+	virtual Bool_t forceAnalyticalInt(const RooAbsArg&) const{ return kTRUE; }
 	Int_t getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSet& numVars, const RooArgSet* normSet, const char* rangeName = 0) const;
 	Double_t analyticalIntegralWN(Int_t code, const RooArgSet* normSet, const char* rangeName = 0) const;
 
-	const RooArgList& funcList() const { return _funcList; }
-	const RooArgList& coefList() const { return _coefList; }
+	const RooArgList& funcList() const{ return _funcList; }
+	const RooArgList& coefList() const{ return _coefList; }
 
 	void setFloor(Double_t val);
 
 	virtual ExtendMode extendMode() const;
 
 	virtual Double_t expectedEvents(const RooArgSet* nset) const;
-	virtual Double_t expectedEvents(const RooArgSet& nset) const {
+	virtual Double_t expectedEvents(const RooArgSet& nset) const{
 		// Return expected number of events for extended likelihood calculation
 		// which is the sum of all coefficients
 		return expectedEvents(&nset);
@@ -63,11 +63,11 @@ public:
 
 protected:
 
-	class CacheElem : public RooAbsCacheElement {
+	class CacheElem : public RooAbsCacheElement{
 	public:
-		CacheElem()  {};
-		virtual ~CacheElem() {};
-		virtual RooArgList containedArgs(Action) { RooArgList ret(_funcIntList); ret.add(_funcNormList); return ret; }
+		CacheElem(){};
+		virtual ~CacheElem(){};
+		virtual RooArgList containedArgs(Action){ RooArgList ret(_funcIntList); ret.add(_funcNormList); return ret; }
 		RooArgList _funcIntList;
 		RooArgList _funcNormList;
 	};
