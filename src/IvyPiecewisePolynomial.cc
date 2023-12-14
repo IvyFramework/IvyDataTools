@@ -56,7 +56,7 @@ IvyPiecewisePolynomial::IvyPiecewisePolynomial(const char* name, const char* tit
   }
   delete parIter;
 #else
-  while (RooAbsArg* par : parList_){
+  for (RooAbsArg* par : parList_){
     if (!dynamic_cast<RooAbsReal*>(par)){
       std::cerr << "IvyPiecewisePolynomial::IvyPiecewisePolynomial(" << GetName() << ") parficient " << par->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);

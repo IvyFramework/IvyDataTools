@@ -548,12 +548,11 @@ std::list<Double_t>* RooRealFlooredSumPdf::plotSamplingHint(RooAbsRealLValue& ob
 
 // Customized printing of arguments of a RooRealFlooredSumPdf to more intuitively reflect the contents of the product operator construction
 void RooRealFlooredSumPdf::printMetaArgs(std::ostream& os) const{
-  _funcIter->Reset();
-  _coefIter->Reset();
-
   Bool_t first(kTRUE);
 
 #ifdef _IVY_ROOT_HAS_ITERATORS_
+  _funcIter->Reset();
+  _coefIter->Reset();
   RooAbsArg* coef, * func;
 #endif
   if (_coefList.getSize() != 0){
