@@ -14,20 +14,20 @@
 */
 
 
-#include <iostream>
+#include <list>
+#include "IvyROOTFlags.h"
+#include "RooAbsArg.h"
 #include "RooAbsReal.h"
 #include "RooAbsPdf.h"
-#include "RooRealVar.h"
-#include "RooRealProxy.h"
-#include "RooAbsCategory.h"
-#include "RooCategoryProxy.h"
+#include "RooArgList.h"
+#include "RooArgSet.h"
 #include "RooListProxy.h"
-#include "RooAICRegistry.h"
+#include "RooAbsCacheElement.h"
 #include "RooObjCacheManager.h"
-#include "TH3F.h"
-#include "TH1.h"
-#include "RooDataHist.h"
-#include "RooHistFunc.h"
+
+#ifdef _IVY_ROOT_HAS_ITERATORS_
+#include "TIterator.h"
+#endif
 
 
 class RooRealFlooredSumPdf : public RooAbsPdf{
@@ -85,8 +85,10 @@ protected:
 
 	RooListProxy _funcList; //  List of component FUNCs
 	RooListProxy _coefList; //  List of coefficients
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 	TIterator* _funcIter; //! Iterator over FUNC list
 	TIterator* _coefIter; //! Iterator over coefficient list
+#endif
 	Bool_t _extended; // Allow use as extended p.d.f.
 	Bool_t _doFloor; // Whether to apply a floor to the sum
 	Double_t _floorVal; // The value of the floor

@@ -1,40 +1,30 @@
+#include <iostream>
 #include "RooFit.h"
 #include "Riostream.h" 
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
-#include "TIterator.h"
-#include "TList.h"
-#include "RooRealProxy.h"
-#include "RooPlot.h"
-#include "RooRealVar.h"
-#include "RooAddGenContext.h"
-#include "RooRealConstant.h"
-#include "RooRealIntegral.h"
 #include "RooMsgService.h"
 #include "RooNameReg.h"
-#include "TMath.h"
-#include "TH3F.h"
-#include "TAxis.h"
-#include "RooDataHist.h"
-#include <math.h>
+#include <cmath>
 #include <memory>
 #include <algorithm>
 #include "IvyRealFlooredSumPdf.h" 
 
 
 using namespace RooFit;
-using namespace TMath;
 
 
 // Default constructor
-RooRealFlooredSumPdf::RooRealFlooredSumPdf()
+RooRealFlooredSumPdf::RooRealFlooredSumPdf() :
+	_extended(kFALSE),
+	_doFloor(kTRUE),
+	_floorVal(1e-100)
 {
 	// coverity[UNINIT_CTOR]
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 	_funcIter  = _funcList.createIterator();
 	_coefIter  = _coefList.createIterator();
-	_extended = kFALSE;
-	_doFloor = kTRUE;
-	_floorVal = 1e-100;
+#endif
 }
 RooRealFlooredSumPdf::RooRealFlooredSumPdf(const char* name, const char* title) :
 	RooAbsPdf(name, title),
@@ -46,8 +36,10 @@ RooRealFlooredSumPdf::RooRealFlooredSumPdf(const char* name, const char* title) 
 	_doFloor(kTRUE),
 	_floorVal(1e-100)
 {
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 	_funcIter   = _funcList.createIterator();
 	_coefIter  = _coefList.createIterator();
+#endif
 }
 
 // Constructor pdf implementing sum_i [ coef_i * func_i ], if N_coef==N_func
@@ -57,19 +49,23 @@ RooRealFlooredSumPdf::RooRealFlooredSumPdf(const char* name, const char* title) 
 RooRealFlooredSumPdf::RooRealFlooredSumPdf(const char* name, const char* title, const RooArgList& inFuncList, const RooArgList& inCoefList, Bool_t extended) :
 	RooAbsPdf(name, title),
 	_normIntMgr(this, 10),
-	_haveLastCoef(kFALSE),
 	_funcList("!funcList", "List of functions", this),
 	_coefList("!coefList", "List of coefficients", this),
 	_extended(extended),
 	_doFloor(kTRUE),
 	_floorVal(1e-100)
 {
-	if (!(inFuncList.getSize() == inCoefList.getSize() + 1 || inFuncList.getSize() == inCoefList.getSize())){
+	int const nCoefs = inCoefList.getSize();
+	int const nFuncs = inFuncList.getSize();
+	_haveLastCoef = (nCoefs == nFuncs);
+
+	if (!(nFuncs == nCoefs + 1 || _haveLastCoef)){
 		coutE(InputArguments) << "RooRealFlooredSumPdf::RooRealFlooredSumPdf(" << GetName()
 			<< ") number of pdfs and coefficients inconsistent, must have Nfunc=Ncoef or Nfunc=Ncoef+1" << std::endl;
 		assert(0);
 	}
 
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 	_funcIter = _funcList.createIterator();
 	_coefIter = _coefList.createIterator();
 
@@ -102,10 +98,28 @@ RooRealFlooredSumPdf::RooRealFlooredSumPdf(const char* name, const char* title, 
 		}
 		_funcList.add(*func);
 	}
-	else _haveLastCoef = kTRUE;
 
 	delete funcIter;
 	delete coefIter;
+#else
+	// Constructor with N functions and N or N-1 coefs
+	for (int iCoef = 0; iCoef < nCoefs; ++iCoef){
+		RooAbsArg* coef = &inCoefList[iCoef];
+		if (!dynamic_cast<RooAbsReal*>(coef)){
+			coutW(InputArguments) << "RooRealFlooredSumPdf::RooRealFlooredSumPdf(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal, ignored" << std::endl;
+			continue;
+		}
+		_coefList.add(*coef);
+	}
+	for (int iFunc = 0; iFunc < nFuncs; ++iFunc){
+		RooAbsArg* func = &inFuncList[iFunc];
+		if (!dynamic_cast<RooAbsReal*>(func)){
+			coutW(InputArguments) << "RooRealFlooredSumPdf::RooRealFlooredSumPdf(" << GetName() << ") func " << func->GetName() << " is not of type RooAbsReal, ignored" << std::endl;
+			continue;
+		}
+		_funcList.add(*func);
+	}
+#endif
 }
 
 RooRealFlooredSumPdf::RooRealFlooredSumPdf(const RooRealFlooredSumPdf& other, const char* name) :
@@ -118,13 +132,17 @@ RooRealFlooredSumPdf::RooRealFlooredSumPdf(const RooRealFlooredSumPdf& other, co
 	_doFloor(other._doFloor),
 	_floorVal(other._floorVal)
 {
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 	_funcIter = _funcList.createIterator();
 	_coefIter = _coefList.createIterator();
+#endif
 }
 
 RooRealFlooredSumPdf::~RooRealFlooredSumPdf(){
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 	delete _funcIter;
 	delete _coefIter;
+#endif
 }
 
 // Set the floor of the pdf
@@ -139,15 +157,16 @@ RooAbsPdf::ExtendMode RooRealFlooredSumPdf::extendMode() const{
 // Calculate the current value
 Double_t RooRealFlooredSumPdf::evaluate() const{
 	Double_t value(0);
+	Double_t lastCoef(1);
 
 	// Do running sum of coef/func pairs, calculate lastCoef.
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 	RooFIter funcIter = _funcList.fwdIterator();
 	RooFIter coefIter = _coefList.fwdIterator();
 	RooAbsReal* coef;
 	RooAbsReal* func;
 
 	// N funcs, N-1 coefficients 
-	Double_t lastCoef(1);
 	while ((coef = (RooAbsReal*) coefIter.next())){
 		func = (RooAbsReal*) funcIter.next();
 		Double_t coefVal = coef->getVal();
@@ -161,15 +180,31 @@ Double_t RooRealFlooredSumPdf::evaluate() const{
 	if (!_haveLastCoef){
 		// Add last func with correct coefficient
 		func = (RooAbsReal*) funcIter.next();
+#else
+	for (int iCoef = 0; iCoef < _coefList.getSize(); ++iCoef){
+		RooAbsReal* coef = &static_cast<RooAbsReal&>(_coefList[iCoef]);
+		RooAbsReal* func = &static_cast<RooAbsReal&>(_funcList[iCoef]);
+		Double_t coefVal = coef->getVal();
+
+		if (coefVal){
+			cxcoutD(Eval) << "RooRealFlooredSumPdf::eval(" << GetName() << ") coefVal = " << coefVal << " funcVal = " << func->ClassName() << "::" << func->GetName() << " = " << func->getVal() << std::endl;
+			value += func->getVal()*coefVal;
+			lastCoef -= coef->getVal();
+		}
+	}
+	if (!_haveLastCoef){
+		// Add last func with correct coefficient
+		RooAbsReal* func = &static_cast<RooAbsReal&>(_funcList[_coefList.getSize()]);
+#endif
 		value += func->getVal()*lastCoef;
 
 		cxcoutD(Eval) << "RooRealFlooredSumPdf::eval(" << GetName() << ") lastCoef = " << lastCoef << " funcVal = " << func->getVal() << std::endl;
 
 		// Warn about coefficient degeneration
-		if (lastCoef<0 || lastCoef>1){
+		if (lastCoef<0. || lastCoef>1.){
 			coutW(Eval) << "RooRealFlooredSumPdf::evaluate(" << GetName()
 				<< " WARNING: sum of FUNC coefficients not in range [0-1], value="
-				<< 1 - lastCoef << std::endl;
+				<< (1.-lastCoef) << std::endl;
 		}
 	}
 
@@ -188,12 +223,18 @@ Double_t RooRealFlooredSumPdf::evaluate() const{
 Bool_t RooRealFlooredSumPdf::checkObservables(const RooArgSet* nset) const{
 	Bool_t ret(kFALSE);
 
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 	_funcIter->Reset();
 	_coefIter->Reset();
 	RooAbsReal* coef;
 	RooAbsReal* func;
 	while ((coef = (RooAbsReal*) _coefIter->Next())){
 		func = (RooAbsReal*) _funcIter->Next();
+#else
+  for (int iCoef = 0; iCoef < _coefList.getSize(); ++iCoef){
+    RooAbsReal* coef = &static_cast<RooAbsReal&>(_coefList[iCoef]);
+    RooAbsReal* func = &static_cast<RooAbsReal&>(_funcList[iCoef]);
+#endif
 		if (func->observableOverlaps(nset, *coef)){
 			coutE(InputArguments) << "RooRealFlooredSumPdf::checkObservables(" << GetName() << "): ERROR: coefficient " << coef->GetName()
 				<< " and FUNC " << func->GetName() << " have one or more observables in common" << std::endl;
@@ -203,6 +244,24 @@ Bool_t RooRealFlooredSumPdf::checkObservables(const RooArgSet* nset) const{
 			coutE(InputArguments) << "RooRealPdf::checkObservables(" << GetName() << "): ERROR coefficient " << coef->GetName()
 				<< " depends on one or more of the following observables"; nset->Print("1");
 			ret = kTRUE;
+		}
+	}
+
+	if (!_haveLastCoef){
+#ifdef _IVY_ROOT_HAS_ITERATORS_
+    func = (RooAbsReal*) _funcIter->Next();
+		_coefIter->Reset();
+		while ((coef = (RooAbsReal*) _coefIter->Next())){
+#else
+    RooAbsReal* func = &static_cast<RooAbsReal&>(_funcList[_coefList.getSize()]);
+		for (int iCoef = 0; iCoef < _coefList.getSize(); ++iCoef){
+			RooAbsReal* coef = &static_cast<RooAbsReal&>(_coefList[iCoef]);
+#endif
+			if (func->observableOverlaps(nset, *coef)){
+				coutE(InputArguments) << "RooRealFlooredSumPdf::checkObservables(" << GetName() << "): ERROR: coefficient " << coef->GetName()
+					<< " and FUNC " << func->GetName() << " have one or more observables in common" << std::endl;
+				ret = kTRUE;
+			}
 		}
 	}
 
@@ -234,9 +293,14 @@ Int_t RooRealFlooredSumPdf::getAnalyticalIntegralWN(RooArgSet& allVars, RooArgSe
 	cache = new CacheElem;
 
 	// Make list of function projection and normalization integrals 
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 	_funcIter->Reset();
 	RooAbsReal* func;
 	while ((func = (RooAbsReal*) _funcIter->Next())){
+#else
+	for (RooAbsArg* funcAbsArg : _funcList){
+		RooAbsReal* func = static_cast<RooAbsReal*>(funcAbsArg);
+#endif
 		RooAbsReal* funcInt = func->createIntegral(analVars, rangeName);
 		cache->_funcIntList.addOwned(*funcInt);
 		if (normSet && normSet->getSize() > 0){
@@ -285,17 +349,22 @@ Double_t RooRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet*
 		assert(cache != 0);
 	}
 
+	Double_t value(0);
+	Double_t lastCoef(1);
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 	RooFIter funcIntIter = cache->_funcIntList.fwdIterator();
 	RooFIter coefIter = _coefList.fwdIterator();
 	RooFIter funcIter = _funcList.fwdIterator();
-	RooAbsReal* coef(0), * funcInt(0), * func(0);
-	Double_t value(0);
-
-	// N funcs, N-1 coefficients 
-	Double_t lastCoef(1);
+	RooAbsReal* coef(nullptr), * funcInt(nullptr), * func(nullptr);
 	while ((coef = (RooAbsReal*) coefIter.next())){
 		funcInt = (RooAbsReal*) funcIntIter.next();
 		func = (RooAbsReal*) funcIter.next();
+#else
+	for (int iCoef = 0; iCoef < _coefList.getSize(); ++iCoef){
+		RooAbsReal* coef = &static_cast<RooAbsReal&>(_coefList[iCoef]);
+		RooAbsReal* func = &static_cast<RooAbsReal&>(_funcList[iCoef]);
+		RooAbsReal* funcInt = &static_cast<RooAbsReal&>(cache->_funcIntList[iCoef]); 
+#endif
 		Double_t coefVal = coef->getVal(normSet2);
 		if (coefVal){
 			assert(func);
@@ -307,15 +376,19 @@ Double_t RooRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet*
 
 	if (!_haveLastCoef){
 		// Add last func with correct coefficient
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 		funcInt = (RooAbsReal*) funcIntIter.next();
+#else
+		RooAbsReal* funcInt = &static_cast<RooAbsReal&>(cache->_funcIntList[_coefList.getSize()]);
+#endif
 		assert(funcInt);
 		value += funcInt->getVal()*lastCoef;
 
 		// Warn about coefficient degeneration
-		if (lastCoef<0 || lastCoef>1){
+		if (lastCoef<0. || lastCoef>1.){
 			coutW(Eval) << "RooRealFlooredSumPdf::integral(" << GetName()
 				<< ") WARNING: Sum of FUNC coefficients not in range [0-1], value="
-				<< 1 - lastCoef << std::endl;
+				<< 1. - lastCoef << std::endl;
 		}
 	}
 
@@ -324,11 +397,17 @@ Double_t RooRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet*
 		normVal = 0;
 
 		// N funcs, N-1 coefficients 
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 		RooAbsReal* funcNorm;
 		RooFIter funcNormIter = cache->_funcNormList.fwdIterator();
 		RooFIter coefIter2 = _coefList.fwdIterator();
 		while ((coef = (RooAbsReal*) coefIter2.next())){
 			funcNorm = (RooAbsReal*) funcNormIter.next();
+#else
+		for (int iCoef = 0; iCoef < _coefList.getSize(); ++iCoef) {
+			RooAbsReal* coef = &static_cast<RooAbsReal&>(_coefList[iCoef]);
+			RooAbsReal* funcNorm = &static_cast<RooAbsReal&>(cache->_funcNormList[iCoef]);
+#endif
 			Double_t coefVal = coef->getVal(normSet2);
 			if (coefVal){
 				assert(funcNorm);
@@ -338,14 +417,18 @@ Double_t RooRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet*
 
 		// Add last func with correct coefficient
 		if (!_haveLastCoef){
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 			funcNorm = (RooAbsReal*) funcNormIter.next();
+#else
+			RooAbsReal* funcNorm = &static_cast<RooAbsReal&>(cache->_funcNormList[_coefList.getSize()]);
+#endif
 			assert(funcNorm);
 			normVal += funcNorm->getVal()*lastCoef;
 		}
 	}
 
 	Double_t result = 0;
-	if (normVal>0) result = value / normVal;
+	if (normVal>0.) result = value / normVal;
 	if (result<=0. && _doFloor){
 		coutW(Eval) << "RooRealFlooredSumPdf::integral(" << GetName()
 			<< ") WARNING: Integral " << result << " below threshold." << std::endl;
@@ -367,9 +450,13 @@ std::list<Double_t>* RooRealFlooredSumPdf::binBoundaries(RooAbsRealLValue& obs, 
 	RooFIter iter = _funcList.fwdIterator();
 	RooAbsReal* func;
 	// Loop over components pdf
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 	while ((func = (RooAbsReal*) iter.next())){
+#else
+	for (RooAbsArg* funcAbsArg : _funcList){
+		RooAbsReal* func = static_cast<RooAbsReal*>(funcAbsArg);
+#endif
 		std::list<Double_t>* funcBinB = func->binBoundaries(obs, xlo, xhi);
-
 		// Process hint
 		if (funcBinB){
 			if (!sumBinB){
@@ -393,7 +480,7 @@ std::list<Double_t>* RooRealFlooredSumPdf::binBoundaries(RooAbsRealLValue& obs, 
 
 	// Remove consecutive duplicates
 	if (needClean){
-		std::list<Double_t>::iterator new_end = unique(sumBinB->begin(), sumBinB->end());
+		std::list<Double_t>::iterator new_end = std::unique(sumBinB->begin(), sumBinB->end());
 		sumBinB->erase(new_end, sumBinB->end());
 	}
 
@@ -402,12 +489,15 @@ std::list<Double_t>* RooRealFlooredSumPdf::binBoundaries(RooAbsRealLValue& obs, 
 
 Bool_t RooRealFlooredSumPdf::isBinnedDistribution(const RooArgSet& obs) const{
 	// If all components that depend on obs are binned that so is the product
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 	RooFIter iter = _funcList.fwdIterator();
 	RooAbsReal* func;
 	while ((func = (RooAbsReal*) iter.next())){
-		if (func->dependsOn(obs) && !func->isBinnedDistribution(obs)){
-			return kFALSE;
-		}
+#else
+  for (RooAbsArg* funcAbsArg : _funcList) {
+    RooAbsReal* func = static_cast<RooAbsReal*>(funcAbsArg);
+#endif
+		if (func->dependsOn(obs) && !func->isBinnedDistribution(obs)) return kFALSE;
 	}
 	return kTRUE;
 }
@@ -416,11 +506,16 @@ std::list<Double_t>* RooRealFlooredSumPdf::plotSamplingHint(RooAbsRealLValue& ob
 	std::list<Double_t>* sumHint = 0;
 	Bool_t needClean(kFALSE);
 
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 	RooFIter iter = _funcList.fwdIterator();
 	RooAbsReal* func;
 	// Loop over components pdf
 	while ((func = (RooAbsReal*) iter.next())){
-		std::list<Double_t>* funcHint = func->plotSamplingHint(obs, xlo, xhi);
+#else
+	for (RooAbsArg* funcAbsArg : _funcList) {
+    RooAbsReal* func = static_cast<RooAbsReal*>(funcAbsArg);
+#endif
+	  std::list<Double_t>* funcHint = func->plotSamplingHint(obs, xlo, xhi);
 
 		// Process hint
 		if (funcHint){
@@ -458,25 +553,38 @@ void RooRealFlooredSumPdf::printMetaArgs(std::ostream& os) const{
 
 	Bool_t first(kTRUE);
 
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 	RooAbsArg* coef, * func;
+#endif
 	if (_coefList.getSize() != 0){
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 		while ((coef = (RooAbsArg*) _coefIter->Next())){
-			if (!first){
-				os << " + ";
-			}
-			else{
-				first = kFALSE;
-			}
 			func = (RooAbsArg*) _funcIter->Next();
+#else
+		for (int iCoef = 0; iCoef < _coefList.getSize(); ++iCoef){
+			RooAbsArg* coef = &_coefList[iCoef];
+			RooAbsArg* func = &_funcList[iCoef];
+#endif
+			if (!first)	os << " + ";
+			else first = kFALSE;
 			os << coef->GetName() << " * " << func->GetName();
 		}
-		func = (RooAbsArg*) _funcIter->Next();
-		if (func){
-			os << " + [%] * " << func->GetName();
+
+		if (!_haveLastCoef){
+#ifdef _IVY_ROOT_HAS_ITERATORS_
+			func = (RooAbsArg*) _funcIter->Next();
+#else
+			RooAbsArg* func = &_funcList[_coefList.getSize()];
+#endif
+			if (func) os << " + [%] * " << func->GetName();
 		}
 	}
 	else{
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 		while ((func = (RooAbsArg*) _funcIter->Next())){
+#else
+		for (RooAbsArg* func : _funcList){
+#endif
 			if (!first) os << " + ";
 			else first = kFALSE;
 			os << func->GetName();
