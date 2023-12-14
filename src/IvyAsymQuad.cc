@@ -11,8 +11,10 @@ AsymQuad::AsymQuad() :
   smoothRegion_(0),
   smoothAlgo_(0)
 {
+#ifdef _IVY_ROOT_HAS_ITERATORS_
   _funcIter  = _funcList.createIterator();
   _coefIter  = _coefList.createIterator();
+#endif
 }
 
 AsymQuad::AsymQuad(const char* name, const char* title, const RooArgList& inFuncList, const RooArgList& inCoefList, Double_t smoothRegion, Int_t smoothAlgo) :
@@ -28,30 +30,42 @@ AsymQuad::AsymQuad(const char* name, const char* title, const RooArgList& inFunc
     assert(0);
   }
 
+#ifdef _IVY_ROOT_HAS_ITERATORS_
   TIterator* funcIter = inFuncList.createIterator();
   RooAbsArg* func;
   while ((func = (RooAbsArg*) funcIter->Next())){
+#else
+  for (RooAbsArg* func : inFuncList){
+#endif
     if (!dynamic_cast<RooAbsReal*>(func)){
       coutE(InputArguments) << "ERROR: AsymQuad::AsymQuad(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _funcList.add(*func);
   }
+#ifdef _IVY_ROOT_HAS_ITERATORS_
   delete funcIter;
+#endif
 
+#ifdef _IVY_ROOT_HAS_ITERATORS_
   TIterator* coefIter = inCoefList.createIterator();
   RooAbsArg* coef;
   while ((coef = (RooAbsArg*) coefIter->Next())){
+#else
+  for (RooAbsArg* coef : inCoefList){
+#endif
     if (!dynamic_cast<RooAbsReal*>(coef)){
       coutE(InputArguments) << "ERROR: AsymQuad::AsymQuad(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
     _coefList.add(*coef);
   }
+#ifdef _IVY_ROOT_HAS_ITERATORS_
   delete coefIter;
 
   _funcIter  = _funcList.createIterator();
   _coefIter = _coefList.createIterator();
+#endif
 }
 
 AsymQuad::AsymQuad(const AsymQuad& other, const char* name) :
@@ -61,30 +75,44 @@ AsymQuad::AsymQuad(const AsymQuad& other, const char* name) :
   smoothRegion_(other.smoothRegion_),
   smoothAlgo_(other.smoothAlgo_)
 {
+#ifdef _IVY_ROOT_HAS_ITERATORS_
   _funcIter  = _funcList.createIterator();
   _coefIter = _coefList.createIterator();
+#endif
 }
 
 AsymQuad::~AsymQuad(){
+#ifdef _IVY_ROOT_HAS_ITERATORS_
   delete _funcIter;
   delete _coefIter;
+#endif
 }
 
 Double_t AsymQuad::evaluate() const{
   Double_t result(0);
+  Double_t central(0);
 
+#ifdef _IVY_ROOT_HAS_ITERATORS_
   _funcIter->Reset();
   _coefIter->Reset();
   RooAbsReal* coef;
   RooAbsReal* func = (RooAbsReal*) _funcIter->Next();
-
-  Double_t central = func->getVal();
+  if (func) central = func->getVal();
   result = central;
 
   while ((coef=(RooAbsReal*) _coefIter->Next())){
     Double_t coefVal = coef->getVal();
     RooAbsReal* funcUp = (RooAbsReal*) _funcIter->Next();
     RooAbsReal* funcDn = (RooAbsReal*) _funcIter->Next();
+#else
+  RooAbsReal* func = (_funcList.getSize()>0 ? &(RooAbsReal&) _funcList[0] : nullptr);
+  if (func) central = func->getVal();
+  result = central;
+  for (int iCoef = 0; iCoef < _coefList.getSize(); ++iCoef) {
+    Double_t coefVal = static_cast<RooAbsReal&>(_coefList[iCoef]).getVal();
+    RooAbsReal* funcUp = &(RooAbsReal&) _funcList[2 * iCoef + 1];
+    RooAbsReal* funcDn = &(RooAbsReal&) _funcList[2 * iCoef + 2];
+#endif
     result += interpolate(coefVal, central, funcUp->getVal(), funcDn->getVal());
   }
 

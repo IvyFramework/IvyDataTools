@@ -1,10 +1,14 @@
+#include "IvyROOTFlags.h"
 #include "IvyPiecewisePolynomial.h"
 #include <iostream>
 #include <cassert>
 #include <cmath>
 #include "TVectorD.h"
 #include "TMatrixD.h"
+
+#ifdef _IVY_ROOT_HAS_ITERATORS_
 #include "TIterator.h"
+#endif
 
 
 IvyPiecewisePolynomial::IvyPiecewisePolynomial(const int nfcn_, const int polyndof_) :
@@ -40,16 +44,26 @@ IvyPiecewisePolynomial::IvyPiecewisePolynomial(const char* name, const char* tit
 {
   assert((nfcn>2 && polyndof>=2) || (nfcn==2 && polyndof>=1) || (nfcn==1 && polyndof>=0));
 
-  TIterator* coefIter = parList_.createIterator();
-  RooAbsArg* func;
-  while ((func = (RooAbsArg*) coefIter->Next())) {
-    if (!dynamic_cast<RooAbsReal*>(func)) {
-      std::cerr << "IvyPiecewisePolynomial::IvyPiecewisePolynomial(" << GetName() << ") funcficient " << func->GetName() << " is not of type RooAbsReal" << std::endl;
+#ifdef _IVY_ROOT_HAS_ITERATORS_
+  TIterator* parIter = parList_.createIterator();
+  RooAbsArg* par;
+  while ((par = (RooAbsArg*) parIter->Next())){
+    if (!dynamic_cast<RooAbsReal*>(par)){
+      std::cerr << "IvyPiecewisePolynomial::IvyPiecewisePolynomial(" << GetName() << ") parficient " << par->GetName() << " is not of type RooAbsReal" << std::endl;
       assert(0);
     }
-    parList.add(*func);
+    parList.add(*par);
   }
-  delete coefIter;
+  delete parIter;
+#else
+  while (RooAbsArg* par : parList_){
+    if (!dynamic_cast<RooAbsReal*>(par)){
+      std::cerr << "IvyPiecewisePolynomial::IvyPiecewisePolynomial(" << GetName() << ") parficient " << par->GetName() << " is not of type RooAbsReal" << std::endl;
+      assert(0);
+    }
+    parList.add(*par);
+  }
+#endif
 }
 IvyPiecewisePolynomial::IvyPiecewisePolynomial(IvyPiecewisePolynomial const& other, const char* name) :
   RooAbsReal(other, name),
@@ -61,7 +75,7 @@ IvyPiecewisePolynomial::IvyPiecewisePolynomial(IvyPiecewisePolynomial const& oth
   ndof_middlefcn(other.ndof_middlefcn)
 {}
 
-double IvyPiecewisePolynomial::eval(double x, std::vector<double> const& par)const{
+double IvyPiecewisePolynomial::eval(double x, std::vector<double> const& par) const{
   // If we say the form of the polynomial is [0] + [1]*x + [2]*x2 + [3]*x3 + [4]*x4...,
   // use the highest two orders for matching at the nodes and free the rest.
   const double d_epsilon = 0;

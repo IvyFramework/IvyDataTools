@@ -55,14 +55,14 @@ RooRealFlooredSumPdf::RooRealFlooredSumPdf(const char* name, const char* title, 
   _doFloor(kTRUE),
   _floorVal(1e-100)
 {
-  int const nCoefs = inCoefList.getSize();
-  int const nFuncs = inFuncList.getSize();
-  _haveLastCoef = (nCoefs == nFuncs);
-
-  if (!(nFuncs == nCoefs + 1 || _haveLastCoef)){
-    coutE(InputArguments) << "RooRealFlooredSumPdf::RooRealFlooredSumPdf(" << GetName()
-      << ") number of pdfs and coefficients inconsistent, must have Nfunc=Ncoef or Nfunc=Ncoef+1" << std::endl;
-    assert(0);
+  {
+    int const nCoefs = inCoefList.getSize();
+    int const nFuncs = inFuncList.getSize();
+    if (!(nFuncs == nCoefs + 1 || nCoefs == nFuncs)){
+      coutE(InputArguments) << "RooRealFlooredSumPdf::RooRealFlooredSumPdf(" << GetName()
+        << ") number of pdfs and coefficients inconsistent, must have Nfunc=Ncoef or Nfunc=Ncoef+1" << std::endl;
+      assert(0);
+    }
   }
 
 #ifdef _IVY_ROOT_HAS_ITERATORS_
@@ -103,16 +103,14 @@ RooRealFlooredSumPdf::RooRealFlooredSumPdf(const char* name, const char* title, 
   delete coefIter;
 #else
   // Constructor with N functions and N or N-1 coefs
-  for (int iCoef = 0; iCoef < nCoefs; ++iCoef){
-    RooAbsArg* coef = &inCoefList[iCoef];
+  for (RooAbsArg* coef : inCoefList){
     if (!dynamic_cast<RooAbsReal*>(coef)){
       coutW(InputArguments) << "RooRealFlooredSumPdf::RooRealFlooredSumPdf(" << GetName() << ") coefficient " << coef->GetName() << " is not of type RooAbsReal, ignored" << std::endl;
       continue;
     }
     _coefList.add(*coef);
   }
-  for (int iFunc = 0; iFunc < nFuncs; ++iFunc){
-    RooAbsArg* func = &inFuncList[iFunc];
+  for (RooAbsArg* func : inFuncList){
     if (!dynamic_cast<RooAbsReal*>(func)){
       coutW(InputArguments) << "RooRealFlooredSumPdf::RooRealFlooredSumPdf(" << GetName() << ") func " << func->GetName() << " is not of type RooAbsReal, ignored" << std::endl;
       continue;
@@ -120,6 +118,8 @@ RooRealFlooredSumPdf::RooRealFlooredSumPdf(const char* name, const char* title, 
     _funcList.add(*func);
   }
 #endif
+
+  _haveLastCoef = (_coefList.getSize() == _funcList.getSize());
 }
 
 RooRealFlooredSumPdf::RooRealFlooredSumPdf(const RooRealFlooredSumPdf& other, const char* name) :
@@ -439,7 +439,7 @@ Double_t RooRealFlooredSumPdf::analyticalIntegralWN(Int_t code, const RooArgSet*
 
 Double_t RooRealFlooredSumPdf::expectedEvents(const RooArgSet* nset) const{
   Double_t n = getNorm(nset);
-  if (n < 0) logEvalError("Expected number of events is negative");
+  if (n < 0.) logEvalError("Expected number of events is negative");
   return n;
 }
 

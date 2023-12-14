@@ -1,16 +1,19 @@
+#include "IvyROOTFlags.h"
 #include "IvyNCSplineCore.h" 
 #include <cmath>
-#include "TMath.h"
-#include "TIterator.h"
 #include "Riostream.h"
 
-using namespace TMath;
-using namespace RooFit;
+#ifdef _IVY_ROOT_HAS_ITERATORS_
+#include "TIterator.h"
+#endif
+
+
 using namespace std;
 using namespace NumericUtils;
 
 
 ClassImp(IvyNCSplineCore)
+
 
 IvyNCSplineCore::IvyNCSplineCore() :
 RooAbsReal(),
@@ -282,8 +285,12 @@ void IvyNCSplineCore::getLeafDependents(RooRealProxy& proxy, RooArgSet& set){
   set.add(deps);
 }
 void IvyNCSplineCore::addLeafDependents(RooArgSet& set){
+#ifdef _IVY_ROOT_HAS_ITERATORS_
   TIterator* iter = set.createIterator();
   RooAbsArg* absarg;
   while ((absarg = (RooAbsArg*)iter->Next())){ if (dynamic_cast<RooRealVar*>(absarg)) leafDepsList.add(*absarg); }
   delete iter;
+#else
+  for (RooAbsArg* absarg : set){ if (dynamic_cast<RooRealVar*>(absarg)) leafDepsList.add(*absarg); }
+#endif
 }

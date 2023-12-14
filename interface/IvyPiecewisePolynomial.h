@@ -44,10 +44,10 @@ public:
   IvyPiecewisePolynomial(const char* name, const char* title, const int nfcn_=1, const int polyndof_=1);
   IvyPiecewisePolynomial(const char* name, const char* title, RooAbsReal& xvar_, RooArgList const& parList_, const int nfcn_, const int polyndof_);
   IvyPiecewisePolynomial(IvyPiecewisePolynomial const& other, const char* name=0);
-  virtual TObject* clone(const char* newname)const{ return new IvyPiecewisePolynomial(*this, newname); }
+  virtual TObject* clone(const char* newname) const{ return new IvyPiecewisePolynomial(*this, newname); }
   inline virtual ~IvyPiecewisePolynomial(){}
 
-  double evaluate()const;
+  double evaluate() const;
   double evaluate(double* x, double* p) const; // For calling in a TF1 object
 
   ClassDef(IvyPiecewisePolynomial, 2)

@@ -1,11 +1,14 @@
+#include "IvyROOTFlags.h"
 #include "IvyNCSpline_1D_fast.h" 
 #include <cmath>
-#include "TMath.h"
 #include "Riostream.h" 
 #include "RooAbsReal.h" 
 
-using namespace TMath;
-using namespace RooFit;
+#ifdef _IVY_ROOT_HAS_ITERATORS_
+#include "TIterator.h"
+#endif
+
+
 using namespace std;
 using namespace NumericUtils;
 
@@ -176,12 +179,14 @@ Double_t IvyNCSpline_1D_fast::evaluate() const{
   if (verbosity==IvyNCSplineCore::kVerbose){
     cout << "IvyNCSpline_1D_fast(" << GetName() << ")::evaluate = " << value << " at x = " << theXVar << endl;
     RooArgSet Xdeps; theXVar.absArg()->leafNodeServerList(&Xdeps, 0, true);
+#ifdef _IVY_ROOT_HAS_ITERATORS_
     TIterator* iter = Xdeps.createIterator();
     RooAbsArg* var;
-    while ((var = (RooAbsArg*)iter->Next())){
-      cout << var->GetName() << " value = " << dynamic_cast<RooAbsReal*>(var)->getVal() << endl;
-    }
+    while ((var = (RooAbsArg*)iter->Next())) cout << var->GetName() << " value = " << dynamic_cast<RooAbsReal*>(var)->getVal() << endl;
     delete iter;
+#else
+    for (RooAbsArg* var : Xdeps) cout << var->GetName() << " value = " << dynamic_cast<RooAbsReal*>(var)->getVal() << endl;
+#endif
     cout << endl;
   }
   return value;
