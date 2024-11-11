@@ -48,7 +48,7 @@ std::vector<TString> SampleHelpers::lsdir(TString const& indir){
 
       TString strRemoveMaindir = tmpUrl.GetFile();
       TString strRemoveUrlRoot = indir;
-      HelperFunctions::replaceString<TString, TString const>(strRemoveUrlRoot, strRemoveMaindir, "");
+      HelperFunctions::replaceString(strRemoveUrlRoot, strRemoveMaindir, "");
       if (!strRemoveMaindir.EndsWith("/")) strRemoveMaindir = strRemoveMaindir + '/';
 
       ifstream fin;
@@ -59,8 +59,8 @@ std::vector<TString> SampleHelpers::lsdir(TString const& indir){
           getline(fin, str_in);
           HelperFunctions::lrstrip(str_in);
           if (str_in!=""){
-            HelperFunctions::replaceString<std::string, const char*>(str_in, strRemoveUrlRoot.Data(), "");
-            HelperFunctions::replaceString<std::string, const char*>(str_in, strRemoveMaindir.Data(), "");
+            HelperFunctions::replaceString(str_in, strRemoveUrlRoot.Data(), "");
+            HelperFunctions::replaceString(str_in, strRemoveMaindir.Data(), "");
             while (str_in.find("/")==0) str_in = str_in.substr(1);
             res.push_back(str_in.data());
           }

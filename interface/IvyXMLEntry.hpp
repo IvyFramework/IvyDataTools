@@ -14,11 +14,11 @@ using namespace IvyStreamHelpers;
 template<> void IvyXMLStringEntry_t::readEntry(){
   this->value = this->body;
 
-  while (this->value.find("&lt;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(this->value, "&lt;", "<");
-  while (this->value.find("&gt;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(this->value, "&gt;", ">");
-  while (this->value.find("&amp;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(this->value, "&amp;", "&");
-  while (this->value.find("&apos;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(this->value, "&apos;", "'");
-  while (this->value.find("&quot;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(this->value, "&quot;", "\"");
+  while (this->value.find("&lt;")!=std::string::npos) HelperFunctions::replaceString(this->value, "&lt;", "<");
+  while (this->value.find("&gt;")!=std::string::npos) HelperFunctions::replaceString(this->value, "&gt;", ">");
+  while (this->value.find("&amp;")!=std::string::npos) HelperFunctions::replaceString(this->value, "&amp;", "&");
+  while (this->value.find("&apos;")!=std::string::npos) HelperFunctions::replaceString(this->value, "&apos;", "'");
+  while (this->value.find("&quot;")!=std::string::npos) HelperFunctions::replaceString(this->value, "&quot;", "\"");
 }
 template<> void IvyXMLCompositeEntry_t::readEntry(){
   std::string strentry = this->body;
@@ -90,26 +90,18 @@ template<> void IvyXMLCompositeEntry_t::readEntry(){
 }
 template<> IvyXMLCompositeEntry_t::~IvyXMLEntry(){ for (auto& v:this->value) delete v; }
 
-template<> void IvyXMLStringEntry_t::print(unsigned int level) const{
-  for (unsigned int i=0; i<level; i++) IVYout << ' ';
-  IVYout << "Type: " << this->type << endl;
-  for (unsigned int i=0; i<level; i++) IVYout << ' ';
-  IVYout << "Attributes: " << this->attributes << endl;
-  for (unsigned int i=0; i<level; i++) IVYout << ' ';
-  IVYout << "Body: " << this->body << endl;
-  for (unsigned int i=0; i<level; i++) IVYout << ' ';
-  IVYout << "Value (string): " << this->value << endl;
+template<> void IvyXMLStringEntry_t::print(bool ignore_body, unsigned int level) const{
+  IvyXMLBasicEntry::print(ignore_body, level);
+  for (unsigned int i=0; i<level; ++i) IVYout << ' ';
+  IVYout << "Value: " << this->value << endl;
 }
-template<> void IvyXMLCompositeEntry_t::print(unsigned int level) const{
-  for (unsigned int i=0; i<level; i++) IVYout << ' ';
-  IVYout << "Type: " << this->type << endl;
-  for (unsigned int i=0; i<level; i++) IVYout << ' ';
-  IVYout << "Attributes: " << this->attributes << endl;
-  for (unsigned int i=0; i<level; i++) IVYout << ' ';
-  IVYout << "Body: " << this->body << endl;
-  for (unsigned int i=0; i<level; i++) IVYout << ' ';
-  IVYout << "Value (composite):" << endl;
-  for (auto const& vv:this->value) vv->print(level+1);
+template<> void IvyXMLCompositeEntry_t::print(bool ignore_body, unsigned int level) const{
+  IvyXMLBasicEntry::print(ignore_body, level);
+  for (unsigned int i=0; i<level; ++i) IVYout << ' ';
+  IVYout << "Value: {" << endl;
+  for (auto const& vv:this->value) vv->print(ignore_body, level+1);
+  for (unsigned int i = 0; i<level; ++i) IVYout << ' ';
+  IVYout << "}" << endl;
 }
 
 

@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <iterator>
 #include <cmath>
+#include <type_traits>
 #include "TMath.h"
 #include "StdExtensions.h"
 #include "CMSLorentzVector.h"
@@ -58,11 +59,20 @@ namespace HelperFunctions{
 
   template<typename T> void resetPointer(T*& ptr);
 
-  template<typename T, typename U> bool replaceString(T& strinput, U strTakeOut, U strPutIn);
-  template<> bool replaceString<TString, const TString>(TString& strinput, const TString strTakeOut, const TString strPutIn);
-  template<> bool replaceString<TString, const char*>(TString& strinput, const char* strTakeOut, const char* strPutIn);
-  template<> bool replaceString<std::string, const std::string>(std::string& strinput, const std::string strTakeOut, const std::string strPutIn);
-  template<> bool replaceString<std::string, const char*>(std::string& strinput, const char* strTakeOut, const char* strPutIn);
+  template<typename T> unsigned long long int strlength(T str);
+  template<> unsigned long long int strlength<std::string>(std::string str);
+  template<> unsigned long long int strlength<TString>(TString str);
+  template<> unsigned long long int strlength<char const*>(char const* str);
+
+  template<typename T> struct replaceStringFcnal;
+  template<> struct replaceStringFcnal<TString>{
+    template<typename U, typename P> bool operator()(TString& strinput, U strTakeOut, P strPutIn);
+  };
+  template<> struct replaceStringFcnal<std::string>{
+    template<typename U, typename P> bool operator()(std::string& strinput, U strTakeOut, P strPutIn);
+  };
+
+  template<typename T, typename U, typename P> bool replaceString(T& strinput, U strTakeOut, P strPutIn);
 
   template<typename T> void removeNonASCIIChars(T& str);
   template<> void removeNonASCIIChars<std::string>(std::string& str);
@@ -359,6 +369,22 @@ template<typename T, typename U> void HelperFunctions::cleanUnorderedMap(std::un
 template<typename T> void HelperFunctions::resetPointer(T*& ptr){ delete ptr; ptr=nullptr; }
 
 // String functions
+template<typename U, typename P> bool HelperFunctions::replaceStringFcnal<TString>::operator()(TString& strinput, U strTakeOut, P strPutIn){
+  Ssiz_t ipos = strinput.Index(strTakeOut);
+  if (ipos!=-1){ strinput.Replace(ipos, static_cast<Ssiz_t>(strlength<std::remove_const_t<std::remove_reference_t<U>>>(strTakeOut)), strPutIn); return true; }
+  else return false;
+}
+template<typename U, typename P> bool HelperFunctions::replaceStringFcnal<std::string>::operator()(std::string& strinput, U strTakeOut, P strPutIn){
+  std::string::size_type ipos = strinput.find(strTakeOut);
+  if (ipos!=std::string::npos){ strinput.replace(ipos, static_cast<std::string::size_type>(strlength<std::remove_const_t<std::remove_reference_t<U>>>(strTakeOut)), strPutIn); return true; }
+  else return false;
+}
+
+template<typename T, typename U, typename P> bool HelperFunctions::replaceString(T& strinput, U strTakeOut, P strPutIn){
+  replaceStringFcnal<T> fcn;
+  return fcn(strinput, strTakeOut, strPutIn);
+}
+
 template<typename T> void HelperFunctions::castStringToValue(std::string const& name, T& val){ std::stringstream ss(name); ss >> val; }
 template<typename T> void HelperFunctions::castStringToValue(TString const& name, T& val){ std::string s(name.Data()); HelperFunctions::castStringToValue(s, val); }
 template<typename T> void HelperFunctions::castStringToValue(const char* name, T& val){ std::string s(name); HelperFunctions::castStringToValue(s, val); }

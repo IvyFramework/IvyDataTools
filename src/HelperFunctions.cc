@@ -1161,26 +1161,9 @@ float HelperFunctions::translateEfficiencyErrorToNumeratorError(
 bool HelperFunctions::isASCIICharacter(signed char ch){ unsigned char uch = static_cast<unsigned char>(ch); return uch<128; }
 bool HelperFunctions::isNonASCIICharacter(signed char ch){ return !HelperFunctions::isASCIICharacter(ch); }
 
-template<> bool HelperFunctions::replaceString<TString, const TString>(TString& strinput, const TString strTakeOut, const TString strPutIn){
-  Ssiz_t ipos=strinput.Index(strTakeOut);
-  if (ipos!=-1){ strinput.Replace(ipos, strTakeOut.Length(), strPutIn); return true; }
-  else return false;
-}
-template<> bool HelperFunctions::replaceString<TString, const char*>(TString& strinput, const char* strTakeOut, const char* strPutIn){
-  Ssiz_t ipos=strinput.Index(strTakeOut);
-  if (ipos!=-1){ strinput.Replace(ipos, strlen(strTakeOut), strPutIn); return true; }
-  else return false;
-}
-template<> bool HelperFunctions::replaceString<std::string, const std::string>(std::string& strinput, const std::string strTakeOut, const std::string strPutIn){
-  std::string::size_type ipos=strinput.find(strTakeOut);
-  if (ipos!=std::string::npos){ strinput.replace(ipos, strTakeOut.length(), strPutIn); return true; }
-  else return false;
-}
-template<> bool HelperFunctions::replaceString<std::string, const char*>(std::string& strinput, const char* strTakeOut, const char* strPutIn){
-  std::string::size_type ipos=strinput.find(strTakeOut);
-  if (ipos!=std::string::npos){ strinput.replace(ipos, strlen(strTakeOut), strPutIn); return true; }
-  else return false;
-}
+template<> unsigned long long int HelperFunctions::strlength<std::string>(std::string str){ return str.length(); }
+template<> unsigned long long int HelperFunctions::strlength<TString>(TString str){ return str.Length(); }
+template<> unsigned long long int HelperFunctions::strlength<char const*>(char const* str){ return strlen(str); }
 
 template<> void HelperFunctions::removeNonASCIIChars<std::string>(std::string& str){
   str.erase(

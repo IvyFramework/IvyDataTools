@@ -9,7 +9,6 @@ cd $(dirname ${BASH_SOURCE[0]})
 PKGDIR="$(readlink -f .)"
 declare -i doPrintEnv=0
 declare -i doPrintEnvInstr=0
-declare -i needROOFITSYS_ROOTSYS=0
 declare -a setupArgs=()
 
 for farg in "$@"; do

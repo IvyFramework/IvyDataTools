@@ -18,7 +18,7 @@ public:
   IvyXMLCompositeEntry_t* const& getEntry() const{ return entry; }
   IvyXMLCompositeEntry_t* const& getEntry(){ return entry; }
 
-  void print() const{ if (entry) entry->print(); }
+  void print(bool ignore_body=true) const{ if (entry) entry->print(ignore_body); }
 };
 
 

@@ -68,7 +68,7 @@ TString HostHelpers::GetStandardHostPathToStore(const char* name, Hosts const& h
     if (host != GetHostLocation()){
       TString strlocalredir = GetHostLocalRedirector(host, true);
       // The path should not include the portion up to '/store' unless the protocol is srm.
-      if (!strlocalredir.Contains("srm")) HelperFunctions::replaceString<TString, TString const>(res, strstorepath, "");
+      if (!strlocalredir.Contains("srm")) HelperFunctions::replaceString(res, strstorepath, "");
       else if (!res.Contains(strstorepath)) res = strstorepath + "/" + res;
       res = strlocalredir + res;
     }
@@ -88,10 +88,10 @@ TString HostHelpers::SearchPathToStore(const char* name){
     TString path = HostHelpers::GetStandardHostPathToStore(name, hh);
     if (HostHelpers::DirectoryExists(path) || HostHelpers::FileExists(path)) return path;
     else if (hh==HostHelpers::kUCSDT2 && (path.Contains("/ceph/") || path.Contains("/hadoop/") || path.Contains(":1095") || path.Contains(":1094"))){
-      if (path.Contains("/ceph/")) HelperFunctions::replaceString<TString, TString const>(path, "/ceph/", "/hadoop/");
-      else if (path.Contains("/hadoop/")) HelperFunctions::replaceString<TString, TString const>(path, "/hadoop/", "/ceph/");
-      if (path.Contains(":1095")) HelperFunctions::replaceString<TString, TString const>(path, ":1095", ":1094");
-      else if (path.Contains(":1094")) HelperFunctions::replaceString<TString, TString const>(path, ":1094", ":1095");
+      if (path.Contains("/ceph/")) HelperFunctions::replaceString(path, "/ceph/", "/hadoop/");
+      else if (path.Contains("/hadoop/")) HelperFunctions::replaceString(path, "/hadoop/", "/ceph/");
+      if (path.Contains(":1095")) HelperFunctions::replaceString(path, ":1095", ":1094");
+      else if (path.Contains(":1094")) HelperFunctions::replaceString(path, ":1094", ":1095");
       if (HostHelpers::DirectoryExists(path) || HostHelpers::FileExists(path)) return path;
     }
   }

@@ -112,7 +112,7 @@ int main(int argc, char** argv){
     for (unsigned int ichunk=0; ichunk<nchunks; ichunk++){
       std::string stroutput = fname;
       std::string strchunk = Form("_chunk_%u_of_%u%s", ichunk, nchunks, ".root");
-      HelperFunctions::replaceString<std::string, std::string const>(stroutput, ".root", strchunk);
+      HelperFunctions::replaceString(stroutput, ".root", strchunk);
       TFile* foutput = TFile::Open(stroutput.data(), "recreate");
       if (foutput) foutputlist.push_back(foutput);
       else{

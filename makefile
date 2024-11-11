@@ -2,10 +2,6 @@ ifndef ROOTSYS
 all:
 	@echo "ROOTSYS is not set. Please set ROOT environment properly"; echo
 else
-ifndef ROOFITSYS
-all:
-	@echo "ROOFITSYS is not set. Please set ROOT environment properly"; echo
-else
 
 
 PROJECTNAME          = IvyFramework
@@ -152,5 +148,4 @@ clean:
 include $(DEPS)
 
 
-endif
 endif

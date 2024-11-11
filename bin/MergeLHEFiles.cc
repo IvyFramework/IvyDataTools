@@ -161,14 +161,14 @@ int main(int argc, char** argv){
         if (accumulate_leptonefficiency){
           hasLeptonFilterComment=true;
           if (strin.find("events processed")!=string::npos){
-            while (strin.find(' ')!=string::npos) replaceString<std::string, const std::string>(strin, " ", "");
+            while (strin.find(' ')!=string::npos) replaceString(strin, " ", "");
             string wish, value;
             splitOption(strin, wish, value, ':');
             unsigned int ntmp = atoi(value.c_str());
             nLeptonFilterEventsProcessed += ntmp;
           }
           else if (strin.find("events accepted")!=string::npos){
-            while (strin.find(' ')!=string::npos) replaceString<std::string, const std::string>(strin, " ", "");
+            while (strin.find(' ')!=string::npos) replaceString(strin, " ", "");
             string wish, value;
             splitOption(strin, wish, value, ':');
             unsigned int ntmp = atoi(value.c_str());

@@ -53,12 +53,12 @@ void IvyXMLBasicEntry::readBasicEntry(std::string strentry){
           assert(0);
         }
 
-        while (strv.find('\"')!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(strv, "\"", "");
-        while (strv.find("&lt;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(strv, "&lt;", "<");
-        while (strv.find("&gt;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(strv, "&gt;", ">");
-        while (strv.find("&amp;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(strv, "&amp;", "&");
-        while (strv.find("&apos;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(strv, "&apos;", "'");
-        while (strv.find("&quot;")!=std::string::npos) HelperFunctions::replaceString<std::string, std::string const>(strv, "&quot;", "\"");
+        while (strv.find('\"')!=std::string::npos) HelperFunctions::replaceString(strv, "\"", "");
+        while (strv.find("&lt;")!=std::string::npos) HelperFunctions::replaceString(strv, "&lt;", "<");
+        while (strv.find("&gt;")!=std::string::npos) HelperFunctions::replaceString(strv, "&gt;", ">");
+        while (strv.find("&amp;")!=std::string::npos) HelperFunctions::replaceString(strv, "&amp;", "&");
+        while (strv.find("&apos;")!=std::string::npos) HelperFunctions::replaceString(strv, "&apos;", "'");
+        while (strv.find("&quot;")!=std::string::npos) HelperFunctions::replaceString(strv, "&quot;", "\"");
 
         this->attributes[stra] = strv;
       }
@@ -77,11 +77,13 @@ void IvyXMLBasicEntry::readBasicEntry(std::string strentry){
     assert(0);
   }
 }
-void IvyXMLBasicEntry::print(unsigned int level) const{
-  for (unsigned int i=0; i<level; i++) IVYout << ' ';
+void IvyXMLBasicEntry::print(bool ignore_body, unsigned int level) const{
+  for (unsigned int i=0; i<level; ++i) IVYout << ' ';
   IVYout << "Type: " << this->type << endl;
-  for (unsigned int i=0; i<level; i++) IVYout << ' ';
+  for (unsigned int i=0; i<level; ++i) IVYout << ' ';
   IVYout << "Attributes: " << this->attributes << endl;
-  for (unsigned int i=0; i<level; i++) IVYout << ' ';
-  IVYout << "Body: " << this->body << endl;
+  if (!ignore_body){
+    for (unsigned int i = 0; i<level; ++i) IVYout << ' ';
+    IVYout << "Body: " << this->body << endl;
+  }
 }
