@@ -107,7 +107,7 @@ $(OBJDIR)LinkDef_out.o:   $(OBJECTS) | alldirs
 
 $(EXEDIR)%::	$(BINDIR)%.cc $(LIBRULE) | alldirs
 	echo "Compiling $<"; \
-	$(CXX) $(CXXFLAGS) -o $@ $< $(LIBS) -L$(LIBDIR) -l$(LIBSHORT)
+	$(CXX) $(CXXFLAGS) -o $@ $< -L$(LIBDIR) -l$(LIBSHORT) $(LIBS)
 
 
 clean:
