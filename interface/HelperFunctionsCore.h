@@ -101,11 +101,11 @@ namespace HelperFunctions{
 
   void progressbar(unsigned int val, unsigned int tot);
 
-  void splitOption(const std::string& rawoption, std::string& wish, std::string& value, char delimiter);
-  void splitOption(const TString& rawoption, TString& wish, TString& value, char delimiter);
+  bool splitOption(const std::string& rawoption, std::string& wish, std::string& value, char delimiter);
+  bool splitOption(const TString& rawoption, TString& wish, TString& value, char delimiter);
 
-  void splitOptionRecursive(const std::string& rawoption, std::vector<std::string>& splitoptions, char delimiter, bool uniqueResults=true);
-  void splitOptionRecursive(const TString& rawoption, std::vector<TString>& splitoptions, char delimiter, bool uniqueResults=true);
+  void splitOptionRecursive(const std::string& rawoption, std::vector<std::string>& splitoptions, char delimiter, bool uniqueResults=true, bool allowEmpty=false);
+  void splitOptionRecursive(const TString& rawoption, std::vector<TString>& splitoptions, char delimiter, bool uniqueResults=true, bool allowEmpty=false);
 
   bool isASCIICharacter(signed char ch);
   bool isNonASCIICharacter(signed char ch);
@@ -144,15 +144,15 @@ template<typename T, typename U> void HelperFunctions::zipVectors(std::vector<T>
   typename std::vector<U>::const_iterator it_b = b.cbegin();
   while (it_a!=a.cend() && it_b!=b.cend()){
     res.emplace_back(*it_a, *it_b);
-    it_a++;
-    it_b++;
+    ++it_a;
+    ++it_b;
   }
 }
 
 template<typename T> void HelperFunctions::addByLowest(std::vector<T>& valArray, T const& val, bool unique){
   bool inserted = false;
   if (unique){
-    for (typename std::vector<T>::iterator it = valArray.begin(); it!=valArray.end(); it++){
+    for (typename std::vector<T>::iterator it = valArray.begin(); it!=valArray.end(); ++it){
       if (*it==val){
         inserted=true;
         break;
@@ -160,7 +160,7 @@ template<typename T> void HelperFunctions::addByLowest(std::vector<T>& valArray,
     }
   }
   if (!inserted){
-    for (typename std::vector<T>::iterator it = valArray.begin(); it!=valArray.end(); it++){
+    for (typename std::vector<T>::iterator it = valArray.begin(); it!=valArray.end(); ++it){
       if (*it>=val){
         inserted=true;
         valArray.insert(it, val);
@@ -172,7 +172,7 @@ template<typename T> void HelperFunctions::addByLowest(std::vector<T>& valArray,
 }
 template<typename T, typename U> void HelperFunctions::addByLowest(std::vector<std::pair<T, U>>& valArray, T const& val, U const& index){
   bool inserted = false;
-  for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); it++){
+  for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); ++it){
     if ((*it).first>=val){
       inserted=true;
       if ((*it).second!=index) valArray.insert(it, std::pair<T, U>(val, index));
@@ -186,7 +186,7 @@ template<typename T, typename U> void HelperFunctions::addByLowest(std::vector<s
     bool inserted = false;
     typename std::vector<std::pair<T, U>>::iterator inbegin = inArray.begin();
     typename std::vector<std::pair<T, U>>::iterator inend = inArray.end();
-    for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); it++){
+    for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); ++it){
       if ((*it).first>=(*inbegin).first){
         inserted=true;
         if ((*it).second!=(*inbegin).second) valArray.insert(it, inbegin, inend);
@@ -196,9 +196,9 @@ template<typename T, typename U> void HelperFunctions::addByLowest(std::vector<s
     if (!inserted) appendVector<std::pair<T, U>>(valArray, inArray);
   }
   else if (!inputordered){
-    for (typename std::vector<std::pair<T, U>>::iterator init = inArray.begin(); init!=inArray.end(); init++){
+    for (typename std::vector<std::pair<T, U>>::iterator init = inArray.begin(); init!=inArray.end(); ++init){
       bool inserted = false;
-      for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); it++){
+      for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); ++it){
         if ((*it).first>=(*init).first){
           inserted=true;
           if ((*it).second!=(*init).second) valArray.insert(it, *init);
@@ -213,14 +213,14 @@ template<typename T, typename U> void HelperFunctions::addByLowest(std::vector<s
     typename std::vector<std::pair<T, U>>::iterator inlast = inArray.end()-1;
     typename std::vector<std::pair<T, U>>::iterator valfirst = valArray.begin();
     typename std::vector<std::pair<T, U>>::iterator vallast = valArray.end()-1;
-    while ((*valfirst).first<(*infirst).first) valfirst++;
-    while ((*vallast).first>=(*inlast).first) vallast--;
-    vallast++;
-    inlast++;
+    while ((*valfirst).first<(*infirst).first) ++valfirst;
+    while ((*vallast).first>=(*inlast).first) --vallast;
+    ++vallast;
+    ++inlast;
 
-    for (typename std::vector<std::pair<T, U>>::iterator init = infirst; init!=inlast; init++){
+    for (typename std::vector<std::pair<T, U>>::iterator init = infirst; init!=inlast; ++init){
       bool inserted = false;
-      for (typename std::vector<std::pair<T, U>>::iterator it = valfirst; it!=vallast; it++){
+      for (typename std::vector<std::pair<T, U>>::iterator it = valfirst; it!=vallast; ++it){
         if ((*it).first>=(*init).first){
           inserted=true;
           if ((*it).second!=(*init).second) valArray.insert(it, *init);
@@ -235,7 +235,7 @@ template<typename T, typename U> void HelperFunctions::addByLowest(std::vector<s
 template<typename T> void HelperFunctions::addByHighest(std::vector<T>& valArray, T const& val, bool unique){
   bool inserted = false;
   if (unique){
-    for (typename std::vector<T>::iterator it = valArray.begin(); it!=valArray.end(); it++){
+    for (typename std::vector<T>::iterator it = valArray.begin(); it!=valArray.end(); ++it){
       if (*it==val){
         inserted=true;
         break;
@@ -243,7 +243,7 @@ template<typename T> void HelperFunctions::addByHighest(std::vector<T>& valArray
     }
   }
   if (!inserted){
-    for (typename std::vector<T>::iterator it = valArray.begin(); it!=valArray.end(); it++){
+    for (typename std::vector<T>::iterator it = valArray.begin(); it!=valArray.end(); ++it){
       if (*it<=val){
         inserted=true;
         valArray.insert(it, val);
@@ -255,7 +255,7 @@ template<typename T> void HelperFunctions::addByHighest(std::vector<T>& valArray
 }
 template<typename T, typename U> void HelperFunctions::addByHighest(std::vector<std::pair<T, U>>& valArray, T const& val, U const& index){
   bool inserted = false;
-  for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); it++){
+  for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); ++it){
     if ((*it).first<=val){
       inserted=true;
       if ((*it).second!=index) valArray.insert(it, std::pair<T, U>(val, index));
@@ -269,7 +269,7 @@ template<typename T, typename U> void HelperFunctions::addByHighest(std::vector<
     bool inserted = false;
     typename std::vector<std::pair<T, U>>::iterator inbegin = inArray.begin();
     typename std::vector<std::pair<T, U>>::iterator inend = inArray.end();
-    for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); it++){
+    for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); ++it){
       if ((*it).first<=(*inbegin).first){
         inserted=true;
         if ((*it).second!=(*inbegin).second) valArray.insert(it, inbegin, inend);
@@ -279,9 +279,9 @@ template<typename T, typename U> void HelperFunctions::addByHighest(std::vector<
     if (!inserted) appendVector<std::pair<T, U>>(valArray, inArray);
   }
   else if (!inputordered){
-    for (typename std::vector<std::pair<T, U>>::iterator init = inArray.begin(); init!=inArray.end(); init++){
+    for (typename std::vector<std::pair<T, U>>::iterator init = inArray.begin(); init!=inArray.end(); ++init){
       bool inserted = false;
-      for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); it++){
+      for (typename std::vector<std::pair<T, U>>::iterator it = valArray.begin(); it!=valArray.end(); ++it){
         if ((*it).first<=(*init).first){
           inserted=true;
           if ((*it).second!=(*init).second) valArray.insert(it, *init);
@@ -296,14 +296,14 @@ template<typename T, typename U> void HelperFunctions::addByHighest(std::vector<
     typename std::vector<std::pair<T, U>>::iterator inlast = inArray.end()-1;
     typename std::vector<std::pair<T, U>>::iterator valfirst = valArray.begin();
     typename std::vector<std::pair<T, U>>::iterator vallast = valArray.end()-1;
-    while ((*valfirst).first>(*infirst).first) valfirst++;
-    while ((*vallast).first<=(*inlast).first) vallast--;
-    vallast++;
-    inlast++;
+    while ((*valfirst).first>(*infirst).first) ++valfirst;
+    while ((*vallast).first<=(*inlast).first) --vallast;
+    ++vallast;
+    ++inlast;
 
-    for (typename std::vector<std::pair<T, U>>::iterator init = infirst; init!=inlast; init++){
+    for (typename std::vector<std::pair<T, U>>::iterator init = infirst; init!=inlast; ++init){
       bool inserted = false;
-      for (typename std::vector<std::pair<T, U>>::iterator it = valfirst; it!=vallast; it++){
+      for (typename std::vector<std::pair<T, U>>::iterator it = valfirst; it!=vallast; ++it){
         if ((*it).first<=(*init).first){
           inserted=true;
           if ((*it).second!=(*init).second) valArray.insert(it, *init);
@@ -339,7 +339,7 @@ template<typename T> void HelperFunctions::splitElementsByCommonalty(std::vector
 }
 
 template<typename T> bool HelperFunctions::removeListVariable(std::vector<T>& list, T const& var){
-  unsigned long long nlist_old = list.size();
+  unsigned long long int nlist_old = list.size();
   auto it_end_eff = std::remove(std::begin(list), std::end(list), var);
   list.erase(it_end_eff, std::end(list));
   return (list.size()!=nlist_old);
@@ -381,13 +381,13 @@ template void HelperFunctions::castStringToValue(TString const& name, double& va
 template void HelperFunctions::castStringToValue(const char* name, double& val);
 
 template<typename T> std::string HelperFunctions::castValueToString(T const& val, unsigned short max_decimals, unsigned short precision){
-  double decimals = std::abs(val - T((long) val));
+  double decimals = std::abs(val - T((long long int) val));
   if (decimals == 0.) return Form("%.0f", double(val));
   decimals += 1e-10; // Machine precision correction...
   unsigned short base10exponent = std::ceil(std::abs(std::log10(decimals)));
   unsigned short iprec = std::min(max_decimals, static_cast<unsigned short>(base10exponent+precision));
   TString strprintf = Form("%s%u%s", "%.", iprec, "f");
-  long unsigned int remainder_prevtoLastDigit = static_cast<long unsigned int>(decimals*std::pow(10., iprec+1)) % 5;
+  long long unsigned int remainder_prevtoLastDigit = static_cast<long long unsigned int>(decimals*std::pow(10., iprec+1)) % 5;
   double addval = (remainder_prevtoLastDigit==0 ? std::pow(10., -(iprec+1)) : 0.); // Form is smart enough to round 0.00006 to 0.0001, but 0.00005 becomes 0.0000.
   std::string res = Form(strprintf.Data(), static_cast<double>(val)+addval);
   if (res.find('.')!=std::string::npos){ while (res.back()=='0') res.pop_back(); }
@@ -404,7 +404,7 @@ template<typename T> bool HelperFunctions::checkNonNegative(std::vector<T> const
   int ipos=0;
   for (T const& v:vars){
     if ((ibegin>=0 && ipos<ibegin) || (iend>=0 && ipos>=iend)) continue;
-    ipos++;
+    ++ipos;
     if (!checkVarNonNegative<T>(v)) return false;
   }
   return true;
@@ -414,7 +414,7 @@ template<typename T> bool HelperFunctions::checkNonZero(std::vector<T> const& va
   int ipos=0;
   for (T const& v:vars){
     if ((ibegin>=0 && ipos<ibegin) || (iend>=0 && ipos>=iend)) continue;
-    ipos++;
+    ++ipos;
     if (!checkVarNonZero<T>(v)) return false;
   }
   return true;
@@ -424,7 +424,7 @@ template<typename T> bool HelperFunctions::checkPositiveDef(std::vector<T> const
   int ipos=0;
   for (T const& v:vars){
     if ((ibegin>=0 && ipos<ibegin) || (iend>=0 && ipos>=iend)) continue;
-    ipos++;
+    ++ipos;
     if (!checkVarPositiveDef<T>(v)) return false;
   }
   return true;

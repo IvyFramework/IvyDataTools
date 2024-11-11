@@ -51,42 +51,45 @@ void HelperFunctions::progressbar(unsigned int val, unsigned int tot){
   }
 }
 
-void HelperFunctions::splitOption(const std::string& rawoption, std::string& wish, std::string& value, char delimiter){
+bool HelperFunctions::splitOption(const std::string& rawoption, std::string& wish, std::string& value, char delimiter){
   size_t posEq = rawoption.find(delimiter);
   if (posEq!=string::npos){
     wish=rawoption;
     value=rawoption.substr(posEq+1);
     wish.erase(wish.begin()+posEq, wish.end());
+    return true;
   }
   else{
     wish="";
     value=rawoption;
+    return false;
   }
 }
-void HelperFunctions::splitOptionRecursive(const std::string& rawoption, std::vector<std::string>& splitoptions, char delimiter, bool uniqueResults){
-  string suboption=rawoption, result=rawoption;
+void HelperFunctions::splitOptionRecursive(const std::string& rawoption, std::vector<std::string>& splitoptions, char delimiter, bool uniqueResults, bool allowEmpty){
+  string suboption = rawoption, result = rawoption;
   string remnant;
-  while (result!=""){
-    splitOption(suboption, result, remnant, delimiter);
-    if (result!="" && (!uniqueResults || (uniqueResults && !checkListVariable(splitoptions, result)))) splitoptions.push_back(result);
+  while (!result.empty()){
+    bool const is_last = !splitOption(suboption, result, remnant, delimiter);
+    if (((allowEmpty && !is_last) || !result.empty()) && (!uniqueResults || (uniqueResults && !checkListVariable(splitoptions, result)))) splitoptions.push_back(result);
     suboption = remnant;
-    if (result=="" && suboption.find(delimiter)!=std::string::npos) result=suboption; // This can happen if the string starts with the delimiter.
+    if (result.empty() && suboption.find(delimiter)!=std::string::npos) result = suboption; // This can happen if the string starts with the delimiter.
   }
-  if (remnant!="" && (!uniqueResults || (uniqueResults && !checkListVariable(splitoptions, remnant)))) splitoptions.push_back(remnant);
+  if ((allowEmpty || !remnant.empty()) && (!uniqueResults || (uniqueResults && !checkListVariable(splitoptions, remnant)))) splitoptions.push_back(remnant);
 }
 
-void HelperFunctions::splitOption(const TString& rawoption, TString& wish, TString& value, char delimiter){
+bool HelperFunctions::splitOption(const TString& rawoption, TString& wish, TString& value, char delimiter){
   std::string const s_rawoption = rawoption.Data();
   std::string s_wish, s_value;
-  splitOption(s_rawoption, s_wish, s_value, delimiter);
-  wish=s_wish.c_str();
-  value=s_value.c_str();
+  bool const res = splitOption(s_rawoption, s_wish, s_value, delimiter);
+  wish = s_wish.data();
+  value = s_value.data();
+  return res;
 }
-void HelperFunctions::splitOptionRecursive(const TString& rawoption, std::vector<TString>& splitoptions, char delimiter, bool uniqueResults){
+void HelperFunctions::splitOptionRecursive(const TString& rawoption, std::vector<TString>& splitoptions, char delimiter, bool uniqueResults, bool allowEmpty){
   std::string const s_rawoption = rawoption.Data();
   std::vector<std::string> s_splitoptions;
-  splitOptionRecursive(s_rawoption, s_splitoptions, delimiter, uniqueResults);
-  for (std::string const& s:s_splitoptions) splitoptions.push_back(s.c_str());
+  splitOptionRecursive(s_rawoption, s_splitoptions, delimiter, uniqueResults, allowEmpty);
+  for (std::string const& s:s_splitoptions) splitoptions.push_back(s.data());
 }
 
 void HelperFunctions::getExtendedBinning(TAxis const* theAxis, ExtendedBinning& res){

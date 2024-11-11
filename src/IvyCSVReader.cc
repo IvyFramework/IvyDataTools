@@ -33,10 +33,10 @@ void IvyCSVReader::readFile(std::string fname, std::string escape_seq, const cha
       HelperFunctions::lrstrip(str_in);
       HelperFunctions::removeNonASCIIChars(str_in);
 
-      if (str_in=="" || (escape_seq!="" && str_in.find(escape_seq)==0)) continue; // Do not increment the line number, just skip.
+      if (str_in.empty() || (!escape_seq.empty() && str_in.find(escape_seq)==0)) continue; // Do not increment the line number, just skip.
 
       std::vector<std::string> entries;
-      HelperFunctions::splitOptionRecursive(str_in, entries, ',', false);
+      HelperFunctions::splitOptionRecursive(str_in, entries, ',', false, true);
       if (n_quote_chars>0){
         std::vector<std::string> entries_tmp;
         std::string entry_composite;
@@ -51,7 +51,7 @@ void IvyCSVReader::readFile(std::string fname, std::string escape_seq, const cha
             }
           }
           if (isComposite){
-            if (entry_composite=="") entry_composite = entry;
+            if (entry_composite.empty()) entry_composite = entry;
             else entry_composite = entry_composite + "," + entry;
           }
           if (isComposite){
@@ -128,14 +128,19 @@ BaseTree* IvyCSVReader::convertToTree(std::string const& treename, std::string s
     auto const& strvals = label_entries_map.find(lb)->second;
     BaseTree::BranchType btype = BaseTree::BranchType_int_t;
     for (auto const& strval:strvals){
-      if (strdne != "" && strval == strdne) continue;
+      if (strval == strdne) continue;
       double dval = 0;
+      int ival = -1;
       try{ dval = std::stod(strval); }
       catch (std::invalid_argument const& e){
         btype = BaseTree::BranchType_string_t;
         break;
       }
-      int ival = std::stoi(strval);
+      try{ ival = std::stoi(strval); }
+      catch (...){
+        btype = BaseTree::BranchType_string_t;
+        break;
+      }
       if (static_cast<double>(ival)!=dval) btype = BaseTree::BranchType_double_t;
     }
     label_btype_map[lb] = btype;
@@ -158,7 +163,7 @@ BaseTree* IvyCSVReader::convertToTree(std::string const& treename, std::string s
       double dval=0;
       int ival=0;
       std::string const& sval = label_entries_map.find(lb)->second.at(irow);
-      if (strdne != "" && sval == strdne){
+      if (sval == strdne){
         switch (btype){
         case BaseTree::BranchType_double_t:
           dval = std::numeric_limits<double>::max();

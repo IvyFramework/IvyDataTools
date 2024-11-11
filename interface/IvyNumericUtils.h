@@ -83,7 +83,7 @@ namespace NumericUtils{
 
 }
 
-template<typename T, typename = typename std::enable_if< std::is_integral<T>::value >::type> void NumericUtils::GreatestCommonDivisor(T const& a, T const& b, T& res){
+template<typename T, typename> void NumericUtils::GreatestCommonDivisor(T const& a, T const& b, T& res){
   if (b==T(0)){
     res = (a!=T(0) ? a : T(1));
     return;
@@ -120,7 +120,7 @@ template void NumericUtils::GreatestCommonDivisor(std::vector<int> const& nums, 
 template void NumericUtils::GreatestCommonDivisor(std::vector<unsigned long long> const& nums, unsigned long long& res);
 template void NumericUtils::GreatestCommonDivisor(std::vector<long long> const& nums, long long& res);
 
-template<typename T, typename = typename std::enable_if< std::is_integral<T>::value >::type> void NumericUtils::LeastCommonMultiple(T const& a, T const& b, T& res){
+template<typename T, typename> void NumericUtils::LeastCommonMultiple(T const& a, T const& b, T& res){
   T gcd = 0;
   GreatestCommonDivisor(a, b, gcd);
   res = a*b/gcd;
